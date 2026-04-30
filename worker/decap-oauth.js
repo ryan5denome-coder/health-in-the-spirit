@@ -53,29 +53,42 @@ export default {
         return new Response('Missing OAuth code from GitHub', { status: 400 });
       }
 
+      // GitHub's OAuth token endpoint expects form-urlencoded by default. The
+      // JSON path works in theory but in practice Cloudflare → GitHub via JSON
+      // sometimes hits a 522 timeout. Form-urlencoded is the canonical format.
+      const formBody = new URLSearchParams({
+        client_id: env.GITHUB_CLIENT_ID,
+        client_secret: env.GITHUB_CLIENT_SECRET,
+        code,
+      });
+
       try {
         const tokenResp = await fetch('https://github.com/login/oauth/access_token', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/x-www-form-urlencoded',
             Accept: 'application/json',
             'User-Agent': 'Decap-OAuth-Proxy/1.0',
           },
-          body: JSON.stringify({
-            client_id: env.GITHUB_CLIENT_ID,
-            client_secret: env.GITHUB_CLIENT_SECRET,
-            code,
-          }),
+          body: formBody.toString(),
         });
 
+        const responseText = await tokenResp.text();
+
         if (!tokenResp.ok) {
+          // Surface the actual upstream response for debugging.
           return renderResult(
             'error',
-            `GitHub token exchange returned HTTP ${tokenResp.status}`,
+            `GitHub returned HTTP ${tokenResp.status}: ${responseText.slice(0, 200)}`,
           );
         }
 
-        const data = await tokenResp.json();
+        let data;
+        try {
+          data = JSON.parse(responseText);
+        } catch {
+          return renderResult('error', `Could not parse GitHub response: ${responseText.slice(0, 200)}`);
+        }
 
         if (data.error || !data.access_token) {
           return renderResult(
