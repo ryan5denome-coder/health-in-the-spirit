@@ -1,0 +1,72 @@
+---
+type Variant = 'primary' | 'secondary' | 'gold' | 'ghost' | 'cream';
+type Size = 'sm' | 'md' | 'lg';
+
+interface Props {
+  href?: string;
+  type?: 'button' | 'submit' | 'reset';
+  variant?: Variant;
+  size?: Size;
+  fullWidth?: boolean;
+  external?: boolean;
+  arrow?: boolean;
+  class?: string;
+  ariaLabel?: string;
+}
+
+const {
+  href,
+  type = 'button',
+  variant = 'primary',
+  size = 'md',
+  fullWidth = false,
+  external = false,
+  arrow = false,
+  class: extraClass = '',
+  ariaLabel,
+} = Astro.props;
+
+// Variants — terracotta primary, forest secondary outline, gold filled, ghost text-only, cream-on-dark
+const variantClasses: Record<Variant, string> = {
+  primary:
+    'bg-terracotta-500 text-cream-100 hover:bg-terracotta-600 active:bg-terracotta-700 border-2 border-terracotta-500 hover:border-terracotta-600',
+  secondary:
+    'bg-transparent text-forest-700 hover:bg-forest-700 hover:text-cream-100 border-2 border-forest-700',
+  gold:
+    'bg-gold-500 text-forest-700 hover:bg-gold-600 active:bg-gold-700 border-2 border-gold-500 hover:border-gold-600',
+  ghost:
+    'bg-transparent text-forest-700 hover:text-terracotta-500 border-2 border-transparent',
+  cream:
+    'bg-cream-200 text-forest-700 hover:bg-cream-300 border-2 border-cream-200',
+};
+
+const sizeClasses: Record<Size, string> = {
+  sm: 'text-xs px-4 py-2',
+  md: 'text-sm px-5 py-2.5',
+  lg: 'text-base px-7 py-3.5',
+};
+
+const baseClasses = [
+  'inline-flex items-center justify-center gap-2',
+  'font-semibold uppercase tracking-[0.12em]',
+  'rounded-md transition-colors',
+  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-500',
+  fullWidth ? 'w-full' : '',
+  variantClasses[variant],
+  sizeClasses[size],
+  extraClass,
+].filter(Boolean).join(' ');
+
+const externalAttrs = external ? { target: '_blank', rel: 'noopener noreferrer' } : {};
+---
+{href ? (
+  <a href={href} class={baseClasses} aria-label={ariaLabel} {...externalAttrs}>
+    <slot />
+    {arrow && <span aria-hidden="true">→</span>}
+  </a>
+) : (
+  <button type={type} class={baseClasses} aria-label={ariaLabel}>
+    <slot />
+    {arrow && <span aria-hidden="true">→</span>}
+  </button>
+)}

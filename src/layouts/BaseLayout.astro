@@ -1,0 +1,109 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import SeoMeta from '../components/SeoMeta.astro';
+import JsonLd from '../components/JsonLd.astro';
+import AnnouncementBar from '../components/AnnouncementBar.astro';
+import { sitewideJsonLd, breadcrumbList, SITE_URL, type BreadcrumbItem } from '../lib/schema';
+
+interface Announcement {
+  message: string;
+  ctaLabel?: string;
+  ctaHref?: string;
+  dismissible?: boolean;
+}
+
+interface Props {
+  title: string;
+  description: string;
+  ogImage?: string;
+  ogImageWidth?: number;
+  ogImageHeight?: number;
+  ogType?: 'website' | 'article' | 'profile';
+  noindex?: boolean;
+  canonicalPath?: string;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  announcement?: Announcement;
+  /** Optional breadcrumb chain for this page. Home crumb is always added first. */
+  breadcrumbs?: BreadcrumbItem[];
+  publishedTime?: string;
+  modifiedTime?: string;
+  author?: string;
+  keywords?: string[];
+}
+
+const {
+  title, description, ogImage, ogImageWidth, ogImageHeight, ogType,
+  noindex, canonicalPath, jsonLd, announcement, breadcrumbs,
+  publishedTime, modifiedTime, author, keywords,
+} = Astro.props;
+
+// Build the sitewide schema bundle (Organization + PodcastSeries + WebSite).
+const baseSchema: Record<string, unknown>[] = sitewideJsonLd();
+
+// Build the breadcrumb chain for this page if provided.
+if (breadcrumbs && breadcrumbs.length > 0) {
+  const fullCrumbs: BreadcrumbItem[] = [
+    { name: 'Home', url: '/' },
+    ...breadcrumbs,
+  ];
+  baseSchema.push(breadcrumbList(fullCrumbs));
+}
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate" type="application/rss+xml" title="Health in the Spirit" href="/rss.xml" />
+
+    {/* Google Fonts — Cormorant Garamond + Inter, weights matching brand-guidelines.md */}
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <SeoMeta
+      title={title}
+      description={description}
+      ogImage={ogImage}
+      ogImageWidth={ogImageWidth}
+      ogImageHeight={ogImageHeight}
+      ogType={ogType}
+      noindex={noindex}
+      canonicalPath={canonicalPath}
+      publishedTime={publishedTime}
+      modifiedTime={modifiedTime}
+      author={author}
+      keywords={keywords}
+    />
+
+    <JsonLd data={baseSchema} />
+    {jsonLd && <JsonLd data={jsonLd} />}
+
+    <slot name="head" />
+  </head>
+  <body class="min-h-screen flex flex-col">
+    <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 bg-forest-700 text-cream-200 px-3 py-2 rounded-md z-50">
+      Skip to main content
+    </a>
+    {announcement && (
+      <AnnouncementBar
+        message={announcement.message}
+        ctaLabel={announcement.ctaLabel}
+        ctaHref={announcement.ctaHref}
+        dismissible={announcement.dismissible}
+      />
+    )}
+    <Header />
+    <main id="main" class="flex-1">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

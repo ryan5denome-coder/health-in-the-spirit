@@ -1,0 +1,182 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SectionContainer from '../../components/SectionContainer.astro';
+import Prose from '../../components/Prose.astro';
+import Button from '../../components/Button.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { SITE_URL } from '../../lib/schema';
+
+export async function getStaticPaths() {
+  const all = await getCollection('saints', ({ data }) => !data.draft);
+  return all.map((entry) => ({
+    params: { slug: entry.data.slug },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const s = entry.data;
+
+const augustineMottoBlock = s.slug === 'augustine-of-hippo';
+const pageUrl = `${SITE_URL}/saints/${s.slug}`;
+
+// ProfilePage + Person schema describing the saint as a historical entity.
+// LLMs reading the page can confidently answer "Who is St. Hildegard?" and
+// cite this profile as a source. Person fields use schema.org's standard
+// vocabulary so they map cleanly to knowledge graphs.
+const saintJsonLd: Record<string, unknown>[] = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'ProfilePage',
+    '@id': `${pageUrl}#page`,
+    url: pageUrl,
+    name: `${s.name} — Profile`,
+    description: s.summary,
+    inLanguage: 'en-US',
+    isPartOf: { '@id': `${SITE_URL}#website` },
+    mainEntity: {
+      '@type': 'Person',
+      '@id': `${pageUrl}#person`,
+      name: s.name,
+      description: s.summary,
+      jobTitle: s.role,
+      knowsAbout: ['Catholic theology', 'Healing', 'Spirituality', 'Holistic health'],
+      ...(s.iconImage ? { image: `${SITE_URL}${s.iconImage}` } : {}),
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    '@id': `${pageUrl}#article`,
+    headline: `${s.name} — A Health in the Spirit Patron Saint Profile`,
+    description: s.summary,
+    author: { '@id': `${SITE_URL}/about#ryan` },
+    publisher: { '@id': `${SITE_URL}#organization` },
+    image: s.iconImage ? `${SITE_URL}${s.iconImage}` : `${SITE_URL}/og-default.png`,
+    inLanguage: 'en-US',
+    about: { '@id': `${pageUrl}#person` },
+    mainEntityOfPage: pageUrl,
+  },
+];
+---
+<BaseLayout
+  title={`${s.name} — Patron Saint Profile | Health in the Spirit`}
+  description={s.summary || `Profile of ${s.name} — ${s.role} — on Health in the Spirit.`}
+  ogImage={s.iconImage}
+  ogImageWidth={1000}
+  ogImageHeight={1000}
+  ogType="article"
+  jsonLd={saintJsonLd}
+  breadcrumbs={[
+    { name: 'The Saints', url: '/saints' },
+    { name: s.name, url: `/saints/${s.slug}` },
+  ]}
+  keywords={[s.name, s.role, 'Catholic saint', 'healing saints', 'Health in the Spirit', s.era]}
+>
+
+  <SectionContainer variant="cream" padding="compact">
+    <div class="max-w-4xl mx-auto">
+      <Breadcrumbs items={[{ name: 'The Saints', url: '/saints' }, { name: s.name, url: `/saints/${s.slug}` }]} />
+    </div>
+  </SectionContainer>
+
+  <SectionContainer variant="cream" padding="large">
+    <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-5 gap-8 md:gap-12 items-center">
+      <div class="md:col-span-2 flex justify-center">
+        {s.iconImage ? (
+          <div class="aspect-square w-48 sm:w-64 rounded-full overflow-hidden border-4 border-gold-400 shadow-md">
+            <img src={s.iconImage} alt={s.iconAlt || s.name} class="w-full h-full object-cover" />
+          </div>
+        ) : (
+          <div class="aspect-square w-48 sm:w-64 rounded-full border-4 border-gold-400 bg-cream-200 flex items-center justify-center">
+            <span class="font-serif text-7xl text-gold-600 italic">{s.name[0]}</span>
+          </div>
+        )}
+      </div>
+      <div class="md:col-span-3 text-center md:text-left">
+        <p class="text-xs uppercase tracking-[0.25em] text-gold-700 font-semibold mb-4">Patron Saint</p>
+        <h1 class="font-serif text-4xl sm:text-5xl text-forest-700 leading-tight">
+          {s.name}
+        </h1>
+        <p class="mt-3 text-brown-600 italic font-serif text-lg">{s.era} · {s.role}</p>
+        {s.heroQuote && (
+          <p class="mt-6 text-xl text-brown-700 italic font-serif">
+            "{s.heroQuote}"
+          </p>
+        )}
+      </div>
+    </div>
+  </SectionContainer>
+
+  <SectionContainer variant="cream" padding="default" id="profile">
+    <div class="max-w-3xl mx-auto">
+      <Prose>
+        <Content />
+        {s.feastDay && (
+          <>
+            <h2>Feast day</h2>
+            <p><strong>{s.feastDay}</strong> in the Roman Catholic calendar.</p>
+          </>
+        )}
+      </Prose>
+    </div>
+  </SectionContainer>
+
+  {s.quotes && s.quotes.length > 0 && (
+    <SectionContainer variant="sage" padding="default" id="quotes">
+      <div class="max-w-4xl mx-auto">
+        <p class="text-xs uppercase tracking-[0.25em] text-gold-700 font-semibold mb-3 text-center">
+          {s.quotes.some((q) => q.modern) ? 'From the tradition' : 'From their writings'}
+        </p>
+        <h2 class="font-serif text-3xl sm:text-4xl text-forest-700 text-center mb-12 leading-tight">
+          {s.quotes.some((q) => q.modern) ? 'Their wisdom, in the words of the Church' : `${s.name.replace(/^Sts?\.\s*/, '').split(' ')[0]}, in their own words`}
+        </h2>
+
+        <div class={s.quotes.some((q) => q.modern) ? 'space-y-10' : 'space-y-8'}>
+          {s.quotes.map((q) => (
+            q.modern ? (
+              <article class="bg-cream-100 border border-cream-400 rounded-lg p-7 sm:p-9">
+                <p class="font-serif text-xl sm:text-2xl text-forest-700 italic leading-snug">
+                  {q.text}
+                </p>
+                {q.citation && <p class="mt-3 text-sm text-brown-500 italic">{q.citation}</p>}
+                <p class="mt-6 text-base text-terracotta-600 font-semibold uppercase tracking-[0.15em] text-xs">In modern words</p>
+                <p class="mt-2 text-lg text-brown-700">{q.modern}</p>
+              </article>
+            ) : (
+              <figure class="bg-cream-100 border-l-4 border-gold-500 p-7 sm:p-9 rounded-r-lg">
+                <p class="font-serif text-xl sm:text-2xl text-forest-700 italic leading-snug">
+                  {q.text}
+                </p>
+                {q.theme && (
+                  <figcaption class="mt-4 text-xs uppercase tracking-[0.18em] text-terracotta-500 font-semibold">— {q.theme}</figcaption>
+                )}
+              </figure>
+            )
+          ))}
+        </div>
+      </div>
+    </SectionContainer>
+  )}
+
+  {augustineMottoBlock && (
+    <SectionContainer variant="forest" padding="default">
+      <div class="max-w-3xl mx-auto text-center">
+        <p class="text-xs uppercase tracking-[0.25em] text-gold-500 font-semibold mb-3">Our motto, in his spirit</p>
+        <p class="font-serif text-2xl sm:text-3xl lg:text-4xl text-cream-200 italic leading-tight">
+          "Take care of your body as if you were going to live forever — and take care of your soul as if you were going to die tomorrow."
+        </p>
+        <p class="mt-6 text-sm text-cream-300/70 italic">Traditionally attributed to St. Augustine of Hippo</p>
+      </div>
+    </SectionContainer>
+  )}
+
+  <SectionContainer variant="cream" padding="default">
+    <div class="max-w-2xl mx-auto text-center">
+      <Button href="/saints" variant="secondary" size="md">← All saints</Button>
+    </div>
+  </SectionContainer>
+
+</BaseLayout>

@@ -1,0 +1,36 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SectionContainer from '../components/SectionContainer.astro';
+import Button from '../components/Button.astro';
+---
+<BaseLayout
+  title="Page not found | Health in the Spirit"
+  description="The page you're looking for can't be found. Try the homepage, the saints, the blog, or our contact page."
+  noindex
+>
+
+  <SectionContainer variant="cream" padding="large">
+    <div class="max-w-2xl mx-auto text-center">
+      <p class="text-xs uppercase tracking-[0.25em] text-gold-700 font-semibold mb-4">404</p>
+      <h1 class="font-serif text-5xl sm:text-7xl text-forest-700 leading-tight">
+        Page not found
+      </h1>
+      <p class="mt-6 text-xl text-brown-700 italic font-serif">
+        "Even in a world that's being shipwrecked, remain brave and strong."
+      </p>
+      <p class="mt-2 text-sm text-brown-500 italic">— St. Hildegard of Bingen</p>
+
+      <p class="mt-10 text-lg text-brown-700">
+        The page you're looking for either moved, never existed, or is still being written. Try one of these instead:
+      </p>
+
+      <div class="mt-8 flex flex-wrap justify-center gap-3 sm:gap-4">
+        <Button href="/" variant="primary" size="md" arrow>Homepage</Button>
+        <Button href="/about" variant="secondary" size="md">About the hosts</Button>
+        <Button href="/saints" variant="secondary" size="md">The saints</Button>
+        <Button href="/contact" variant="ghost" size="md">Contact us</Button>
+      </div>
+    </div>
+  </SectionContainer>
+
+</BaseLayout>

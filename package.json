@@ -7,11 +7,21 @@
   },
   "scripts": {
     "dev": "astro dev",
+    "dev:cms": "concurrently --kill-others-on-fail --names ASTRO,DECAP --prefix-colors green,yellow \"astro dev\" \"decap-server\"",
+    "cms:proxy": "decap-server",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/rss": "^4.0.18",
     "astro": "^6.2.0"
+  },
+  "devDependencies": {
+    "@astrojs/sitemap": "^3.7.2",
+    "@tailwindcss/vite": "^4.2.4",
+    "concurrently": "^9.2.1",
+    "decap-server": "^3.7.0",
+    "tailwindcss": "^4.2.4"
   }
 }

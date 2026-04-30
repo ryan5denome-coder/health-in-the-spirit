@@ -1,0 +1,334 @@
+# Decap CMS — Health in the Spirit
+# This file is the single source of truth for what you can edit at /admin.
+#
+# It does NOT contain content. It defines the SCHEMAS — the labeled fields you
+# fill in for every blog post, episode, saint, etc. Editing this file changes
+# what the /admin UI looks like.
+#
+# Documentation: https://decapcms.org/docs/intro/
+
+# ============================================================
+# BACKEND — where content is stored
+# ============================================================
+# In production, Decap reads/writes the GitHub repository directly.
+# `local_backend: true` makes Decap detect localhost and route through the
+# local proxy server (run `npm run cms:proxy` while developing) so you can
+# test the admin UI before GitHub OAuth is wired up in Phase 9.
+backend:
+  name: github
+  repo: ryan5denome-coder/health-in-the-spirit       # set in Phase 9
+  branch: main
+  base_url: https://decap-oauth.healthinthespirit.com   # Cloudflare Worker OAuth (Phase 9)
+  auth_endpoint: auth
+
+local_backend: true
+
+# ============================================================
+# EDITORIAL WORKFLOW
+# ============================================================
+# Saving an entry creates a draft (a Pull Request in GitHub) instead of
+# publishing immediately. You can iterate, then explicitly hit "Publish"
+# when it's ready.
+publish_mode: editorial_workflow
+
+# ============================================================
+# MEDIA
+# ============================================================
+# Where uploaded images are saved. Astro serves /public/* at /, so files
+# saved to public/uploads/ are reachable at /uploads/<filename>.
+media_folder: "public/uploads"
+public_folder: "/uploads"
+
+site_url: https://healthinthespirit.com
+display_url: https://healthinthespirit.com
+logo_url: /brand/emblem.svg
+
+# ============================================================
+# COLLECTIONS
+# ============================================================
+collections:
+
+  # -----------------------------------------------------------------
+  # BLOG POSTS — one markdown file per post.
+  # -----------------------------------------------------------------
+  - name: "posts"
+    label: "Blog Posts"
+    label_singular: "Post"
+    folder: "src/content/posts"
+    create: true
+    delete: true
+    slug: "{{slug}}"
+    summary: "{{title}} — {{pubDate | date('YYYY-MM-DD')}}"
+    sortable_fields: ['pubDate', 'title']
+    view_filters:
+      - label: "Drafts"
+        field: draft
+        pattern: true
+      - label: "Published"
+        field: draft
+        pattern: false
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - label: "Description (used as SEO meta + excerpt)"
+        name: "description"
+        widget: "string"
+        hint: "Aim for 50–160 characters. Shows up in Google search results and social link previews."
+      - { label: "Published date", name: "pubDate", widget: "datetime", date_format: "YYYY-MM-DD", time_format: false }
+      - { label: "Updated date (optional)", name: "updatedDate", widget: "datetime", required: false, date_format: "YYYY-MM-DD", time_format: false }
+      - { label: "Hero image (optional)", name: "heroImage", widget: "image", required: false }
+      - { label: "Hero image alt text (describe what's in the image)", name: "heroAlt", widget: "string", required: false }
+      - { label: "Tags (one per line)", name: "tags", widget: "list", default: [], required: false }
+      - { label: "Author", name: "author", widget: "string", default: "Dr. Ryan DeNome" }
+      - { label: "Save as draft (uncheck to publish)", name: "draft", widget: "boolean", default: true }
+      - { label: "Body", name: "body", widget: "markdown" }
+
+  # -----------------------------------------------------------------
+  # EPISODES — one markdown file per podcast episode.
+  # -----------------------------------------------------------------
+  - name: "episodes"
+    label: "Episodes"
+    label_singular: "Episode"
+    folder: "src/content/episodes"
+    create: true
+    delete: true
+    slug: "ep{{number}}-{{slug}}"
+    summary: "Ep {{number}} — {{title}}"
+    sortable_fields: ['number', 'releaseDate']
+    fields:
+      - { label: "Episode number", name: "number", widget: "number", value_type: "int", min: 1, hint: "1, 2, 3, …" }
+      - { label: "Title", name: "title", widget: "string" }
+      - label: "Slug (URL fragment)"
+        name: "slug"
+        widget: "string"
+        pattern: ['^[a-z0-9-]+$', "Lowercase letters, numbers, and hyphens only — no spaces or punctuation."]
+        hint: "Used in /episodes/ep1-<this>. Example: 'welcome-to-health-in-the-spirit'"
+      - { label: "Description / one-liner", name: "description", widget: "string" }
+      - { label: "Release date & time (Eastern Time)", name: "releaseDate", widget: "datetime", date_format: "YYYY-MM-DD", time_format: "HH:mm" }
+      - { label: "Status", name: "status", widget: "select", options: ["upcoming", "live"], default: "upcoming" }
+      - { label: "Duration in minutes (optional)", name: "durationMinutes", widget: "number", required: false, value_type: "int", min: 1 }
+      - { label: "Guest name (optional)", name: "guestName", widget: "string", required: false }
+
+      # ===== Episode media — fill these in once audio is live =====
+      - label: "Buzzsprout embed ID (optional)"
+        name: "buzzsproutEmbedId"
+        widget: "string"
+        required: false
+        hint: "From your Buzzsprout episode page URL — e.g. for buzzsprout.com/2123456/12345678 the ID is '2123456/12345678'. Leave blank until episode is live."
+      - { label: "Spotify embed URL (optional)", name: "spotifyEmbedUrl", widget: "string", required: false, hint: "https://open.spotify.com/embed/episode/…" }
+      - { label: "YouTube embed URL (optional)", name: "youtubeEmbedUrl", widget: "string", required: false, hint: "https://www.youtube.com/embed/…" }
+      - { label: "Apple Podcasts episode URL (optional)", name: "appleEpisodeUrl", widget: "string", required: false }
+
+      - { label: "Episode artwork (optional)", name: "imageSrc", widget: "image", required: false }
+      - { label: "Image alt text", name: "imageAlt", widget: "string", required: false }
+      - { label: "Save as draft (uncheck to publish)", name: "draft", widget: "boolean", default: true }
+      - { label: "Show notes (optional)", name: "showNotes", widget: "markdown", required: false }
+
+  # -----------------------------------------------------------------
+  # SAINTS — one markdown file per saint profile page.
+  # -----------------------------------------------------------------
+  - name: "saints"
+    label: "Saints"
+    label_singular: "Saint"
+    folder: "src/content/saints"
+    create: true
+    delete: true
+    slug: "{{slug}}"
+    summary: "{{name}}"
+    sortable_fields: ['order', 'name']
+    fields:
+      - { label: "Display name", name: "name", widget: "string", hint: "e.g. 'St. Hildegard of Bingen' or 'Sts. Cosmas & Damian'" }
+      - label: "Slug (URL fragment)"
+        name: "slug"
+        widget: "string"
+        pattern: ['^[a-z0-9-]+$', "Lowercase letters, numbers, hyphens only."]
+        hint: "Used in /saints/<this>. Example: 'hildegard-of-bingen'"
+      - { label: "Era", name: "era", widget: "string", hint: "e.g. '3rd Century', '12th Century'" }
+      - { label: "Role / title", name: "role", widget: "string", hint: "e.g. 'Doctor of the Church' or 'Patron of physicians'" }
+      - { label: "Feast day (optional)", name: "feastDay", widget: "string", required: false, hint: "e.g. 'September 17'" }
+      - label: "Display order"
+        name: "order"
+        widget: "number"
+        value_type: "int"
+        default: 100
+        hint: "Lower numbers show first. Use 10/20/30 for the patrons, 100+ for additions."
+      - { label: "Hero icon image", name: "iconImage", widget: "image", required: false }
+      - { label: "Icon alt text", name: "iconAlt", widget: "string", required: false }
+      - { label: "Hero quote (one short line)", name: "heroQuote", widget: "string", required: false }
+      - { label: "Summary (1–2 sentences shown on the saints index)", name: "summary", widget: "text", required: false }
+      - label: "Quotes (optional list)"
+        name: "quotes"
+        widget: "list"
+        required: false
+        fields:
+          - { label: "Quote text", name: "text", widget: "text" }
+          - { label: "Citation / source", name: "citation", widget: "string", required: false }
+          - { label: "Theme tag", name: "theme", widget: "string", required: false }
+          - { label: "Modern translation (optional)", name: "modern", widget: "string", required: false }
+      - { label: "Save as draft (uncheck to publish)", name: "draft", widget: "boolean", default: true }
+      - { label: "Body (full saint profile in markdown)", name: "body", widget: "markdown" }
+
+  # -----------------------------------------------------------------
+  # PAGES — singletons. Each "file" is one editable page.
+  # -----------------------------------------------------------------
+  - name: "pages"
+    label: "Pages"
+    files:
+
+      - file: "src/content/pages/home.md"
+        label: "Homepage"
+        name: "home"
+        fields:
+          - { label: "Announcement bar message", name: "announcementMessage", widget: "string" }
+          - { label: "Announcement CTA label", name: "announcementCtaLabel", widget: "string", required: false }
+          - { label: "Announcement CTA link", name: "announcementCtaHref", widget: "string", required: false }
+          - { label: "Hero eyebrow", name: "heroEyebrow", widget: "string" }
+          - { label: "Hero subtitle", name: "heroSubtitle", widget: "text" }
+          - { label: "Hero primary CTA label", name: "heroPrimaryCtaLabel", widget: "string" }
+          - { label: "Hero primary CTA href", name: "heroPrimaryCtaHref", widget: "string" }
+          - { label: "Hero secondary CTA label", name: "heroSecondaryCtaLabel", widget: "string" }
+          - { label: "Hero secondary CTA href", name: "heroSecondaryCtaHref", widget: "string" }
+          - label: "Three pillars (Saints / Scripture / Catechism)"
+            name: "pillars"
+            widget: "list"
+            fields:
+              - { label: "Eyebrow", name: "eyebrow", widget: "string" }
+              - { label: "Title", name: "title", widget: "string" }
+              - { label: "Description", name: "description", widget: "text" }
+              - { label: "Link href", name: "href", widget: "string" }
+              - { label: "CTA label", name: "cta", widget: "string" }
+          - { label: "About teaser body", name: "aboutTeaserBody", widget: "markdown" }
+          - { label: "About teaser pull quote", name: "aboutTeaserQuote", widget: "string" }
+          - { label: "Newsletter heading", name: "newsletterHeading", widget: "string" }
+          - { label: "Newsletter subtitle", name: "newsletterSubtitle", widget: "text" }
+
+      - file: "src/content/pages/about.md"
+        label: "About Page"
+        name: "about"
+        fields:
+          - { label: "Hero eyebrow", name: "heroEyebrow", widget: "string" }
+          - { label: "Hero title", name: "heroTitle", widget: "string" }
+          - { label: "Hero subtitle", name: "heroSubtitle", widget: "string" }
+          - { label: "Our story body", name: "storyBody", widget: "markdown" }
+          - { label: "Ryan bio", name: "ryanBio", widget: "markdown" }
+          - { label: "Annie bio", name: "annieBio", widget: "markdown" }
+          - { label: "Mission body", name: "missionBody", widget: "markdown" }
+          - { label: "Closing tagline", name: "tagline", widget: "string" }
+
+      - file: "src/content/pages/saints-index.md"
+        label: "Saints — Index Page"
+        name: "saints-index"
+        fields:
+          - { label: "Hero eyebrow", name: "heroEyebrow", widget: "string", default: "The Saints" }
+          - { label: "Hero title", name: "heroTitle", widget: "string", default: "The Healing Saints Who Guide Us" }
+          - { label: "Hero subtitle", name: "heroSubtitle", widget: "text" }
+          - { label: "Closing 'more saints' note", name: "moreSaintsNote", widget: "text" }
+
+      - file: "src/content/pages/subscribe.md"
+        label: "Subscribe Page"
+        name: "subscribe"
+        fields:
+          - { label: "Hero subtitle", name: "heroSubtitle", widget: "text" }
+          - label: "Podcast platforms"
+            name: "platforms"
+            widget: "list"
+            fields:
+              - { label: "Name", name: "name", widget: "string" }
+              - { label: "Status", name: "status", widget: "select", options: ["coming soon", "live"], default: "coming soon" }
+              - { label: "URL", name: "href", widget: "string", required: false }
+          - label: "Social platforms"
+            name: "socials"
+            widget: "list"
+            fields:
+              - { label: "Name", name: "name", widget: "string" }
+              - { label: "Handle", name: "handle", widget: "string" }
+              - { label: "Status", name: "status", widget: "select", options: ["coming soon", "live"], default: "coming soon" }
+              - { label: "URL", name: "href", widget: "string", required: false }
+
+      - file: "src/content/pages/resources.md"
+        label: "Resources Page"
+        name: "resources"
+        fields:
+          - { label: "Hero subtitle", name: "heroSubtitle", widget: "text" }
+          - label: "Resource categories"
+            name: "categories"
+            widget: "list"
+            fields:
+              - { label: "Name", name: "name", widget: "string" }
+              - { label: "Status", name: "status", widget: "string", default: "coming soon" }
+              - { label: "Description", name: "description", widget: "text" }
+
+      - file: "src/content/pages/contact.md"
+        label: "Contact Page"
+        name: "contact"
+        fields:
+          - { label: "Hero subtitle", name: "heroSubtitle", widget: "string" }
+
+      - file: "src/content/pages/faq.md"
+        label: "FAQ Page"
+        name: "faq"
+        fields:
+          - { label: "Hero subtitle", name: "heroSubtitle", widget: "string", required: false }
+          - label: "Questions"
+            name: "faqs"
+            widget: "list"
+            fields:
+              - { label: "Question", name: "q", widget: "string" }
+              - { label: "Answer", name: "a", widget: "text" }
+
+      - file: "src/content/pages/press.md"
+        label: "Press Kit Page"
+        name: "press"
+        fields:
+          - { label: "Tagline", name: "tagline", widget: "string" }
+          - { label: "50-word bio", name: "bio50", widget: "text" }
+          - { label: "100-word bio", name: "bio100", widget: "text" }
+          - { label: "250-word bio", name: "bio250", widget: "text" }
+
+  # -----------------------------------------------------------------
+  # SETTINGS — site-wide values. Two JSON files.
+  # -----------------------------------------------------------------
+  - name: "settings"
+    label: "Settings"
+    files:
+      - file: "src/content/settings/site.json"
+        label: "Site (global)"
+        name: "site"
+        fields:
+          - { label: "Site title", name: "siteTitle", widget: "string", default: "Health in the Spirit" }
+          - { label: "Tagline", name: "tagline", widget: "string", default: "A Catholic Health & Wellness Podcast" }
+          - { label: "Default meta description", name: "defaultDescription", widget: "text" }
+          - { label: "General contact email", name: "contactEmail", widget: "string", default: "ryan@healthinthespirit.com" }
+          - { label: "Guest applications email", name: "guestEmail", widget: "string", default: "annie@healthinthespirit.com" }
+          - { label: "Privacy email", name: "privacyEmail", widget: "string", required: false }
+          - { label: "Web3Forms key (Ryan — general form)", name: "ryanWeb3Key", widget: "string", required: false, hint: "From web3forms.com sign-up" }
+          - { label: "Web3Forms key (Annie — guest form)", name: "annieWeb3Key", widget: "string", required: false }
+          - { label: "Launch date (ISO 8601)", name: "launchIso", widget: "string", default: "2026-07-07T06:00:00-04:00" }
+          - label: "Social URLs (leave blank until each goes live)"
+            name: "socialUrls"
+            widget: "object"
+            fields:
+              - { label: "Apple Podcasts", name: "applePodcasts", widget: "string", required: false }
+              - { label: "Spotify show URL", name: "spotify", widget: "string", required: false }
+              - { label: "YouTube channel", name: "youtube", widget: "string", required: false }
+              - { label: "Amazon Music", name: "amazonMusic", widget: "string", required: false }
+              - { label: "RSS feed", name: "rss", widget: "string", required: false }
+              - { label: "Instagram", name: "instagram", widget: "string", required: false }
+              - { label: "TikTok", name: "tiktok", widget: "string", required: false }
+              - { label: "Facebook", name: "facebook", widget: "string", required: false }
+              - { label: "LinkedIn", name: "linkedin", widget: "string", required: false }
+              - { label: "X / Twitter", name: "twitter", widget: "string", required: false }
+
+      - file: "src/content/settings/authors.json"
+        label: "Hosts / Authors"
+        name: "authors"
+        fields:
+          - label: "Hosts"
+            name: "hosts"
+            widget: "list"
+            fields:
+              - { label: "Name", name: "name", widget: "string" }
+              - { label: "Title", name: "title", widget: "string" }
+              - { label: "Short bio (used in cards / footer / OG)", name: "shortBio", widget: "text" }
+              - { label: "Photo", name: "photo", widget: "image", required: false }
+              - { label: "Photo alt", name: "photoAlt", widget: "string", required: false }
+              - { label: "Email", name: "email", widget: "string", required: false }

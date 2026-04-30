@@ -1,0 +1,32 @@
+---
+announcementMessage: "The podcast launches Tuesday, July 7, 2026."
+announcementCtaLabel: "Subscribe to be first"
+announcementCtaHref: "/subscribe"
+heroEyebrow: "A Catholic Health & Wellness Podcast"
+heroSubtitle: "Care for your body like you are going to live forever — care for your soul like you are going to die tomorrow."
+heroPrimaryCtaLabel: "Subscribe"
+heroPrimaryCtaHref: "/subscribe"
+heroSecondaryCtaLabel: "Meet the Hosts"
+heroSecondaryCtaHref: "/about"
+pillars:
+  - eyebrow: "The Saints"
+    title: "Wisdom from the healing saints"
+    description: "Sts. Cosmas & Damian, St. Hildegard of Bingen, St. Augustine of Hippo — physicians, herbalists, and theologians who never separated body from soul."
+    href: "/saints"
+    cta: "Meet the saints"
+  - eyebrow: "Sacred Scripture"
+    title: "Your body is a temple"
+    description: "From St. Paul to the Gospels, Scripture has always treated physical health as part of spiritual life. We bring it back into the conversation."
+    href: "/about"
+    cta: "Read our why"
+  - eyebrow: "The Catechism"
+    title: "Stewardship of the body"
+    description: "The CCC teaches that life and physical health are precious gifts entrusted to us by God. Caring for them is not vanity — it is responsibility."
+    href: "/about"
+    cta: "Learn more"
+aboutTeaserBody: |
+  A Catholic chiropractor and a theologian-advocate raising a family in Cincinnati, Ohio. Together they bring holistic health, the wisdom of the healing saints, and the teaching of the Church into one conversation about how to live well — body and soul.
+aboutTeaserQuote: "We do not believe faith and health are separate. The world has just forgotten they were never apart."
+newsletterHeading: "Get the first episode in your inbox."
+newsletterSubtitle: "One email when we launch. Real updates only — no spam, no nonsense."
+---

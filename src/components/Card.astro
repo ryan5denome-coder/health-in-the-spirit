@@ -1,0 +1,78 @@
+---
+type Variant = 'cream' | 'sage' | 'forest' | 'outline';
+
+interface Props {
+  href?: string;
+  title: string;
+  eyebrow?: string;
+  description?: string;
+  imageSrc?: string;
+  imageAlt?: string;
+  variant?: Variant;
+  ctaLabel?: string;
+  external?: boolean;
+}
+
+const {
+  href,
+  title,
+  eyebrow,
+  description,
+  imageSrc,
+  imageAlt = '',
+  variant = 'cream',
+  ctaLabel,
+  external = false,
+} = Astro.props;
+
+const variantClasses: Record<Variant, string> = {
+  cream:   'bg-cream-100 border border-cream-400 text-brown-700',
+  sage:    'bg-sage-100 border border-sage-300 text-brown-700',
+  forest:  'bg-forest-700 border border-forest-600 text-cream-200',
+  outline: 'bg-transparent border-2 border-forest-700/20 text-brown-700',
+};
+
+const isLinked = Boolean(href);
+const Tag = (isLinked ? 'a' : 'div') as 'a' | 'div';
+const externalAttrs = isLinked && external ? { target: '_blank', rel: 'noopener noreferrer' } : {};
+const interactiveClasses = isLinked
+  ? 'transition-all duration-200 hover:-translate-y-1 hover:shadow-md focus-visible:-translate-y-1 focus-visible:shadow-md'
+  : '';
+---
+<Tag
+  href={href}
+  class={`group flex flex-col rounded-lg overflow-hidden ${variantClasses[variant]} ${interactiveClasses}`}
+  {...externalAttrs}
+>
+  {imageSrc && (
+    <div class="aspect-[4/3] overflow-hidden bg-cream-300">
+      <img src={imageSrc} alt={imageAlt} class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+    </div>
+  )}
+
+  <div class="flex flex-col gap-3 p-6 sm:p-7 flex-1">
+    {eyebrow && (
+      <p class={`text-xs uppercase tracking-[0.2em] font-semibold ${variant === 'forest' ? 'text-gold-500' : 'text-gold-700'}`}>
+        {eyebrow}
+      </p>
+    )}
+
+    <h3 class={`font-serif text-2xl leading-tight font-semibold ${variant === 'forest' ? 'text-cream-200' : 'text-forest-700'}`}>
+      {title}
+    </h3>
+
+    {description && (
+      <p class={`text-base leading-relaxed ${variant === 'forest' ? 'text-cream-300/90' : 'text-brown-700'}`}>
+        {description}
+      </p>
+    )}
+
+    <slot />
+
+    {ctaLabel && (
+      <p class={`mt-2 text-sm font-semibold uppercase tracking-[0.15em] inline-flex items-center gap-1 ${variant === 'forest' ? 'text-gold-500' : 'text-terracotta-500'}`}>
+        {ctaLabel} <span aria-hidden="true" class="transition-transform group-hover:translate-x-0.5">→</span>
+      </p>
+    )}
+  </div>
+</Tag>

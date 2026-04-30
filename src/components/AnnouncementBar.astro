@@ -1,0 +1,62 @@
+---
+interface Props {
+  message: string;
+  ctaLabel?: string;
+  ctaHref?: string;
+  dismissible?: boolean;
+  storageKey?: string;
+}
+
+const {
+  message,
+  ctaLabel,
+  ctaHref,
+  dismissible = true,
+  storageKey = 'hits-announcement-dismissed-v1',
+} = Astro.props;
+---
+<div
+  class="bg-forest-700 text-cream-200 text-sm relative"
+  data-announcement
+  data-storage-key={storageKey}
+>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-center gap-3 text-center">
+    <span aria-hidden="true">🎙️</span>
+    <p class="text-cream-200">
+      {message}
+      {ctaLabel && ctaHref && (
+        <a href={ctaHref} class="underline underline-offset-2 hover:text-gold-500 ml-1 font-semibold">
+          {ctaLabel} →
+        </a>
+      )}
+    </p>
+
+    {dismissible && (
+      <button
+        type="button"
+        data-announcement-close
+        class="absolute right-3 top-1/2 -translate-y-1/2 w-7 h-7 inline-flex items-center justify-center rounded text-cream-300 hover:text-cream-200 hover:bg-forest-600/60 focus-visible:outline-2 focus-visible:outline-gold-500"
+        aria-label="Dismiss announcement"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    )}
+  </div>
+</div>
+
+<script>
+  (function () {
+    const bar = document.querySelector<HTMLElement>('[data-announcement]');
+    if (!bar) return;
+    const key = bar.dataset.storageKey || 'hits-announcement-dismissed-v1';
+    if (window.localStorage && window.localStorage.getItem(key) === '1') {
+      bar.style.display = 'none';
+      return;
+    }
+    const close = bar.querySelector<HTMLButtonElement>('[data-announcement-close]');
+    close?.addEventListener('click', () => {
+      bar.style.display = 'none';
+      try { window.localStorage.setItem(key, '1'); } catch {}
+    });
+  })();
+</script>

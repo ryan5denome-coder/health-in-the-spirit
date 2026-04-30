@@ -1,0 +1,50 @@
+---
+type Variant = 'cream' | 'sage' | 'forest' | 'gold' | 'transparent';
+type Padding = 'compact' | 'default' | 'large';
+
+interface Props {
+  variant?: Variant;
+  padding?: Padding;
+  as?: 'section' | 'div' | 'article' | 'aside';
+  id?: string;
+  class?: string;
+  containerClass?: string;
+  fullBleed?: boolean;  // when true, no max-width on inner container
+}
+
+const {
+  variant = 'cream',
+  padding = 'default',
+  as: Tag = 'section',
+  id,
+  class: extraClass = '',
+  containerClass = '',
+  fullBleed = false,
+} = Astro.props;
+
+const variantClasses: Record<Variant, string> = {
+  cream:       'bg-cream-200 text-brown-700',
+  sage:        'bg-sage-200 text-brown-700',
+  forest:      'bg-forest-700 text-cream-200',
+  gold:        'bg-gold-500 text-forest-700',
+  transparent: '',
+};
+
+const paddingClasses: Record<Padding, string> = {
+  compact: 'py-10 sm:py-14',
+  default: 'py-16 sm:py-24',
+  large:   'py-24 sm:py-32 lg:py-40',
+};
+
+const wrapperClass = [variantClasses[variant], paddingClasses[padding], extraClass].filter(Boolean).join(' ');
+const innerClass = [
+  fullBleed ? 'w-full' : 'max-w-7xl mx-auto',
+  'px-4 sm:px-6 lg:px-8',
+  containerClass,
+].filter(Boolean).join(' ');
+---
+<Tag id={id} class={wrapperClass}>
+  <div class={innerClass}>
+    <slot />
+  </div>
+</Tag>

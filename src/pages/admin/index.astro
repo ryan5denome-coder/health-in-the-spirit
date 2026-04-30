@@ -1,0 +1,22 @@
+---
+// Decap CMS shell. Accessible at /admin and /admin/.
+// `config.yml` is served as a static file from /public/admin/config.yml.
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <title>Health in the Spirit — Admin</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    {/* Tell Decap exactly where the config lives. Without this, when /admin is
+        accessed without a trailing slash, Decap resolves "config.yml" against
+        the parent (root) path and fetches /config.yml — which 404s. */}
+    <link rel="cms-config-url" type="text/yaml" href="/admin/config.yml" />
+  </head>
+  <body>
+    <!-- Decap CMS — open-source, self-hosted admin UI. Loaded from CDN. -->
+    <script is:inline src="https://unpkg.com/decap-cms@^3.8.4/dist/decap-cms.js"></script>
+  </body>
+</html>

@@ -1,0 +1,123 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SectionContainer from '../components/SectionContainer.astro';
+import Button from '../components/Button.astro';
+
+// Podcast platforms — listening apps where the show will be available.
+// When a platform goes live, replace status with "live" and href with the real URL.
+const platforms = [
+  { name: 'Apple Podcasts',  status: 'coming soon', href: '#' },
+  { name: 'Spotify',         status: 'coming soon', href: '#' },
+  { name: 'YouTube',         status: 'coming soon', href: '#' },
+  { name: 'Amazon Music',    status: 'coming soon', href: '#' },
+  { name: 'Overcast',        status: 'coming soon', href: '#' },
+  { name: 'Pocket Casts',    status: 'coming soon', href: '#' },
+  { name: 'RSS Feed',        status: 'coming soon', href: '#' },
+];
+
+// Social platforms — where you follow the show. Different from podcast platforms above.
+// Handles per brand-guidelines.md: @HealthInTheSpirit on IG/TikTok/FB, @HITSPodcast on X.
+const socials = [
+  { name: 'Instagram', handle: '@HealthInTheSpirit',          status: 'coming soon', href: '#' },
+  { name: 'YouTube',   handle: 'Health in the Spirit',        status: 'coming soon', href: '#' },
+  { name: 'TikTok',    handle: '@HealthInTheSpirit',          status: 'coming soon', href: '#' },
+  { name: 'Facebook',  handle: 'Health in the Spirit Podcast', status: 'coming soon', href: '#' },
+  { name: 'LinkedIn',  handle: 'Health in the Spirit',         status: 'coming soon', href: '#' },
+  { name: 'X / Twitter', handle: '@HITSPodcast',              status: 'coming soon', href: '#' },
+];
+---
+<BaseLayout
+  title="Subscribe | Catholic Health Podcast | Health in the Spirit"
+  description="Subscribe to Health in the Spirit, the Catholic health and wellness podcast with Dr. Ryan and Annie DeNome. Available on Apple Podcasts, Spotify, and YouTube."
+>
+
+  <SectionContainer variant="cream" padding="large">
+    <div class="max-w-3xl mx-auto text-center">
+      <p class="text-xs uppercase tracking-[0.25em] text-gold-700 font-semibold mb-4">Subscribe</p>
+      <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl text-forest-700 leading-tight">
+        Subscribe to the Catholic Health Podcast
+      </h1>
+      <p class="mt-6 text-xl text-brown-700 italic font-serif">
+        Listen wherever you get your podcasts. New episodes every Tuesday at 6 AM ET, beginning July 7, 2026.
+      </p>
+    </div>
+  </SectionContainer>
+
+  <SectionContainer variant="cream" padding="default" id="platforms">
+    <div class="max-w-3xl mx-auto">
+      <p class="text-xs uppercase tracking-[0.25em] text-gold-700 font-semibold mb-3 text-center">Listen</p>
+      <h2 class="font-serif text-3xl sm:text-4xl text-forest-700 text-center mb-10 leading-tight">
+        Podcast platforms
+      </h2>
+
+      <ul class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+        {platforms.map((p) => (
+          <li class="flex items-center justify-between gap-4 bg-cream-100 border border-cream-400 rounded-lg p-5">
+            <div>
+              <p class="font-serif text-xl text-forest-700">{p.name}</p>
+              <p class="text-xs uppercase tracking-[0.18em] text-brown-500 italic mt-1">{p.status}</p>
+            </div>
+            <span aria-hidden="true" class="text-cream-500">→</span>
+          </li>
+        ))}
+      </ul>
+
+      <p class="mt-8 text-sm text-brown-500 italic text-center">
+        These platform buttons go live as accounts are created. Until then, the surest way to be first is the email signup below.
+      </p>
+    </div>
+  </SectionContainer>
+
+  <SectionContainer variant="sage" padding="default" id="follow">
+    <div class="max-w-3xl mx-auto">
+      <p class="text-xs uppercase tracking-[0.25em] text-gold-700 font-semibold mb-3 text-center">Follow us</p>
+      <h2 class="font-serif text-3xl sm:text-4xl text-forest-700 text-center mb-3 leading-tight">
+        Beyond the podcast
+      </h2>
+      <p class="text-center text-base text-brown-700 max-w-xl mx-auto mb-10">
+        Daily reflections, behind-the-scenes, and clips from the show. Follow on the platforms you already use — links activate as each account goes live.
+      </p>
+
+      <ul class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+        {socials.map((s) => (
+          <li class="flex items-center justify-between gap-4 bg-cream-100 border border-cream-400 rounded-lg p-5">
+            <div>
+              <p class="font-serif text-xl text-forest-700">{s.name}</p>
+              <p class="text-sm text-brown-700 mt-0.5">{s.handle}</p>
+              <p class="text-xs uppercase tracking-[0.18em] text-brown-500 italic mt-1">{s.status}</p>
+            </div>
+            <span aria-hidden="true" class="text-cream-500">→</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </SectionContainer>
+
+  <SectionContainer variant="forest" padding="default" id="newsletter">
+    <div class="text-center max-w-2xl mx-auto">
+      <p class="text-xs uppercase tracking-[0.25em] text-gold-500 font-semibold mb-3">Don't miss the launch</p>
+      <h2 class="font-serif text-3xl sm:text-4xl text-cream-200 leading-tight">
+        Get the first episode in your inbox.
+      </h2>
+      <p class="mt-4 text-lg text-cream-300/90">
+        One email when we launch. Real updates only — no spam, no nonsense.
+      </p>
+
+      <form class="mt-8 flex flex-col sm:flex-row gap-3 max-w-xl mx-auto" action="mailto:ryan@healthinthespirit.com" method="post" enctype="text/plain">
+        <input type="email" name="email" required aria-label="Email address" placeholder="you@example.com"
+          class="flex-1 px-4 py-3 rounded-md bg-cream-100 text-brown-700 placeholder:text-brown-400 focus-visible:outline-2 focus-visible:outline-gold-500" />
+        <button type="submit"
+          class="bg-terracotta-500 hover:bg-terracotta-600 text-cream-100 font-semibold uppercase tracking-[0.12em] text-sm px-6 py-3 rounded-md transition-colors">
+          Notify me
+        </button>
+      </form>
+    </div>
+  </SectionContainer>
+
+  <SectionContainer variant="cream" padding="default">
+    <div class="max-w-2xl mx-auto text-center">
+      <Button href="/" variant="secondary" size="md">← Back to homepage</Button>
+    </div>
+  </SectionContainer>
+
+</BaseLayout>

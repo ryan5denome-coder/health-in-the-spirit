@@ -1,0 +1,48 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SectionContainer from '../components/SectionContainer.astro';
+import Prose from '../components/Prose.astro';
+---
+<BaseLayout
+  title="Terms of Service | Health in the Spirit"
+  description="Terms governing the use of the Health in the Spirit website, podcast, and newsletter."
+>
+
+  <SectionContainer variant="cream" padding="large">
+    <div class="max-w-3xl mx-auto text-center">
+      <p class="text-xs uppercase tracking-[0.25em] text-gold-700 font-semibold mb-4">Terms</p>
+      <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl text-forest-700 leading-tight">
+        Terms of Service
+      </h1>
+      <p class="mt-4 text-sm text-brown-500 italic">Last updated: April 30, 2026</p>
+    </div>
+  </SectionContainer>
+
+  <SectionContainer variant="cream" padding="default">
+    <div class="max-w-3xl mx-auto">
+      <Prose>
+        <p>This is a placeholder Terms of Service. A finalized version with podcast-specific licensing language and Ohio-jurisdiction governing-law clauses will replace it before launch on July 7, 2026.</p>
+
+        <h2>About this site</h2>
+        <p>This site (<a href="https://healthinthespirit.com">healthinthespirit.com</a>) is owned and operated by Dr. Ryan and Annie DeNome. By accessing the site, the podcast, or any of our content, you agree to these terms.</p>
+
+        <h2>Not medical advice</h2>
+        <p><strong>Nothing on this site or in the podcast is medical advice.</strong> Dr. Ryan is a licensed chiropractor at The Wellness Way Mason in Ohio, but the educational content shared here does not establish a doctor-patient relationship and is not a substitute for personalized care from your own physician.</p>
+        <p>If you are dealing with a specific health concern, please see a qualified medical professional. If you would like to become Dr. Ryan's patient, contact The Wellness Way Mason directly through <a href="https://thewellnessway.com/mason" target="_blank" rel="noopener noreferrer">thewellnessway.com/mason</a>.</p>
+
+        <h2>Content ownership</h2>
+        <p>The text, imagery, audio, and design of this site are owned by Health in the Spirit unless otherwise noted. Saint quotations are public-domain or properly attributed where they originate from a specific translator or publication. Brand assets — logo, wordmark, emblem — are available for press and editorial use under the conditions described on the <a href="/press">Press Kit</a> page.</p>
+
+        <h2>Links to other sites</h2>
+        <p>We sometimes link to outside sites (other Catholic resources, scholarly references, our patron clinic). We do not endorse and are not responsible for the content of those sites.</p>
+
+        <h2>Changes to these terms</h2>
+        <p>We may revise these terms over time. Continued use of the site means acceptance of any updated terms.</p>
+
+        <h2>Contact</h2>
+        <p>Questions about these terms: <a href="mailto:ryan@healthinthespirit.com">ryan@healthinthespirit.com</a>.</p>
+      </Prose>
+    </div>
+  </SectionContainer>
+
+</BaseLayout>

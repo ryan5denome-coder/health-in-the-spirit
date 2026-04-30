@@ -1,0 +1,116 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SectionContainer from '../../components/SectionContainer.astro';
+import Prose from '../../components/Prose.astro';
+import Button from '../../components/Button.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { SITE_URL } from '../../lib/schema';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts', ({ data }) => !data.draft);
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+
+const dateLabel = post.data.pubDate.toLocaleDateString('en-US', {
+  year: 'numeric', month: 'long', day: 'numeric',
+});
+const dateIso = post.data.pubDate.toISOString();
+const modifiedIso = post.data.updatedDate?.toISOString() ?? dateIso;
+const pageUrl = `${SITE_URL}/blog/${post.id}/`;
+
+const articleJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  '@id': `${pageUrl}#article`,
+  headline: post.data.title,
+  description: post.data.description,
+  datePublished: dateIso,
+  dateModified: modifiedIso,
+  author: post.data.author?.toLowerCase().includes('annie')
+    ? { '@id': `${SITE_URL}/about#annie` }
+    : { '@id': `${SITE_URL}/about#ryan` },
+  publisher: { '@id': `${SITE_URL}#organization` },
+  image: post.data.heroImage
+    ? `${SITE_URL}${post.data.heroImage}`
+    : `${SITE_URL}/og-default.png`,
+  inLanguage: 'en-US',
+  keywords: post.data.tags.join(', '),
+  isPartOf: { '@id': `${SITE_URL}#website` },
+  mainEntityOfPage: pageUrl,
+};
+---
+<BaseLayout
+  title={`${post.data.title} | Health in the Spirit`}
+  description={post.data.description}
+  ogType="article"
+  jsonLd={articleJsonLd}
+  publishedTime={dateIso}
+  modifiedTime={modifiedIso}
+  author={post.data.author}
+  keywords={post.data.tags}
+  breadcrumbs={[
+    { name: 'Blog', url: '/blog' },
+    { name: post.data.title, url: `/blog/${post.id}/` },
+  ]}
+>
+
+  <SectionContainer variant="cream" padding="compact">
+    <div class="max-w-3xl mx-auto">
+      <Breadcrumbs items={[{ name: 'Blog', url: '/blog' }, { name: post.data.title, url: `/blog/${post.id}/` }]} />
+    </div>
+  </SectionContainer>
+
+  <SectionContainer variant="cream" padding="large">
+    <div class="max-w-3xl mx-auto">
+      <p class="text-xs uppercase tracking-[0.18em] text-gold-700 font-semibold flex items-center gap-3 justify-center">
+        <a href="/blog" class="hover:text-terracotta-500 transition-colors">Blog</a>
+        <span aria-hidden="true">·</span>
+        <time datetime={dateIso}>{dateLabel}</time>
+        {post.data.tags.length > 0 && (
+          <>
+            <span aria-hidden="true">·</span>
+            <span>{post.data.tags.slice(0, 2).join(' · ')}</span>
+          </>
+        )}
+      </p>
+
+      <h1 class="mt-5 font-serif text-3xl sm:text-4xl lg:text-5xl text-forest-700 leading-tight text-center">
+        {post.data.title}
+      </h1>
+
+      <p class="mt-6 text-lg text-brown-700 italic font-serif text-center">
+        {post.data.description}
+      </p>
+
+      <p class="mt-6 text-sm text-brown-500 text-center">
+        By {post.data.author}
+      </p>
+    </div>
+  </SectionContainer>
+
+  <SectionContainer variant="cream" padding="default" id="post-body">
+    <article class="max-w-3xl mx-auto">
+      <Prose>
+        <Content />
+      </Prose>
+    </article>
+  </SectionContainer>
+
+  <SectionContainer variant="sage" padding="default">
+    <div class="max-w-2xl mx-auto text-center">
+      <p class="text-xs uppercase tracking-[0.25em] text-gold-700 font-semibold mb-3">Continue reading</p>
+      <h2 class="font-serif text-2xl text-forest-700">More from the blog</h2>
+      <div class="mt-6">
+        <Button href="/blog" variant="secondary" size="md" arrow>All posts</Button>
+      </div>
+    </div>
+  </SectionContainer>
+
+</BaseLayout>

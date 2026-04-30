@@ -1,0 +1,175 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SectionContainer from '../components/SectionContainer.astro';
+import Button from '../components/Button.astro';
+import Prose from '../components/Prose.astro';
+
+const personJsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    '@id': 'https://healthinthespirit.com/about#ryan',
+    name: 'Dr. Ryan DeNome',
+    jobTitle: 'Chiropractor',
+    worksFor: { '@type': 'Organization', name: 'The Wellness Way Mason' },
+    affiliation: { '@type': 'Organization', name: 'Health in the Spirit' },
+    url: 'https://healthinthespirit.com/about',
+    description: 'Chiropractor at The Wellness Way Mason in Ohio, co-host of the Health in the Spirit podcast. Franciscan University of Steubenville (Humanities & Catholic Culture); Life University, Marietta GA (D.C.).',
+    alumniOf: [
+      { '@type': 'CollegeOrUniversity', name: 'Franciscan University of Steubenville' },
+      { '@type': 'CollegeOrUniversity', name: 'Life University' },
+    ],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    '@id': 'https://healthinthespirit.com/about#annie',
+    name: 'Annie DeNome',
+    jobTitle: 'Theologian and Catholic Social Teaching advocate',
+    worksFor: { '@type': 'Organization', name: 'Cross Catholic Outreach' },
+    affiliation: { '@type': 'Organization', name: 'Health in the Spirit' },
+    url: 'https://healthinthespirit.com/about',
+    description: 'Co-host of the Health in the Spirit podcast. Theology and Psychology, Franciscan University of Steubenville. NET Ministries alumna.',
+    alumniOf: [
+      { '@type': 'CollegeOrUniversity', name: 'Franciscan University of Steubenville' },
+    ],
+  },
+];
+---
+<BaseLayout
+  title="About Dr. Ryan & Annie DeNome | Health in the Spirit"
+  description="Meet Dr. Ryan DeNome and Annie DeNome — hosts of Health in the Spirit, a Catholic health and wellness podcast rooted in Saints, Scripture, and the Catechism."
+  jsonLd={personJsonLd}
+>
+
+  <SectionContainer variant="cream" padding="large">
+    <div class="max-w-3xl mx-auto text-center">
+      <p class="text-xs uppercase tracking-[0.25em] text-gold-700 font-semibold mb-4">About Health in the Spirit</p>
+      <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl text-forest-700 leading-tight">
+        Meet Dr. Ryan &amp; Annie DeNome
+      </h1>
+      <p class="mt-6 text-xl text-brown-700 italic font-serif">
+        Where faith meets wellness — and the ancient wisdom of the Church meets modern health science.
+      </p>
+    </div>
+  </SectionContainer>
+
+  <SectionContainer variant="cream" padding="default" id="our-story">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+      <div class="lg:col-span-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-gold-700 font-semibold">Our story</p>
+        <h2 class="font-serif text-3xl sm:text-4xl text-forest-700 mt-3 leading-tight">How it all started</h2>
+      </div>
+      <div class="lg:col-span-8">
+        <Prose>
+          <p>Some love stories begin over candlelight. Ours began over a Sunday brunch on the Loveland Bike Trail.</p>
+          <p>Ryan and Annie met through mutual friends at Franciscan University of Steubenville — a place where conversations about saints and sacraments are as common as coffee runs. Their first date was a quiet Sunday afternoon: brunch and a picnic along the trail, talking about faith, family, and what they wanted their lives to look like. It was easy. It was natural. It felt like the beginning of something.</p>
+          <p>Their second date made sure of it.</p>
+          <p>Annie — a lifelong swimmer and triathlete — suggested a century ride: 100 miles from Wards Corner in Loveland to Xenia, Ohio and back. What she did not anticipate was spending the majority of those miles waiting for Ryan to catch up. Somewhere between mile markers and mounting frustration, something clicked. Here was a man who would show up, push through, and never quit — even if he could not quite keep her pace. She knew then that he would work just as hard to become a saint as he would to finish that ride. And she knew he was a keeper.</p>
+          <p>From bike trails to wedding bells to building a life together, Ryan and Annie have always shared a conviction that faith is not something you set on a shelf — it shapes how you eat, how you move, how you heal, and how you raise your family. <strong>Health in the Spirit</strong> is the natural extension of everything they believe: that caring for the body God gave you is not optional. It is an act of love.</p>
+        </Prose>
+      </div>
+    </div>
+  </SectionContainer>
+
+  <SectionContainer variant="sage" padding="default" id="dr-ryan">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+      <div class="lg:col-span-5 lg:order-2">
+        <div class="aspect-[4/5] bg-cream-200 border border-cream-400 rounded-lg flex items-center justify-center sticky top-24">
+          <p class="text-brown-500 italic text-sm text-center px-6">Photo of Dr. Ryan<br/>(coming soon)</p>
+        </div>
+      </div>
+      <div class="lg:col-span-7 lg:order-1">
+        <p class="text-xs uppercase tracking-[0.25em] text-gold-700 font-semibold">Co-host</p>
+        <h2 class="font-serif text-3xl sm:text-4xl text-forest-700 mt-3 leading-tight">Dr. Ryan DeNome</h2>
+        <p class="text-brown-600 italic font-serif mt-1 text-lg">Chiropractor · The Wellness Way Mason</p>
+
+        <Prose>
+          <p>Ryan DeNome is a Cincinnati native whose life was forever changed by a profound encounter with Jesus Christ.</p>
+          <p>In 2013, a bilateral pars fracture forced him off the baseball field and into three months of uncertainty. Unable to play the sport he loved, he attended a Steubenville Youth Conference where, during Eucharistic Adoration, he experienced the deep and personal love of the Lord in a way he had never known before.</p>
+          <p>Shortly after coming home from that retreat, Ryan attended a healing service at a local Catholic parish. That night, his back was fully healed by the hand of God. The healing was not a feeling. It was a fact. A follow-up MRI showed vertebrae that appeared as if no damage had ever been done. His physician, unaware of what had transpired between visits, looked at the scans and said simply:</p>
+          <blockquote>"This is the closest thing to a miracle I have ever seen."</blockquote>
+          <p>That moment set Ryan on a path. He became deeply active in youth ministry, then enrolled at Franciscan University of Steubenville, where he majored in Humanities and Catholic Culture. It was at Franciscan that his Catholic worldview was shaped with precision — and where he met a certain swimmer from Kentucky who would change his life in an entirely different way.</p>
+          <p>After Franciscan, Ryan attended Life University in Marietta, Georgia for chiropractic school, where his passion for the body's God-given capacity to heal itself was refined into a clinical practice. Today, he runs <a href="https://thewellnesswaymason.com" target="_blank" rel="noopener noreferrer">The Wellness Way Mason</a> in Mason, Ohio, where he helps patients restore their health through holistic care rooted in the belief that God designed the body to thrive — not merely survive.</p>
+          <p>Ryan and Annie are the proud parents of their son, Joachim Giorgio.</p>
+        </Prose>
+
+        <div class="mt-8 flex flex-wrap gap-3">
+          <Button href="https://thewellnesswaymason.com" variant="primary" size="md" external arrow>Visit The Wellness Way Mason</Button>
+          <Button href="https://the-wellness-way.neoplatform.com/dd6a54e3c98/self-registration" variant="secondary" size="md" external>Become a patient</Button>
+        </div>
+      </div>
+    </div>
+  </SectionContainer>
+
+  <SectionContainer variant="cream" padding="default" id="annie">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+      <div class="lg:col-span-5">
+        <div class="aspect-[4/5] bg-cream-300 border border-cream-400 rounded-lg flex items-center justify-center sticky top-24">
+          <p class="text-brown-500 italic text-sm text-center px-6">Photo of Annie<br/>(coming soon)</p>
+        </div>
+      </div>
+      <div class="lg:col-span-7">
+        <p class="text-xs uppercase tracking-[0.25em] text-gold-700 font-semibold">Co-host</p>
+        <h2 class="font-serif text-3xl sm:text-4xl text-forest-700 mt-3 leading-tight">Annie DeNome</h2>
+        <p class="text-brown-600 italic font-serif mt-1 text-lg">Theologian · Advocate for the poor</p>
+
+        <Prose>
+          <p>Annie DeNome is an Owensboro, Kentucky native who has never been content to sit still — in body, mind, or spirit.</p>
+          <p>A competitive swimmer and triathlete her entire life, Annie learned early that discipline, endurance, and grit are not just athletic virtues. They are spiritual ones. That conviction led her, straight out of high school, to take a gap year with NET Ministries — the National Evangelization Teams — where she traveled across the United States putting on retreats for middle and high school students, bringing the Gospel to young people in gymnasiums, parish halls, and everywhere in between.</p>
+          <p>From there, Annie enrolled at Franciscan University of Steubenville, where she double-majored in Theology and Psychology — a combination that reflects everything she is: deeply thoughtful about the interior life, rigorously trained in the intellectual tradition of the Church, and endlessly curious about what makes people flourish.</p>
+          <p>Today, Annie works at Cross Catholic Outreach, where she brings integral human development to communities experiencing poverty around the world. Her work sits at the intersection of Catholic Social Teaching and real, tangible impact — helping families access clean water, nutrition, education, and the dignity that every human being deserves.</p>
+          <p>When she is not working to change the world, you will never catch Annie indoors on a sunny day. Her favorite place is anywhere near the water with her son, Joachim Giorgio — whether that is a beach, a pool, or a creek bed with good rocks for throwing. She brings that same energy to <em>Health in the Spirit</em>: practical, joyful, grounded in faith, and always ready to dive in.</p>
+        </Prose>
+      </div>
+    </div>
+  </SectionContainer>
+
+  <SectionContainer variant="forest" padding="default" id="mission">
+    <div class="max-w-3xl mx-auto text-center">
+      <p class="text-xs uppercase tracking-[0.25em] text-gold-500 font-semibold mb-4">Our mission</p>
+      <h2 class="font-serif text-3xl sm:text-4xl lg:text-5xl text-cream-200 leading-tight">
+        Why Health in the Spirit?
+      </h2>
+    </div>
+
+    <div class="mt-12 max-w-3xl mx-auto text-cream-200">
+      <Prose>
+        <p class="!text-cream-200">The Catholic Church has never separated the soul from the body. From St. Paul declaring <em>"your body is a temple of the Holy Spirit"</em> to the Catechism's explicit teaching that <em>"life and physical health are precious gifts entrusted to us by God"</em> — the message is clear: caring for your body is not vanity. It is stewardship. It is responsibility. It is love.</p>
+        <p class="!text-cream-200">And yet, somewhere along the way, that message got lost.</p>
+        <p class="!text-cream-200">Health in the Spirit exists to bring it back.</p>
+        <p class="!text-cream-200">We bridge holistic health and Catholic theology — not because they are separate things that need connecting, but because the world has forgotten they were never apart. The healing saints knew it. St. Hildegard of Bingen prescribed herbal remedies alongside prayer. Sts. Cosmas and Damian practiced medicine as ministry, healing bodies while proclaiming the Gospel. St. Augustine reminded us to care for the body as if we would live forever and the soul as if we would die tomorrow.</p>
+        <p class="!text-cream-200">This podcast is for the Catholic who wants to honor God with how they eat, move, rest, and heal. For the parent trying to raise healthy kids in a world that seems designed to make them sick. For anyone who suspects that the ancient wisdom of the Church might have something to say about the modern health crisis — and is ready to listen.</p>
+      </Prose>
+
+      <p class="mt-10 font-serif text-2xl sm:text-3xl text-gold-500 italic text-center">
+        A body built to last. A soul on fire. That's Health in the Spirit.
+      </p>
+    </div>
+  </SectionContainer>
+
+  <SectionContainer variant="cream" padding="default" id="connect">
+    <div class="max-w-3xl mx-auto text-center">
+      <p class="text-xs uppercase tracking-[0.25em] text-gold-700 font-semibold mb-4">Connect with us</p>
+      <h2 class="font-serif text-3xl sm:text-4xl text-forest-700 leading-tight">
+        Listen, subscribe, and join the community
+      </h2>
+      <p class="mt-4 text-lg text-brown-700">
+        New episodes every Tuesday — beginning July 7, 2026.
+      </p>
+
+      <div class="mt-8 flex flex-wrap justify-center gap-3 sm:gap-4">
+        <Button href="/subscribe" variant="primary" size="lg" arrow>Subscribe</Button>
+        <Button href="/saints" variant="secondary" size="lg">Meet the saints</Button>
+        <Button href="/contact" variant="ghost" size="lg">Contact us</Button>
+      </div>
+
+      <p class="mt-8 text-sm text-brown-500">
+        Guest inquiries: <a href="mailto:annie@healthinthespirit.com" class="text-terracotta-500 hover:text-terracotta-600 underline underline-offset-2">annie@healthinthespirit.com</a>
+        &nbsp;·&nbsp;
+        General: <a href="mailto:ryan@healthinthespirit.com" class="text-terracotta-500 hover:text-terracotta-600 underline underline-offset-2">ryan@healthinthespirit.com</a>
+      </p>
+    </div>
+  </SectionContainer>
+
+</BaseLayout>

@@ -1,0 +1,98 @@
+---
+import Button from './Button.astro';
+
+interface Cta {
+  label: string;
+  href: string;
+  external?: boolean;
+}
+
+interface Props {
+  eyebrow?: string;
+  title: string;
+  subtitle?: string;
+  primaryCta?: Cta;
+  secondaryCta?: Cta;
+  align?: 'left' | 'center';
+  showEmblem?: boolean;
+  /** When set, the H1 renders as an image of the logo (alt = title) instead of styled text. */
+  logoSrc?: string;
+}
+
+const {
+  eyebrow,
+  title,
+  subtitle,
+  primaryCta,
+  secondaryCta,
+  align = 'center',
+  showEmblem = false,
+  logoSrc,
+} = Astro.props;
+
+const alignClasses = align === 'center' ? 'text-center items-center' : 'text-left items-start';
+---
+<section class="relative bg-cream-200 overflow-hidden">
+  {/* subtle decorative top hairline */}
+  <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold-400/40 to-transparent" aria-hidden="true"></div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 lg:py-36">
+    <div class={`flex flex-col gap-6 ${alignClasses} ${align === 'center' ? 'mx-auto max-w-3xl' : 'max-w-2xl'}`}>
+      {showEmblem && (
+        <img
+          src="/brand/emblem.svg"
+          alt=""
+          width="120"
+          height="120"
+          class="w-20 sm:w-28 h-auto mb-2"
+          loading="eager"
+        />
+      )}
+
+      {eyebrow && (
+        <p class="text-xs sm:text-sm uppercase tracking-[0.25em] text-gold-600 font-semibold">
+          {eyebrow}
+        </p>
+      )}
+
+      {logoSrc ? (
+        <h1 class={align === 'center' ? 'flex justify-center' : ''}>
+          <img
+            src={logoSrc}
+            alt={title}
+            class="w-full max-w-2xl h-auto"
+            width="1200"
+            height="390"
+            loading="eager"
+            fetchpriority="high"
+          />
+        </h1>
+      ) : (
+        <h1 class="font-serif text-4xl sm:text-5xl lg:text-7xl font-bold text-forest-700 leading-[1.05] tracking-tight">
+          {title}
+        </h1>
+      )}
+
+      {subtitle && (
+        <p class="text-lg sm:text-xl lg:text-2xl text-brown-700 italic font-serif leading-snug max-w-2xl">
+          {subtitle}
+        </p>
+      )}
+
+      {(primaryCta || secondaryCta) && (
+        <div class={`flex flex-col sm:flex-row gap-3 sm:gap-4 mt-2 ${align === 'center' ? 'sm:justify-center' : ''}`}>
+          {primaryCta && (
+            <Button href={primaryCta.href} variant="primary" size="lg" arrow external={primaryCta.external}>
+              {primaryCta.label}
+            </Button>
+          )}
+          {secondaryCta && (
+            <Button href={secondaryCta.href} variant="secondary" size="lg" external={secondaryCta.external}>
+              {secondaryCta.label}
+            </Button>
+          )}
+        </div>
+      )}
+    </div>
+  </div>
+</section>

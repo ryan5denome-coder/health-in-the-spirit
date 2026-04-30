@@ -1,0 +1,20 @@
+{
+  "hosts": [
+    {
+      "name": "Dr. Ryan DeNome",
+      "title": "Chiropractor · The Wellness Way Mason",
+      "shortBio": "Catholic chiropractor at The Wellness Way Mason in Ohio. Franciscan University of Steubenville (Humanities & Catholic Culture); Life University (D.C.).",
+      "photo": "",
+      "photoAlt": "",
+      "email": "ryan@healthinthespirit.com"
+    },
+    {
+      "name": "Annie DeNome",
+      "title": "Theologian · Advocate for the poor",
+      "shortBio": "Catholic Social Teaching advocate at Cross Catholic Outreach. Theology and Psychology graduate of Franciscan University of Steubenville. NET Ministries alumna.",
+      "photo": "",
+      "photoAlt": "",
+      "email": "annie@healthinthespirit.com"
+    }
+  ]
+}

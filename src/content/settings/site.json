@@ -1,0 +1,23 @@
+{
+  "siteTitle": "Health in the Spirit",
+  "tagline": "A Catholic Health & Wellness Podcast",
+  "defaultDescription": "A Catholic health and wellness podcast with Dr. Ryan and Annie DeNome. Holistic health rooted in Saints, Scripture, and the Catechism. Launching Tuesday, July 7, 2026.",
+  "contactEmail": "ryan@healthinthespirit.com",
+  "guestEmail": "annie@healthinthespirit.com",
+  "privacyEmail": "privacy@healthinthespirit.com",
+  "ryanWeb3Key": "PLACEHOLDER_RYAN_WEB3FORMS_KEY",
+  "annieWeb3Key": "PLACEHOLDER_ANNIE_WEB3FORMS_KEY",
+  "launchIso": "2026-07-07T06:00:00-04:00",
+  "socialUrls": {
+    "applePodcasts": "",
+    "spotify": "",
+    "youtube": "",
+    "amazonMusic": "",
+    "rss": "",
+    "instagram": "",
+    "tiktok": "",
+    "facebook": "",
+    "linkedin": "",
+    "twitter": ""
+  }
+}

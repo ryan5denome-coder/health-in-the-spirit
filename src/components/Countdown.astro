@@ -1,0 +1,122 @@
+---
+interface Props {
+  /** ISO 8601 with timezone, e.g. "2026-07-07T06:00:00-04:00" for 6am ET */
+  targetIso: string;
+  /** Headline shown before launch */
+  preLaunchHeadline?: string;
+  /** Headline shown after launch hits zero */
+  postLaunchHeadline?: string;
+  /** Optional CTA shown after launch */
+  postLaunchCta?: { label: string; href: string };
+}
+
+const {
+  targetIso,
+  preLaunchHeadline = 'Episode 1 launches in',
+  postLaunchHeadline = 'Episode 1 is live — listen now',
+  postLaunchCta = { label: 'Listen Now', href: '/subscribe' },
+} = Astro.props;
+
+// Compute a friendly "Tuesday, July 7, 2026 · 6:00 AM ET" string for the static fallback.
+const targetDate = new Date(targetIso);
+const targetLabel = targetDate.toLocaleString('en-US', {
+  weekday: 'long', month: 'long', day: 'numeric', year: 'numeric',
+  hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York',
+  timeZoneName: 'short',
+});
+---
+<section
+  class="bg-forest-700 text-cream-200 relative overflow-hidden"
+  data-countdown
+  data-target={targetIso}
+  data-pre={preLaunchHeadline}
+  data-post={postLaunchHeadline}
+>
+  <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-gold-400/0 via-gold-400/60 to-gold-400/0" aria-hidden="true"></div>
+
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 text-center">
+    <p class="text-xs sm:text-sm uppercase tracking-[0.3em] text-gold-500 font-semibold mb-3" data-countdown-eyebrow>
+      {preLaunchHeadline}
+    </p>
+    <p class="font-serif text-2xl sm:text-3xl text-cream-200 mb-10" data-countdown-target>
+      {targetLabel}
+    </p>
+
+    <div class="grid grid-cols-4 gap-2 sm:gap-6 max-w-3xl mx-auto" role="timer" aria-live="polite" aria-atomic="true">
+      <div class="flex flex-col items-center bg-forest-800/60 rounded-lg py-4 sm:py-6 px-2 sm:px-4 border border-forest-600/60">
+        <span class="font-serif text-3xl sm:text-5xl lg:text-6xl text-gold-500 font-bold tabular-nums" data-countdown-days>--</span>
+        <span class="mt-1 text-[10px] sm:text-xs uppercase tracking-[0.2em] text-cream-300/80">Days</span>
+      </div>
+      <div class="flex flex-col items-center bg-forest-800/60 rounded-lg py-4 sm:py-6 px-2 sm:px-4 border border-forest-600/60">
+        <span class="font-serif text-3xl sm:text-5xl lg:text-6xl text-gold-500 font-bold tabular-nums" data-countdown-hours>--</span>
+        <span class="mt-1 text-[10px] sm:text-xs uppercase tracking-[0.2em] text-cream-300/80">Hours</span>
+      </div>
+      <div class="flex flex-col items-center bg-forest-800/60 rounded-lg py-4 sm:py-6 px-2 sm:px-4 border border-forest-600/60">
+        <span class="font-serif text-3xl sm:text-5xl lg:text-6xl text-gold-500 font-bold tabular-nums" data-countdown-minutes>--</span>
+        <span class="mt-1 text-[10px] sm:text-xs uppercase tracking-[0.2em] text-cream-300/80">Minutes</span>
+      </div>
+      <div class="flex flex-col items-center bg-forest-800/60 rounded-lg py-4 sm:py-6 px-2 sm:px-4 border border-forest-600/60">
+        <span class="font-serif text-3xl sm:text-5xl lg:text-6xl text-gold-500 font-bold tabular-nums" data-countdown-seconds>--</span>
+        <span class="mt-1 text-[10px] sm:text-xs uppercase tracking-[0.2em] text-cream-300/80">Seconds</span>
+      </div>
+    </div>
+
+    <div class="mt-10 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center" data-countdown-actions>
+      <a href={postLaunchCta.href}
+         class="inline-flex items-center justify-center gap-2 bg-terracotta-500 hover:bg-terracotta-600 text-cream-100 font-semibold uppercase tracking-[0.12em] text-sm px-7 py-3.5 rounded-md transition-colors">
+        Subscribe now <span aria-hidden="true">→</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<script>
+  (function () {
+    const root = document.querySelector<HTMLElement>('[data-countdown]');
+    if (!root) return;
+    const targetIso = root.dataset.target;
+    const preText = root.dataset.pre || 'Launches in';
+    const postText = root.dataset.post || 'Now live';
+    if (!targetIso) return;
+
+    const target = new Date(targetIso).getTime();
+    const $eyebrow = root.querySelector<HTMLElement>('[data-countdown-eyebrow]');
+    const $days = root.querySelector<HTMLElement>('[data-countdown-days]');
+    const $hours = root.querySelector<HTMLElement>('[data-countdown-hours]');
+    const $minutes = root.querySelector<HTMLElement>('[data-countdown-minutes]');
+    const $seconds = root.querySelector<HTMLElement>('[data-countdown-seconds]');
+
+    function pad(n: number) { return String(Math.max(0, Math.floor(n))).padStart(2, '0'); }
+
+    function tick() {
+      const now = Date.now();
+      const diff = target - now;
+
+      if (diff <= 0) {
+        if ($eyebrow) $eyebrow.textContent = postText;
+        if ($days) $days.textContent = '00';
+        if ($hours) $hours.textContent = '00';
+        if ($minutes) $minutes.textContent = '00';
+        if ($seconds) $seconds.textContent = '00';
+        return false; // stop ticking
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+
+      if ($days) $days.textContent = pad(days);
+      if ($hours) $hours.textContent = pad(hours);
+      if ($minutes) $minutes.textContent = pad(minutes);
+      if ($seconds) $seconds.textContent = pad(seconds);
+      return true;
+    }
+
+    if (tick()) {
+      const interval = window.setInterval(() => {
+        if (!tick()) window.clearInterval(interval);
+      }, 1000);
+    }
+  })();
+</script>

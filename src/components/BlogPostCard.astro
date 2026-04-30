@@ -1,0 +1,56 @@
+---
+interface Props {
+  title: string;
+  href: string;
+  date: Date | string;
+  excerpt?: string;
+  imageSrc?: string;
+  imageAlt?: string;
+  tags?: string[];
+}
+
+const { title, href, date, excerpt, imageSrc, imageAlt = '', tags = [] } = Astro.props;
+
+const dateObj = typeof date === 'string' ? new Date(date) : date;
+const dateLabel = dateObj.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+const dateIso = dateObj.toISOString();
+---
+<article class="group flex flex-col rounded-lg overflow-hidden bg-cream-100 border border-cream-400 transition-all duration-200 hover:-translate-y-1 hover:shadow-md">
+  <a href={href} class="flex flex-col h-full focus-visible:outline-none">
+    {imageSrc && (
+      <div class="aspect-[16/10] overflow-hidden bg-cream-300">
+        <img src={imageSrc} alt={imageAlt} class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+      </div>
+    )}
+
+    <div class="flex flex-col gap-3 p-6 flex-1">
+      <div class="flex items-center gap-3 text-xs uppercase tracking-[0.18em] text-gold-700">
+        <time datetime={dateIso}>{dateLabel}</time>
+        {tags.length > 0 && (
+          <>
+            <span aria-hidden="true">·</span>
+            <span>{tags.slice(0, 2).join(' · ')}</span>
+          </>
+        )}
+      </div>
+
+      <h3 class="font-serif text-xl sm:text-2xl leading-tight font-semibold text-forest-700 group-hover:text-terracotta-500 transition-colors">
+        {title}
+      </h3>
+
+      {excerpt && (
+        <p class="text-base leading-relaxed text-brown-700 line-clamp-3">
+          {excerpt}
+        </p>
+      )}
+
+      <p class="mt-auto text-sm font-semibold uppercase tracking-[0.15em] text-terracotta-500 inline-flex items-center gap-1">
+        Read post <span aria-hidden="true" class="transition-transform group-hover:translate-x-0.5">→</span>
+      </p>
+    </div>
+  </a>
+</article>

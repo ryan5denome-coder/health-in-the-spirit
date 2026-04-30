@@ -1,17 +1,259 @@
 ---
+import { getCollection, getEntry } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import SectionContainer from '../components/SectionContainer.astro';
+import Card from '../components/Card.astro';
+import SaintCard from '../components/SaintCard.astro';
+import BlogPostCard from '../components/BlogPostCard.astro';
+import Countdown from '../components/Countdown.astro';
+import Button from '../components/Button.astro';
 
+// Launch: Tuesday, July 7, 2026, 6:00 AM Eastern.
+const launchIso = '2026-07-07T06:00:00-04:00';
+
+// Pull homepage editable copy from the Decap-managed home.md singleton.
+// Falls back to sensible defaults if the file/field is missing.
+const home = await getEntry('pages', 'home');
+const announcement = home?.data.announcementMessage
+  ? {
+      message: home.data.announcementMessage,
+      ctaLabel: home.data.announcementCtaLabel,
+      ctaHref: home.data.announcementCtaHref,
+    }
+  : {
+      message: 'The podcast launches Tuesday, July 7, 2026.',
+      ctaLabel: 'Subscribe to be first',
+      ctaHref: '/subscribe',
+    };
+
+// Saints teaser pulls the live collection (sorted by `order`).
+const saints = (await getCollection('saints', ({ data }) => !data.draft))
+  .sort((a, b) => a.data.order - b.data.order)
+  .map((s) => ({
+    name: s.data.name,
+    href: `/saints/${s.data.slug}`,
+    role: s.data.role,
+    era: s.data.era,
+    summary: s.data.summary,
+    imageSrc: s.data.iconImage,
+    imageAlt: s.data.iconAlt,
+  }));
+
+const pillars = [
+  {
+    eyebrow: 'The Saints',
+    title: 'Wisdom from the healing saints',
+    description: 'Sts. Cosmas & Damian, St. Hildegard of Bingen, St. Augustine of Hippo — physicians, herbalists, and theologians who never separated body from soul.',
+    href: '/saints',
+    cta: 'Meet the saints',
+  },
+  {
+    eyebrow: 'Sacred Scripture',
+    title: 'Your body is a temple',
+    description: 'From St. Paul to the Gospels, Scripture has always treated physical health as part of spiritual life. We bring it back into the conversation.',
+    href: '/about',
+    cta: 'Read our why',
+  },
+  {
+    eyebrow: 'The Catechism',
+    title: 'Stewardship of the body',
+    description: 'The CCC teaches that life and physical health are precious gifts entrusted to us by God. Caring for them is not vanity — it is responsibility.',
+    href: '/about',
+    cta: 'Learn more',
+  },
+];
+
+
+const samplePosts = [
+  {
+    title: 'Why Catholics should care about what they eat',
+    href: '/blog/why-catholics-should-care',
+    date: '2026-06-15',
+    excerpt: 'Sample post — to be replaced when the blog goes live.',
+    tags: ['Nutrition', 'Faith'],
+  },
+  {
+    title: "Viriditas: St. Hildegard's prescription for a vital life",
+    href: '/blog/viriditas-hildegard',
+    date: '2026-06-22',
+    excerpt: 'Sample post — to be replaced when the blog goes live.',
+    tags: ['Saints'],
+  },
+  {
+    title: 'The body as temple: a practical theology of health',
+    href: '/blog/body-as-temple',
+    date: '2026-06-29',
+    excerpt: 'Sample post — to be replaced when the blog goes live.',
+    tags: ['Theology'],
+  },
+];
 ---
+<BaseLayout
+  title="Health in the Spirit — A Catholic Health & Wellness Podcast"
+  description="A Catholic health and wellness podcast with Dr. Ryan and Annie DeNome. Holistic health rooted in Saints, Scripture, and the Catechism. Launching Tuesday, July 7, 2026."
+  announcement={announcement}
+>
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+  <Hero
+    eyebrow="A Catholic Health & Wellness Podcast"
+    title="Health in the Spirit"
+    logoSrc="/brand/main-logo.png"
+    subtitle="Care for your body like you are going to live forever — care for your soul like you are going to die tomorrow."
+    primaryCta={{ label: 'Subscribe', href: '/subscribe' }}
+    secondaryCta={{ label: 'Meet the Hosts', href: '/about' }}
+  />
+
+  <SectionContainer variant="sage" id="pillars">
+    <div class="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
+      <p class="text-xs uppercase tracking-[0.25em] text-gold-700 font-semibold mb-3">What we are rooted in</p>
+      <h2 class="font-serif text-3xl sm:text-4xl lg:text-5xl text-forest-700 leading-tight">
+        Saints. Scripture. The Catechism.
+      </h2>
+      <p class="mt-4 text-lg text-brown-700 italic font-serif">
+        Three sources. One unbroken Tradition that has always taught the body and soul belong together.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+      {pillars.map((p) => (
+        <Card
+          variant="cream"
+          eyebrow={p.eyebrow}
+          title={p.title}
+          description={p.description}
+          href={p.href}
+          ctaLabel={p.cta}
+        />
+      ))}
+    </div>
+  </SectionContainer>
+
+  <Countdown targetIso={launchIso} preLaunchHeadline="Episode 1 launches in" />
+
+  <SectionContainer variant="cream" id="about-teaser">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+      <div class="aspect-[4/5] bg-cream-300 border border-cream-400 rounded-lg flex items-center justify-center">
+        <p class="text-brown-500 italic text-sm text-center px-6">Photo of Ryan & Annie<br/>(coming soon)</p>
+      </div>
+      <div class="flex flex-col gap-5">
+        <p class="text-xs uppercase tracking-[0.25em] text-gold-700 font-semibold">Meet the hosts</p>
+        <h2 class="font-serif text-3xl sm:text-4xl lg:text-5xl text-forest-700 leading-tight">
+          Dr. Ryan &amp; Annie DeNome
+        </h2>
+        <p class="text-lg text-brown-700 leading-relaxed">
+          A Catholic chiropractor and a theologian-advocate raising a family in Cincinnati, Ohio. Together they bring holistic health, the wisdom of the healing saints, and the teaching of the Church into one conversation about how to live well — body and soul.
+        </p>
+        <p class="text-lg text-brown-700 leading-relaxed italic font-serif">
+          "We do not believe faith and health are separate. The world has just forgotten they were never apart."
+        </p>
+        <div class="mt-2">
+          <Button href="/about" variant="secondary" size="md" arrow>Read our story</Button>
+        </div>
+      </div>
+    </div>
+  </SectionContainer>
+
+  <SectionContainer variant="sage" id="saints-teaser">
+    <div class="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
+      <p class="text-xs uppercase tracking-[0.25em] text-gold-700 font-semibold mb-3">Our patron saints</p>
+      <h2 class="font-serif text-3xl sm:text-4xl lg:text-5xl text-forest-700 leading-tight">
+        The Healing Saints Who Guide Us
+      </h2>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+      {saints.map((s) => (
+        <SaintCard
+          name={s.name}
+          href={s.href}
+          role={s.role}
+          era={s.era}
+          summary={s.summary}
+          imageSrc={s.imageSrc}
+          imageAlt={s.imageAlt}
+        />
+      ))}
+    </div>
+
+    <div class="mt-12 text-center">
+      <Button href="/saints" variant="secondary" size="md" arrow>Meet all the saints</Button>
+    </div>
+  </SectionContainer>
+
+  <SectionContainer variant="cream" id="subscribe-row">
+    <div class="text-center max-w-3xl mx-auto">
+      <p class="text-xs uppercase tracking-[0.25em] text-gold-700 font-semibold mb-3">Subscribe</p>
+      <h2 class="font-serif text-3xl sm:text-4xl lg:text-5xl text-forest-700 leading-tight">
+        Listen wherever you get your podcasts
+      </h2>
+      <p class="mt-4 text-lg text-brown-700">
+        Apple Podcasts · Spotify · YouTube · Amazon Music — all coming soon. Subscribe now and the first episode lands automatically on launch day.
+      </p>
+
+      <div class="mt-10 flex flex-wrap justify-center gap-3 sm:gap-4">
+        <Button href="/subscribe" variant="primary" size="lg" arrow>All platforms</Button>
+      </div>
+
+      <p class="mt-6 text-sm text-brown-500 italic">
+        Once accounts are live, the platform buttons replace this paragraph automatically — edited from /admin.
+      </p>
+    </div>
+  </SectionContainer>
+
+  <SectionContainer variant="forest" id="newsletter">
+    <div class="text-center max-w-2xl mx-auto">
+      <p class="text-xs uppercase tracking-[0.25em] text-gold-500 font-semibold mb-3">Don't miss the launch</p>
+      <h2 class="font-serif text-3xl sm:text-4xl lg:text-5xl text-cream-200 leading-tight">
+        Get the first episode in your inbox.
+      </h2>
+      <p class="mt-4 text-lg text-cream-300/90">
+        One email when we launch. Real updates only — no spam, no nonsense.
+      </p>
+
+      <form class="mt-8 flex flex-col sm:flex-row gap-3 max-w-xl mx-auto" action="mailto:ryan@healthinthespirit.com" method="post" enctype="text/plain">
+        <input
+          type="email"
+          name="email"
+          required
+          aria-label="Email address"
+          placeholder="you@example.com"
+          class="flex-1 px-4 py-3 rounded-md bg-cream-100 text-brown-700 placeholder:text-brown-400 focus-visible:outline-2 focus-visible:outline-gold-500"
+        />
+        <button
+          type="submit"
+          class="bg-terracotta-500 hover:bg-terracotta-600 text-cream-100 font-semibold uppercase tracking-[0.12em] text-sm px-6 py-3 rounded-md transition-colors"
+        >
+          Notify me
+        </button>
+      </form>
+
+      <p class="mt-4 text-xs text-cream-300/60 italic">
+        Phase 4 placeholder. Phase 11 wires this to MailerLite (free tier).
+      </p>
+    </div>
+  </SectionContainer>
+
+  <SectionContainer variant="cream" id="latest-blog">
+    <div class="flex items-end justify-between flex-wrap gap-4 mb-10">
+      <div>
+        <p class="text-xs uppercase tracking-[0.25em] text-gold-700 font-semibold mb-2">From the blog</p>
+        <h2 class="font-serif text-3xl sm:text-4xl text-forest-700 leading-tight">Latest reflections</h2>
+      </div>
+      <Button href="/blog" variant="ghost" size="md" arrow>All posts</Button>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+      {samplePosts.map((p) => (
+        <BlogPostCard
+          title={p.title}
+          href={p.href}
+          date={p.date}
+          excerpt={p.excerpt}
+          tags={p.tags}
+        />
+      ))}
+    </div>
+  </SectionContainer>
+
+</BaseLayout>

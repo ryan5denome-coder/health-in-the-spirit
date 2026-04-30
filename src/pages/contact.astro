@@ -1,0 +1,160 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SectionContainer from '../components/SectionContainer.astro';
+import Button from '../components/Button.astro';
+import ContactForm from '../components/ContactForm.astro';
+
+// Web3Forms access keys — replace with the real keys after the 2-minute setup at web3forms.com.
+// One key per destination email. Submissions to a key are emailed to the address registered to that key.
+//
+//   RYAN_KEY   → registered to ryan@healthinthespirit.com   (general feedback)
+//   ANNIE_KEY  → registered to annie@healthinthespirit.com  (be-a-guest applications)
+//
+// Until the real keys are pasted in, the forms render correctly but submissions return an error.
+const RYAN_KEY  = 'PLACEHOLDER_RYAN_WEB3FORMS_KEY';
+const ANNIE_KEY = 'PLACEHOLDER_ANNIE_WEB3FORMS_KEY';
+---
+<BaseLayout
+  title="Contact Health in the Spirit | Catholic Health Podcast"
+  description="Contact Health in the Spirit — guest inquiries, partnerships, and questions for Dr. Ryan and Annie DeNome's Catholic health and wellness podcast."
+>
+
+  <SectionContainer variant="cream" padding="large">
+    <div class="max-w-3xl mx-auto text-center">
+      <p class="text-xs uppercase tracking-[0.25em] text-gold-700 font-semibold mb-4">Contact</p>
+      <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl text-forest-700 leading-tight">
+        Contact Health in the Spirit
+      </h1>
+      <p class="mt-6 text-xl text-brown-700 italic font-serif">
+        Pick the form that fits — we read every message personally.
+      </p>
+    </div>
+  </SectionContainer>
+
+  {/* Three quick-jump tiles */}
+  <SectionContainer variant="cream" padding="compact" id="quick-jump">
+    <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+      <a href="#general" class="group bg-cream-100 border border-cream-400 rounded-lg p-6 hover:border-gold-400 hover:-translate-y-0.5 transition-all">
+        <p class="text-xs uppercase tracking-[0.18em] text-gold-700 font-semibold mb-1">General</p>
+        <p class="font-serif text-lg text-forest-700">Questions, suggestions, or feedback</p>
+        <p class="mt-2 text-xs uppercase tracking-[0.15em] text-terracotta-500 font-semibold">Jump to form →</p>
+      </a>
+      <a href="#guest" class="group bg-cream-100 border border-cream-400 rounded-lg p-6 hover:border-gold-400 hover:-translate-y-0.5 transition-all">
+        <p class="text-xs uppercase tracking-[0.18em] text-gold-700 font-semibold mb-1">Be a guest</p>
+        <p class="font-serif text-lg text-forest-700">Apply to come on the show</p>
+        <p class="mt-2 text-xs uppercase tracking-[0.15em] text-terracotta-500 font-semibold">Jump to form →</p>
+      </a>
+      <a href="#patient" class="group bg-cream-100 border border-cream-400 rounded-lg p-6 hover:border-gold-400 hover:-translate-y-0.5 transition-all">
+        <p class="text-xs uppercase tracking-[0.18em] text-gold-700 font-semibold mb-1">Become a patient</p>
+        <p class="font-serif text-lg text-forest-700">See Dr. Ryan at the clinic</p>
+        <p class="mt-2 text-xs uppercase tracking-[0.15em] text-terracotta-500 font-semibold">Jump to clinic →</p>
+      </a>
+    </div>
+  </SectionContainer>
+
+  {/* GENERAL CONTACT FORM — auto-sends to Ryan */}
+  <SectionContainer variant="cream" padding="default" id="general">
+    <div class="max-w-3xl mx-auto">
+      <p class="text-xs uppercase tracking-[0.25em] text-gold-700 font-semibold mb-2">General</p>
+      <h2 class="font-serif text-3xl sm:text-4xl text-forest-700 leading-tight">Questions, suggestions, or feedback</h2>
+      <p class="mt-3 text-lg text-brown-700">
+        Topic ideas, follow-up questions on an episode, partnership thoughts, or just a hello. Sends straight to Ryan.
+      </p>
+
+      <div class="mt-8 bg-cream-100 border border-cream-400 rounded-lg p-6 sm:p-8">
+        <ContactForm
+          formId="general-form"
+          accessKey={RYAN_KEY}
+          subject="HITS website — General contact"
+          fields={[
+            { name: 'name',  label: 'Your name', required: true,  placeholder: 'First and last' },
+            { name: 'email', label: 'Email',     required: true,  type: 'email', placeholder: 'you@example.com' },
+          ]}
+          textareaLabel="What's on your mind?"
+          submitLabel="Send to Ryan"
+          successMessage="Thanks — your message is on its way to Ryan. He'll respond as soon as he can."
+        />
+      </div>
+    </div>
+  </SectionContainer>
+
+  {/* GUEST APPLICATION FORM — auto-sends to Annie */}
+  <SectionContainer variant="sage" padding="default" id="guest">
+    <div class="max-w-3xl mx-auto">
+      <p class="text-xs uppercase tracking-[0.25em] text-gold-700 font-semibold mb-2">Be a guest</p>
+      <h2 class="font-serif text-3xl sm:text-4xl text-forest-700 leading-tight">Apply to come on the show</h2>
+      <p class="mt-3 text-lg text-brown-700">
+        We welcome physicians, theologians, saints' biographers, nutritionists, priests, and Catholic wellness voices who share the mission. Annie handles every guest application personally.
+      </p>
+
+      <div class="mt-8 bg-cream-100 border border-cream-400 rounded-lg p-6 sm:p-8">
+        <ContactForm
+          formId="guest-form"
+          accessKey={ANNIE_KEY}
+          subject="HITS website — Guest application"
+          fields={[
+            { name: 'name',          label: 'Full name',                       required: true,  placeholder: 'First and last' },
+            { name: 'email',         label: 'Email',                           required: true,  type: 'email', placeholder: 'you@example.com' },
+            { name: 'website',       label: 'Website or primary link',         required: true,  type: 'url',   placeholder: 'https://...' },
+            { name: 'social',        label: 'Social handles (optional)',       placeholder: 'IG, X, LinkedIn' },
+            { name: 'expertise',     label: 'Areas of expertise',              required: true,  placeholder: 'Functional medicine, theology of the body, etc.' },
+            { name: 'sample',        label: 'Sample of your work (optional)',  type: 'url',     placeholder: 'Podcast appearance, article, video' },
+          ]}
+          textareaName="topic"
+          textareaLabel="Proposed topic — and why it matters for Catholics right now"
+          submitLabel="Send to Annie"
+          successMessage="Thanks — Annie will review your application and respond personally."
+        />
+      </div>
+    </div>
+  </SectionContainer>
+
+  {/* BECOME A PATIENT — links only, no form */}
+  <SectionContainer variant="cream" padding="default" id="patient">
+    <div class="max-w-3xl mx-auto">
+      <p class="text-xs uppercase tracking-[0.25em] text-gold-700 font-semibold mb-2">Become a patient</p>
+      <h2 class="font-serif text-3xl sm:text-4xl text-forest-700 leading-tight">See Dr. Ryan at the clinic</h2>
+      <p class="mt-3 text-lg text-brown-700">
+        Health in the Spirit is the podcast — patient care happens at <strong>The Wellness Way Mason</strong>, Dr. Ryan's clinic in Mason, Ohio. New patients are welcomed through the clinic directly.
+      </p>
+
+      <div class="mt-8 bg-cream-100 border border-cream-400 rounded-lg p-6 sm:p-8">
+        <p class="text-sm text-brown-600">
+          Visit the clinic site to see what they offer, hours, and the broader team:
+        </p>
+        <div class="mt-4">
+          <Button href="https://thewellnesswaymason.com" variant="secondary" size="md" external arrow>thewellnesswaymason.com</Button>
+        </div>
+
+        <hr class="my-7 border-cream-400" />
+
+        <p class="text-sm text-brown-600">
+          To become a patient, use the secure online self-registration form at the clinic's patient portal:
+        </p>
+        <div class="mt-4">
+          <Button
+            href="https://the-wellness-way.neoplatform.com/dd6a54e3c98/self-registration"
+            variant="primary"
+            size="md"
+            external
+            arrow
+          >
+            Self-register as a new patient
+          </Button>
+        </div>
+      </div>
+    </div>
+  </SectionContainer>
+
+  <SectionContainer variant="cream" padding="default">
+    <div class="max-w-2xl mx-auto text-center">
+      <p class="text-sm text-brown-500 italic">
+        Prefer email? <a href="mailto:ryan@healthinthespirit.com" class="text-terracotta-500 underline underline-offset-2">ryan@healthinthespirit.com</a> for general · <a href="mailto:annie@healthinthespirit.com" class="text-terracotta-500 underline underline-offset-2">annie@healthinthespirit.com</a> for guest applications.
+      </p>
+      <div class="mt-8">
+        <Button href="/about" variant="secondary" size="md">← About the hosts</Button>
+      </div>
+    </div>
+  </SectionContainer>
+
+</BaseLayout>

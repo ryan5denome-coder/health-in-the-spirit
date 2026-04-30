@@ -1,0 +1,53 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SectionContainer from '../components/SectionContainer.astro';
+import Prose from '../components/Prose.astro';
+---
+<BaseLayout
+  title="Privacy Policy | Health in the Spirit"
+  description="How Health in the Spirit collects, stores, and uses information from visitors and newsletter subscribers."
+>
+
+  <SectionContainer variant="cream" padding="large">
+    <div class="max-w-3xl mx-auto text-center">
+      <p class="text-xs uppercase tracking-[0.25em] text-gold-700 font-semibold mb-4">Privacy</p>
+      <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl text-forest-700 leading-tight">
+        Privacy Policy
+      </h1>
+      <p class="mt-4 text-sm text-brown-500 italic">Last updated: April 30, 2026</p>
+    </div>
+  </SectionContainer>
+
+  <SectionContainer variant="cream" padding="default">
+    <div class="max-w-3xl mx-auto">
+      <Prose>
+        <p>This is a placeholder Privacy Policy. A finalized version with Cloudflare-hosting-specific language, MailerLite newsletter disclosures, and any analytics opt-outs will replace it before launch on July 7, 2026.</p>
+
+        <h2>Who we are</h2>
+        <p>Health in the Spirit is a podcast and content site operated by Dr. Ryan DeNome and Annie DeNome. The site is hosted on Cloudflare Pages and built with Astro and Decap CMS. The site URL is <a href="https://healthinthespirit.com">https://healthinthespirit.com</a>.</p>
+
+        <h2>What we collect</h2>
+        <p>We collect only what we need to run the site and respond to you:</p>
+        <ul>
+          <li><strong>Email addresses</strong> you submit via the newsletter signup form. These are stored at our newsletter provider (MailerLite) and used only to send the email updates you signed up for. You can unsubscribe at any time using the link in any email.</li>
+          <li><strong>Email correspondence</strong> when you contact us at any of our published email addresses. We keep these emails as long as our reply thread remains useful.</li>
+          <li><strong>Server logs</strong> from Cloudflare Pages — aggregate, non-identifying request data Cloudflare uses to keep the site online and secure.</li>
+        </ul>
+        <p>We do not use third-party advertising trackers or sell your data to anyone, ever.</p>
+
+        <h2>Cookies</h2>
+        <p>The site uses minimal browser storage to remember small preferences — for example, whether you have dismissed our top announcement bar. We do not use cookies for cross-site tracking.</p>
+
+        <h2>Your rights</h2>
+        <p>You may request that we delete or correct any personal data we hold about you. Email <a href="mailto:privacy@healthinthespirit.com">privacy@healthinthespirit.com</a> with your request and we will respond within a reasonable period.</p>
+
+        <h2>Changes</h2>
+        <p>We may update this Privacy Policy from time to time. The "Last updated" date at the top of this page reflects the most recent change.</p>
+
+        <h2>Contact</h2>
+        <p>Questions about privacy: <a href="mailto:privacy@healthinthespirit.com">privacy@healthinthespirit.com</a>.</p>
+      </Prose>
+    </div>
+  </SectionContainer>
+
+</BaseLayout>

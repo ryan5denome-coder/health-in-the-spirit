@@ -1,0 +1,138 @@
+# robots.txt — Health in the Spirit
+# https://healthinthespirit.com/robots.txt
+#
+# Strategy: this is a national Catholic podcast aiming for both classic SEO
+# (Google/Bing) AND Generative Engine Optimization (LLMs cite us, recommend us,
+# answer questions about Catholic health using our content). We explicitly allow
+# every major search engine AND every documented AI training/grounding crawler.
+# We block only what doesn't belong indexed — the CMS surface and uploads.
+
+# ============================================================
+# Default — everything else welcome
+# ============================================================
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /admin
+Disallow: /api/
+
+# ============================================================
+# SEARCH ENGINES — explicitly allowed
+# ============================================================
+User-agent: Googlebot
+Allow: /
+Disallow: /admin/
+
+User-agent: Googlebot-Image
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+Disallow: /admin/
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+User-agent: Applebot
+Allow: /
+Disallow: /admin/
+
+# ============================================================
+# AI / LLM CRAWLERS — explicitly allowed (Generative Engine Optimization)
+# ============================================================
+# Allowing these enables the show to be cited, summarized, and recommended by
+# AI assistants when users ask questions like "what's a good Catholic health
+# podcast?" or "what does St. Hildegard say about wellness?"
+#
+# Each of these has documented its own User-Agent string. Allowing them is the
+# standard way to opt in to AI training and grounding.
+
+# OpenAI — ChatGPT training crawl
+User-agent: GPTBot
+Allow: /
+
+# OpenAI — ChatGPT-as-user (when ChatGPT browses the live web on a user's behalf)
+User-agent: ChatGPT-User
+Allow: /
+
+# OpenAI — search index for ChatGPT Search
+User-agent: OAI-SearchBot
+Allow: /
+
+# Anthropic — Claude
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+# Google — Bard / Gemini training (separate from Googlebot)
+User-agent: Google-Extended
+Allow: /
+
+# Apple — Apple Intelligence (separate from Applebot)
+User-agent: Applebot-Extended
+Allow: /
+
+# Perplexity — search engine that cites sources
+User-agent: PerplexityBot
+Allow: /
+
+# Microsoft Copilot
+User-agent: cohere-ai
+Allow: /
+
+User-agent: cohere-training-data-crawler
+Allow: /
+
+# Meta AI
+User-agent: Meta-ExternalAgent
+Allow: /
+
+User-agent: FacebookBot
+Allow: /
+
+# ByteDance / TikTok AI
+User-agent: Bytespider
+Allow: /
+
+# Common Crawl — open web archive used to train many models
+User-agent: CCBot
+Allow: /
+
+# Diffbot — knowledge graph builder
+User-agent: Diffbot
+Allow: /
+
+# Amazon — Alexa / Rufus
+User-agent: Amazonbot
+Allow: /
+
+# DuckDuckGo AI
+User-agent: DuckAssistBot
+Allow: /
+
+# Mistral
+User-agent: MistralAI-User
+Allow: /
+
+# You.com
+User-agent: YouBot
+Allow: /
+
+# ============================================================
+# CRAWLERS WE EXPLICITLY DO NOT WELCOME
+# ============================================================
+# Reserved for future use — currently empty. If a specific scraper
+# becomes a problem (SEO spam tools hammering the site, etc.), block here.
+
+# ============================================================
+# SITEMAP
+# ============================================================
+Sitemap: https://healthinthespirit.com/sitemap-index.xml

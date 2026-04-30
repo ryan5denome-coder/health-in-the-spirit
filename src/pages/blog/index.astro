@@ -1,0 +1,56 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SectionContainer from '../../components/SectionContainer.astro';
+import BlogPostCard from '../../components/BlogPostCard.astro';
+import Button from '../../components/Button.astro';
+import { getCollection } from 'astro:content';
+
+const allPosts = (await getCollection('posts', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+---
+<BaseLayout
+  title="Blog — Catholic Health & Faith | Health in the Spirit"
+  description="Written reflections on Catholic health and faith — nutrition, the saints, holistic medicine, and Catholic family wellness from Health in the Spirit."
+  breadcrumbs={[{ name: 'Blog', url: '/blog' }]}
+  keywords={['Catholic health blog', 'Catholic wellness blog', 'Saints reflections', 'Catholic family health']}
+>
+
+  <SectionContainer variant="cream" padding="large">
+    <div class="max-w-3xl mx-auto text-center">
+      <p class="text-xs uppercase tracking-[0.25em] text-gold-700 font-semibold mb-4">The blog</p>
+      <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl text-forest-700 leading-tight">
+        The Health in the Spirit Blog
+      </h1>
+      <p class="mt-6 text-xl text-brown-700 italic font-serif">
+        Reflections, recipes, saint wisdom, and practical theology of the body — slower thoughts than the podcast can hold.
+      </p>
+    </div>
+  </SectionContainer>
+
+  <SectionContainer variant="cream" padding="default">
+    <div class="max-w-7xl mx-auto">
+      {allPosts.length > 0 ? (
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+          {allPosts.map((post) => (
+            <BlogPostCard
+              title={post.data.title}
+              href={`/blog/${post.id}/`}
+              date={post.data.pubDate}
+              excerpt={post.data.description}
+              tags={post.data.tags}
+            />
+          ))}
+        </div>
+      ) : (
+        <div class="max-w-2xl mx-auto text-center py-16">
+          <h2 class="font-serif text-3xl text-forest-700">New reflections coming soon</h2>
+          <p class="mt-4 text-lg text-brown-700">The first posts go up alongside the podcast launch on July 7, 2026.</p>
+          <div class="mt-8">
+            <Button href="/subscribe" variant="primary" size="md" arrow>Subscribe to be notified</Button>
+          </div>
+        </div>
+      )}
+    </div>
+  </SectionContainer>
+
+</BaseLayout>
