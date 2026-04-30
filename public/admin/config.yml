@@ -16,9 +16,9 @@
 # test the admin UI before GitHub OAuth is wired up in Phase 9.
 backend:
   name: github
-  repo: ryan5denome-coder/health-in-the-spirit       # set in Phase 9
+  repo: ryan5denome-coder/health-in-the-spirit
   branch: main
-  base_url: https://decap-oauth.healthinthespirit.com   # Cloudflare Worker OAuth (Phase 9)
+  base_url: https://decap-oauth-hits.ryan-b50.workers.dev   # Cloudflare Worker OAuth proxy
   auth_endpoint: auth
 
 local_backend: true
