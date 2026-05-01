@@ -133,8 +133,15 @@ const samplePosts = [
 
   <SectionContainer variant="cream" id="about-teaser">
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-      <div class="aspect-[4/5] bg-cream-300 border border-cream-400 rounded-lg flex items-center justify-center">
-        <p class="text-brown-500 italic text-sm text-center px-6">Photo of Ryan & Annie<br/>(coming soon)</p>
+      <div class="aspect-[4/5] overflow-hidden rounded-lg shadow-sm">
+        <img
+          src="/photos/ryan-annie.jpg"
+          alt="Dr. Ryan and Annie DeNome, hosts of the Health in the Spirit Catholic health and wellness podcast"
+          class="w-full h-full object-cover"
+          width="1400"
+          height="2100"
+          loading="lazy"
+        />
       </div>
       <div class="flex flex-col gap-5">
         <p class="text-xs uppercase tracking-[0.25em] text-gold-700 font-semibold">Meet the hosts</p>
