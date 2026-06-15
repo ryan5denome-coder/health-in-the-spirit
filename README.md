@@ -1,43 +1,45 @@
-# Astro Starter Kit: Minimal
+# Health in the Spirit
 
-```sh
-npm create astro@latest -- --template minimal
-```
+Marketing and podcast site for **Health in the Spirit**, a Catholic health and wellness podcast with Dr. Ryan and Annie DeNome. Holistic health rooted in the Saints, Scripture, and the Catechism.
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+- **Live site:** https://healthinthespirit.com
+- **Stack:** [Astro](https://astro.build) 6 + [Tailwind CSS](https://tailwindcss.com) v4
+- **CMS:** [Decap CMS](https://decapcms.org) (GitHub backend) at `/admin`
+- **Hosting:** Cloudflare Pages (Node 22)
+- **Auth proxy:** Cloudflare Worker (`worker/decap-oauth.js`) for Decap's GitHub OAuth
 
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
+## Project structure
 
 ```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
+src/
+  components/      Reusable Astro components (Hero, Cards, Footer, etc.)
+  content/         Content collections (episodes, saints, posts, pages, settings)
+  layouts/         BaseLayout
+  lib/             site config + JSON-LD schema helpers
+  pages/           Routes (.astro), plus rss.xml.js and /admin
+  styles/          global.css (brand palette + Tailwind theme)
+public/
+  admin/config.yml Decap CMS config
+  brand/           Logos and marks
+  photos/          Host photography
+worker/            Cloudflare Worker: GitHub OAuth proxy for Decap
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+Content authors edit episodes, saints, blog posts, and page copy through `/admin` (Decap CMS), which commits to this repo's `main` branch.
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+## Commands
 
-Any static assets, like images, can be placed in the `public/` directory.
+| Command            | Action                                                    |
+| :----------------- | :-------------------------------------------------------- |
+| `npm install`      | Install dependencies                                      |
+| `npm run dev`      | Start the dev server at `localhost:4321`                  |
+| `npm run dev:cms`  | Dev server + local Decap proxy (edit content at `/admin`) |
+| `npm run build`    | Build the production site to `./dist/`                    |
+| `npm run preview`  | Preview the production build locally                      |
 
-## 🧞 Commands
+## Deployment
 
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+Pushes to `main` trigger a Cloudflare Pages build. The Decap admin requires the
+GitHub OAuth proxy Worker to be deployed with `GITHUB_CLIENT_ID` and
+`GITHUB_CLIENT_SECRET` set as Worker secrets. See `worker/decap-oauth.js` and
+`public/admin/config.yml`.
