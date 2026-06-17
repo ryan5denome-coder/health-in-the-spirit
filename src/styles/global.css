@@ -100,15 +100,69 @@ body {
   background-color: var(--color-cream-200);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
   color: var(--color-forest-700);
+  text-wrap: balance; /* avoid orphaned single words on display headings */
+}
+
+/* Long-form copy reads better with smarter line breaks */
+p {
+  text-wrap: pretty;
+}
+
+/* Anchor jumps clear the sticky header instead of hiding under it */
+:where([id]) {
+  scroll-margin-top: 7rem;
 }
 
 /* Visible focus ring for keyboard nav (WCAG 2.1 AA) */
 :focus-visible {
   outline: 2px solid var(--color-gold-500);
   outline-offset: 3px;
+}
+
+/* ─────────────────────────────────────────────────────────
+   Scroll-reveal motion layer
+   Elements tagged [data-reveal] fade + rise into view once.
+   Driven by an IntersectionObserver in BaseLayout. Fully
+   disabled under prefers-reduced-motion (content shows instantly).
+   ───────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: no-preference) {
+  [data-reveal] {
+    opacity: 0;
+    transform: translateY(1.5rem);
+    transition:
+      opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+
+  [data-reveal].is-visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Stagger direct children when a container opts in with [data-reveal-children] */
+  [data-reveal-children] > * {
+    opacity: 0;
+    transform: translateY(1.25rem);
+    transition:
+      opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  [data-reveal-children].is-visible > * {
+    opacity: 1;
+    transform: none;
+  }
+
+  [data-reveal-children].is-visible > *:nth-child(2) { transition-delay: 0.08s; }
+  [data-reveal-children].is-visible > *:nth-child(3) { transition-delay: 0.16s; }
+  [data-reveal-children].is-visible > *:nth-child(4) { transition-delay: 0.24s; }
+  [data-reveal-children].is-visible > *:nth-child(5) { transition-delay: 0.32s; }
+  [data-reveal-children].is-visible > *:nth-child(6) { transition-delay: 0.40s; }
 }

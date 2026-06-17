@@ -7,6 +7,14 @@ interface Cta {
   external?: boolean;
 }
 
+interface HeroImage {
+  src: string;
+  alt: string;
+  /** intrinsic dimensions for CLS-safe loading */
+  width?: number;
+  height?: number;
+}
+
 interface Props {
   eyebrow?: string;
   title: string;
@@ -17,6 +25,9 @@ interface Props {
   showEmblem?: boolean;
   /** When set, the H1 renders as an image of the logo (alt = title) instead of styled text. */
   logoSrc?: string;
+  /** When set, the hero renders as a photography-forward split with this image
+   *  in an arched frame. Without it, the hero keeps the centered layout. */
+  image?: HeroImage;
 }
 
 const {
@@ -28,71 +39,170 @@ const {
   align = 'center',
   showEmblem = false,
   logoSrc,
+  image,
 } = Astro.props;
 
-const alignClasses = align === 'center' ? 'text-center items-center' : 'text-left items-start';
+const split = Boolean(image);
+// In split mode the copy is always left-aligned; otherwise honor `align`.
+const effectiveAlign = split ? 'left' : align;
+const alignClasses = effectiveAlign === 'center' ? 'text-center items-center' : 'text-left items-start';
 ---
 <section class="relative bg-cream-200 overflow-hidden">
+  {/* Warm ambient glow — layered radial tints, not an AI-gradient blob */}
+  <div
+    class="absolute inset-0 -z-0 opacity-70"
+    aria-hidden="true"
+    style="background:
+      radial-gradient(60rem 40rem at 85% -10%, rgba(196,169,106,0.18), transparent 60%),
+      radial-gradient(50rem 40rem at 0% 110%, rgba(163,177,138,0.16), transparent 55%);"
+  ></div>
   {/* subtle decorative top hairline */}
-  <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold-400/40 to-transparent" aria-hidden="true"></div>
+  <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold-400/50 to-transparent" aria-hidden="true"></div>
 
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 lg:py-36">
-    <div class={`flex flex-col gap-6 ${alignClasses} ${align === 'center' ? 'mx-auto max-w-3xl' : 'max-w-2xl'}`}>
-      {showEmblem && (
-        <img
-          src="/brand/emblem.svg"
-          alt=""
-          width="120"
-          height="120"
-          class="w-20 sm:w-28 h-auto mb-2"
-          loading="eager"
-        />
-      )}
+  {split ? (
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-28">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
 
-      {eyebrow && (
-        <p class="text-xs sm:text-sm uppercase tracking-[0.25em] text-gold-600 font-semibold">
-          {eyebrow}
-        </p>
-      )}
-
-      {logoSrc ? (
-        <h1 class={align === 'center' ? 'flex justify-center' : ''}>
-          <img
-            src={logoSrc}
-            alt={title}
-            class="w-full max-w-2xl h-auto"
-            width="1200"
-            height="390"
-            loading="eager"
-            fetchpriority="high"
-          />
-        </h1>
-      ) : (
-        <h1 class="font-serif text-4xl sm:text-5xl lg:text-7xl font-bold text-forest-700 leading-[1.05] tracking-tight">
-          {title}
-        </h1>
-      )}
-
-      {subtitle && (
-        <p class="text-lg sm:text-xl lg:text-2xl text-brown-700 italic font-serif leading-snug max-w-2xl">
-          {subtitle}
-        </p>
-      )}
-
-      {(primaryCta || secondaryCta) && (
-        <div class={`flex flex-col sm:flex-row gap-3 sm:gap-4 mt-2 ${align === 'center' ? 'sm:justify-center' : ''}`}>
-          {primaryCta && (
-            <Button href={primaryCta.href} variant="primary" size="lg" arrow external={primaryCta.external}>
-              {primaryCta.label}
-            </Button>
+        {/* Copy column */}
+        <div class="lg:col-span-6 xl:col-span-7 flex flex-col gap-6 items-start text-left" data-reveal-children>
+          {eyebrow && (
+            <p class="text-xs sm:text-sm uppercase tracking-[0.25em] text-gold-700 font-semibold">
+              {eyebrow}
+            </p>
           )}
-          {secondaryCta && (
-            <Button href={secondaryCta.href} variant="secondary" size="lg" external={secondaryCta.external}>
-              {secondaryCta.label}
-            </Button>
+
+          {logoSrc ? (
+            <h1>
+              <img
+                src={logoSrc}
+                alt={title}
+                class="w-full max-w-lg h-auto"
+                width="1200"
+                height="390"
+                loading="eager"
+                fetchpriority="high"
+              />
+            </h1>
+          ) : (
+            <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold text-forest-700 leading-[1.05] tracking-tight">
+              {title}
+            </h1>
+          )}
+
+          {subtitle && (
+            <p class="text-lg sm:text-xl lg:text-2xl text-brown-700 italic font-serif leading-snug max-w-xl">
+              {subtitle}
+            </p>
+          )}
+
+          {(primaryCta || secondaryCta) && (
+            <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-2">
+              {primaryCta && (
+                <Button href={primaryCta.href} variant="primary" size="lg" arrow external={primaryCta.external}>
+                  {primaryCta.label}
+                </Button>
+              )}
+              {secondaryCta && (
+                <Button href={secondaryCta.href} variant="secondary" size="lg" external={secondaryCta.external}>
+                  {secondaryCta.label}
+                </Button>
+              )}
+            </div>
           )}
         </div>
-      )}
+
+        {/* Portrait column — arched frame with offset accent and emblem */}
+        <div class="lg:col-span-6 xl:col-span-5" data-reveal>
+          <div class="relative mx-auto max-w-md lg:max-w-none">
+            {/* soft offset panel behind for depth */}
+            <div
+              class="absolute -inset-3 sm:-inset-4 rounded-t-[7rem] rounded-b-2xl bg-sage-200/70 -z-0"
+              aria-hidden="true"
+            ></div>
+            <div class="relative overflow-hidden rounded-t-[7rem] rounded-b-2xl ring-1 ring-gold-300/70 shadow-[0_24px_60px_-24px_rgba(45,59,45,0.45)]">
+              <img
+                src={image.src}
+                alt={image.alt}
+                width={image.width ?? 1200}
+                height={image.height ?? 1500}
+                class="w-full h-full object-cover aspect-[4/5]"
+                loading="eager"
+                fetchpriority="high"
+              />
+            </div>
+            {/* emblem medallion overlapping the lower corner */}
+            <img
+              src="/brand/emblem.svg"
+              alt=""
+              aria-hidden="true"
+              width="96"
+              height="96"
+              class="hidden sm:block absolute -bottom-5 -left-5 w-20 h-20 rounded-full bg-cream-100 p-3 ring-1 ring-gold-300/70 shadow-md"
+            />
+          </div>
+        </div>
+
+      </div>
     </div>
-  </div>
+  ) : (
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 lg:py-36">
+      <div class={`flex flex-col gap-6 ${alignClasses} ${effectiveAlign === 'center' ? 'mx-auto max-w-3xl' : 'max-w-2xl'}`} data-reveal-children>
+        {showEmblem && (
+          <img
+            src="/brand/emblem.svg"
+            alt=""
+            width="120"
+            height="120"
+            class="w-20 sm:w-28 h-auto mb-2"
+            loading="eager"
+          />
+        )}
+
+        {eyebrow && (
+          <p class="text-xs sm:text-sm uppercase tracking-[0.25em] text-gold-600 font-semibold">
+            {eyebrow}
+          </p>
+        )}
+
+        {logoSrc ? (
+          <h1 class={effectiveAlign === 'center' ? 'flex justify-center' : ''}>
+            <img
+              src={logoSrc}
+              alt={title}
+              class="w-full max-w-2xl h-auto"
+              width="1200"
+              height="390"
+              loading="eager"
+              fetchpriority="high"
+            />
+          </h1>
+        ) : (
+          <h1 class="font-serif text-4xl sm:text-5xl lg:text-7xl font-bold text-forest-700 leading-[1.05] tracking-tight">
+            {title}
+          </h1>
+        )}
+
+        {subtitle && (
+          <p class="text-lg sm:text-xl lg:text-2xl text-brown-700 italic font-serif leading-snug max-w-2xl">
+            {subtitle}
+          </p>
+        )}
+
+        {(primaryCta || secondaryCta) && (
+          <div class={`flex flex-col sm:flex-row gap-3 sm:gap-4 mt-2 ${effectiveAlign === 'center' ? 'sm:justify-center' : ''}`}>
+            {primaryCta && (
+              <Button href={primaryCta.href} variant="primary" size="lg" arrow external={primaryCta.external}>
+                {primaryCta.label}
+              </Button>
+            )}
+            {secondaryCta && (
+              <Button href={secondaryCta.href} variant="secondary" size="lg" external={secondaryCta.external}>
+                {secondaryCta.label}
+              </Button>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  )}
 </section>

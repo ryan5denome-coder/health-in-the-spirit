@@ -10,6 +10,9 @@ interface Props {
   class?: string;
   containerClass?: string;
   fullBleed?: boolean;  // when true, no max-width on inner container
+  /** Scroll-reveal behavior for the inner content. 'block' fades the whole
+   *  container in; 'children' staggers direct children; 'none' disables it. */
+  reveal?: 'block' | 'children' | 'none';
 }
 
 const {
@@ -20,7 +23,13 @@ const {
   class: extraClass = '',
   containerClass = '',
   fullBleed = false,
+  reveal = 'block',
 } = Astro.props;
+
+const revealAttr =
+  reveal === 'children' ? { 'data-reveal-children': '' }
+  : reveal === 'block' ? { 'data-reveal': '' }
+  : {};
 
 const variantClasses: Record<Variant, string> = {
   cream:       'bg-cream-200 text-brown-700',
@@ -44,7 +53,7 @@ const innerClass = [
 ].filter(Boolean).join(' ');
 ---
 <Tag id={id} class={wrapperClass}>
-  <div class={innerClass}>
+  <div class={innerClass} {...revealAttr}>
     <slot />
   </div>
 </Tag>

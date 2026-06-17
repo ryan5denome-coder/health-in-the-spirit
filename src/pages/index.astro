@@ -3,7 +3,6 @@ import { getCollection, getEntry } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/Hero.astro';
 import SectionContainer from '../components/SectionContainer.astro';
-import Card from '../components/Card.astro';
 import SaintCard from '../components/SaintCard.astro';
 import BlogPostCard from '../components/BlogPostCard.astro';
 import Countdown from '../components/Countdown.astro';
@@ -40,7 +39,7 @@ const saints = (await getCollection('saints', ({ data }) => !data.draft))
     imageAlt: s.data.iconAlt,
   }));
 
-const pillars = [
+const pillars = home?.data.pillars ?? [
   {
     eyebrow: 'The Saints',
     title: 'Wisdom from the healing saints',
@@ -64,30 +63,22 @@ const pillars = [
   },
 ];
 
+// Latest reflections — real, published posts only (no fake samples).
+const posts = (await getCollection('posts', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 3)
+  .map((p) => ({
+    title: p.data.title,
+    href: `/blog/${p.id}`,
+    date: p.data.pubDate,
+    excerpt: p.data.description,
+    tags: p.data.tags,
+  }));
 
-const samplePosts = [
-  {
-    title: 'Why Catholics should care about what they eat',
-    href: '/blog/why-catholics-should-care',
-    date: '2026-06-15',
-    excerpt: 'Sample post, replaced when the blog goes live.',
-    tags: ['Nutrition', 'Faith'],
-  },
-  {
-    title: "Viriditas: St. Hildegard's prescription for a vital life",
-    href: '/blog/viriditas-hildegard',
-    date: '2026-06-22',
-    excerpt: 'Sample post, replaced when the blog goes live.',
-    tags: ['Saints'],
-  },
-  {
-    title: 'The body as temple: a practical theology of health',
-    href: '/blog/body-as-temple',
-    date: '2026-06-29',
-    excerpt: 'Sample post, replaced when the blog goes live.',
-    tags: ['Theology'],
-  },
-];
+const blogGridClass =
+  posts.length === 1 ? 'max-w-2xl mx-auto'
+  : posts.length === 2 ? 'sm:grid-cols-2 max-w-4xl mx-auto'
+  : 'md:grid-cols-3';
 ---
 <BaseLayout
   title="Health in the Spirit: A Catholic Health & Wellness Podcast"
@@ -102,11 +93,16 @@ const samplePosts = [
     subtitle="Care for your body like you are going to live forever. Care for your soul like you are going to die tomorrow."
     primaryCta={{ label: 'Subscribe', href: '/subscribe' }}
     secondaryCta={{ label: 'Meet the Hosts', href: '/about' }}
+    image={{
+      src: '/photos/ryan-annie-formal.jpg',
+      alt: 'Dr. Ryan and Annie DeNome, hosts of the Health in the Spirit Catholic health and wellness podcast',
+      width: 1400,
+      height: 2100,
+    }}
   />
 
-  <SectionContainer variant="sage" id="pillars">
-    <div class="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
-      <p class="text-xs uppercase tracking-[0.25em] text-gold-700 font-semibold mb-3">What we are rooted in</p>
+  <SectionContainer variant="sage" id="pillars" reveal="none">
+    <div class="max-w-2xl mb-12 sm:mb-16" data-reveal>
       <h2 class="font-serif text-3xl sm:text-4xl lg:text-5xl text-forest-700 leading-tight">
         Saints. Scripture. The Catechism.
       </h2>
@@ -115,16 +111,23 @@ const samplePosts = [
       </p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+    <div
+      class="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-gold-300/50"
+      data-reveal-children
+    >
       {pillars.map((p) => (
-        <Card
-          variant="cream"
-          eyebrow={p.eyebrow}
-          title={p.title}
-          description={p.description}
-          href={p.href}
-          ctaLabel={p.cta}
-        />
+        <div class="flex flex-col gap-3 py-8 md:py-0 md:px-8 first:md:pl-0 last:md:pr-0">
+          <p class="text-xs uppercase tracking-[0.2em] text-gold-700 font-semibold">{p.eyebrow}</p>
+          <h3 class="font-serif text-2xl leading-tight font-semibold text-forest-700">{p.title}</h3>
+          <p class="text-base leading-relaxed text-brown-700">{p.description}</p>
+          <a
+            href={p.href}
+            class="group mt-1 text-sm font-semibold uppercase tracking-[0.15em] text-terracotta-500 hover:text-terracotta-600 inline-flex items-center gap-1.5"
+          >
+            {p.cta}
+            <span aria-hidden="true" class="transition-transform group-hover:translate-x-0.5">→</span>
+          </a>
+        </div>
       ))}
     </div>
   </SectionContainer>
@@ -133,10 +136,10 @@ const samplePosts = [
 
   <SectionContainer variant="cream" id="about-teaser">
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-      <div class="aspect-square overflow-hidden rounded-lg shadow-sm">
+      <div class="aspect-square overflow-hidden rounded-lg shadow-sm ring-1 ring-cream-400">
         <img
           src="/photos/ryan-annie.jpg"
-          alt="Dr. Ryan and Annie DeNome, hosts of the Health in the Spirit Catholic health and wellness podcast"
+          alt="Dr. Ryan and Annie DeNome at home"
           class="w-full h-full object-cover"
           width="1400"
           height="1407"
@@ -167,7 +170,7 @@ const samplePosts = [
       </h2>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8" data-reveal-children>
       {saints.map((s) => (
         <SaintCard
           name={s.name}
@@ -188,7 +191,6 @@ const samplePosts = [
 
   <SectionContainer variant="cream" id="subscribe-row">
     <div class="text-center max-w-3xl mx-auto">
-      <p class="text-xs uppercase tracking-[0.25em] text-gold-700 font-semibold mb-3">Subscribe</p>
       <h2 class="font-serif text-3xl sm:text-4xl lg:text-5xl text-forest-700 leading-tight">
         Listen wherever you get your podcasts
       </h2>
@@ -199,10 +201,6 @@ const samplePosts = [
       <div class="mt-10 flex flex-wrap justify-center gap-3 sm:gap-4">
         <Button href="/subscribe" variant="primary" size="lg" arrow>All platforms</Button>
       </div>
-
-      <p class="mt-6 text-sm text-brown-500 italic">
-        Once accounts are live, the platform buttons replace this paragraph automatically, edited from /admin.
-      </p>
     </div>
   </SectionContainer>
 
@@ -223,7 +221,7 @@ const samplePosts = [
           required
           aria-label="Email address"
           placeholder="you@example.com"
-          class="flex-1 px-4 py-3 rounded-md bg-cream-100 text-brown-700 placeholder:text-brown-400 focus-visible:outline-2 focus-visible:outline-gold-500"
+          class="flex-1 px-4 py-3 rounded-md bg-cream-100 text-brown-700 placeholder:text-brown-500 focus-visible:outline-2 focus-visible:outline-gold-500"
         />
         <button
           type="submit"
@@ -232,33 +230,28 @@ const samplePosts = [
           Notify me
         </button>
       </form>
-
-      <p class="mt-4 text-xs text-cream-300/60 italic">
-        Phase 4 placeholder. Phase 11 wires this to MailerLite (free tier).
-      </p>
     </div>
   </SectionContainer>
 
-  <SectionContainer variant="cream" id="latest-blog">
-    <div class="flex items-end justify-between flex-wrap gap-4 mb-10">
-      <div>
-        <p class="text-xs uppercase tracking-[0.25em] text-gold-700 font-semibold mb-2">From the blog</p>
+  {posts.length > 0 && (
+    <SectionContainer variant="cream" id="latest-blog">
+      <div class="flex items-end justify-between flex-wrap gap-4 mb-10">
         <h2 class="font-serif text-3xl sm:text-4xl text-forest-700 leading-tight">Latest reflections</h2>
+        <Button href="/blog" variant="ghost" size="md" arrow>All posts</Button>
       </div>
-      <Button href="/blog" variant="ghost" size="md" arrow>All posts</Button>
-    </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-      {samplePosts.map((p) => (
-        <BlogPostCard
-          title={p.title}
-          href={p.href}
-          date={p.date}
-          excerpt={p.excerpt}
-          tags={p.tags}
-        />
-      ))}
-    </div>
-  </SectionContainer>
+      <div class={`grid grid-cols-1 gap-6 sm:gap-8 ${blogGridClass}`} data-reveal-children>
+        {posts.map((p) => (
+          <BlogPostCard
+            title={p.title}
+            href={p.href}
+            date={p.date}
+            excerpt={p.excerpt}
+            tags={p.tags}
+          />
+        ))}
+      </div>
+    </SectionContainer>
+  )}
 
 </BaseLayout>
