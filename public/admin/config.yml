@@ -223,27 +223,6 @@ collections:
           - { label: "Hero subtitle", name: "heroSubtitle", widget: "text" }
           - { label: "Closing 'more saints' note", name: "moreSaintsNote", widget: "text" }
 
-      - file: "src/content/pages/subscribe.md"
-        label: "Subscribe Page"
-        name: "subscribe"
-        fields:
-          - { label: "Hero subtitle", name: "heroSubtitle", widget: "text" }
-          - label: "Podcast platforms"
-            name: "platforms"
-            widget: "list"
-            fields:
-              - { label: "Name", name: "name", widget: "string" }
-              - { label: "Status", name: "status", widget: "select", options: ["coming soon", "live"], default: "coming soon" }
-              - { label: "URL", name: "href", widget: "string", required: false }
-          - label: "Social platforms"
-            name: "socials"
-            widget: "list"
-            fields:
-              - { label: "Name", name: "name", widget: "string" }
-              - { label: "Handle", name: "handle", widget: "string" }
-              - { label: "Status", name: "status", widget: "select", options: ["coming soon", "live"], default: "coming soon" }
-              - { label: "URL", name: "href", widget: "string", required: false }
-
       - file: "src/content/pages/resources.md"
         label: "Resources Page"
         name: "resources"

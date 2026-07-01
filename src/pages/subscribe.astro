@@ -2,29 +2,31 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SectionContainer from '../components/SectionContainer.astro';
 import Button from '../components/Button.astro';
+import { site } from '../lib/site';
 
-// Podcast platforms — listening apps where the show will be available.
-// When a platform goes live, replace status with "live" and href with the real URL.
-const platforms = [
-  { name: 'Apple Podcasts',  status: 'coming soon', href: '#' },
-  { name: 'Spotify',         status: 'coming soon', href: '#' },
-  { name: 'YouTube',         status: 'coming soon', href: '#' },
-  { name: 'Amazon Music',    status: 'coming soon', href: '#' },
-  { name: 'Overcast',        status: 'coming soon', href: '#' },
-  { name: 'Pocket Casts',    status: 'coming soon', href: '#' },
-  { name: 'RSS Feed',        status: 'coming soon', href: '#' },
-];
+// Single source of truth: src/content/settings/site.json → socialUrls.
+// A platform becomes a live, clickable link the moment its URL is filled in
+// there (via Decap at /admin → Settings → Site). Empty = "coming soon".
+// This mirrors the same pattern used in Footer.astro.
+const podcastDefs = [
+  { key: 'applePodcasts', label: 'Apple Podcasts' },
+  { key: 'spotify',       label: 'Spotify' },
+  { key: 'youtube',       label: 'YouTube' },
+  { key: 'amazonMusic',   label: 'Amazon Music' },
+  { key: 'rss',           label: 'RSS Feed' },
+] as const;
 
-// Social platforms — where you follow the show. Different from podcast platforms above.
-// Handles per brand-guidelines.md: @HealthInTheSpirit on IG/TikTok/FB, @HITSPodcast on X.
-const socials = [
-  { name: 'Instagram', handle: '@HealthInTheSpirit',          status: 'coming soon', href: '#' },
-  { name: 'YouTube',   handle: 'Health in the Spirit',        status: 'coming soon', href: '#' },
-  { name: 'TikTok',    handle: '@HealthInTheSpirit',          status: 'coming soon', href: '#' },
-  { name: 'Facebook',  handle: 'Health in the Spirit Podcast', status: 'coming soon', href: '#' },
-  { name: 'LinkedIn',  handle: 'Health in the Spirit',         status: 'coming soon', href: '#' },
-  { name: 'X / Twitter', handle: '@HITSPodcast',              status: 'coming soon', href: '#' },
-];
+const socialDefs = [
+  { key: 'instagram', label: 'Instagram',   handle: '@HealthInTheSpirit' },
+  { key: 'youtube',   label: 'YouTube',     handle: 'Health in the Spirit' },
+  { key: 'tiktok',    label: 'TikTok',      handle: '@HealthInTheSpirit' },
+  { key: 'facebook',  label: 'Facebook',    handle: 'Health in the Spirit Podcast' },
+  { key: 'linkedin',  label: 'LinkedIn',    handle: 'Health in the Spirit' },
+  { key: 'twitter',   label: 'X / Twitter', handle: '@HITSPodcast' },
+] as const;
+
+const podcasts = podcastDefs.map((p) => ({ ...p, href: site.socialUrls[p.key] }));
+const socials = socialDefs.map((s) => ({ ...s, href: site.socialUrls[s.key] }));
 ---
 <BaseLayout
   title="Subscribe | Catholic Health Podcast | Health in the Spirit"
@@ -49,19 +51,38 @@ const socials = [
       </h2>
 
       <ul class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-        {platforms.map((p) => (
-          <li class="flex items-center justify-between gap-4 bg-cream-100 border border-cream-400 rounded-lg p-5">
-            <div>
-              <p class="font-serif text-xl text-forest-700">{p.name}</p>
-              <p class="text-xs uppercase tracking-[0.18em] text-brown-500 italic mt-1">{p.status}</p>
-            </div>
-            <span aria-hidden="true" class="text-cream-500">→</span>
+        {podcasts.map((p) => (
+          <li>
+            {p.href
+              ? (
+                <a
+                  href={p.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="flex items-center justify-between gap-4 bg-cream-100 border border-cream-400 rounded-lg p-5 hover:border-gold-500 hover:shadow-sm transition-colors"
+                >
+                  <div>
+                    <p class="font-serif text-xl text-forest-700">{p.label}</p>
+                    <p class="text-xs uppercase tracking-[0.18em] text-forest-600 italic mt-1">Listen now</p>
+                  </div>
+                  <span aria-hidden="true" class="text-gold-500">→</span>
+                </a>
+              )
+              : (
+                <div class="flex items-center justify-between gap-4 bg-cream-100 border border-cream-400 rounded-lg p-5 opacity-80">
+                  <div>
+                    <p class="font-serif text-xl text-forest-700">{p.label}</p>
+                    <p class="text-xs uppercase tracking-[0.18em] text-brown-500 italic mt-1">coming soon</p>
+                  </div>
+                  <span aria-hidden="true" class="text-cream-500">→</span>
+                </div>
+              )}
           </li>
         ))}
       </ul>
 
       <p class="mt-8 text-sm text-brown-500 italic text-center">
-        These platform buttons go live as accounts are created. Until then, the surest way to be first is the email signup below.
+        Each button goes live the moment that platform approves the show — usually within a few days of launch. Overcast, Castro, Pocket Casts and other apps pull the show in automatically once Apple Podcasts approves it. Until then, the surest way to be first is the email signup below.
       </p>
     </div>
   </SectionContainer>
@@ -77,13 +98,33 @@ const socials = [
 
       <ul class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         {socials.map((s) => (
-          <li class="flex items-center justify-between gap-4 bg-cream-100 border border-cream-400 rounded-lg p-5">
-            <div>
-              <p class="font-serif text-xl text-forest-700">{s.name}</p>
-              <p class="text-sm text-brown-700 mt-0.5">{s.handle}</p>
-              <p class="text-xs uppercase tracking-[0.18em] text-brown-500 italic mt-1">{s.status}</p>
-            </div>
-            <span aria-hidden="true" class="text-cream-500">→</span>
+          <li>
+            {s.href
+              ? (
+                <a
+                  href={s.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="flex items-center justify-between gap-4 bg-cream-100 border border-cream-400 rounded-lg p-5 hover:border-gold-500 hover:shadow-sm transition-colors"
+                >
+                  <div>
+                    <p class="font-serif text-xl text-forest-700">{s.label}</p>
+                    <p class="text-sm text-brown-700 mt-0.5">{s.handle}</p>
+                    <p class="text-xs uppercase tracking-[0.18em] text-forest-600 italic mt-1">Follow</p>
+                  </div>
+                  <span aria-hidden="true" class="text-gold-500">→</span>
+                </a>
+              )
+              : (
+                <div class="flex items-center justify-between gap-4 bg-cream-100 border border-cream-400 rounded-lg p-5 opacity-80">
+                  <div>
+                    <p class="font-serif text-xl text-forest-700">{s.label}</p>
+                    <p class="text-sm text-brown-700 mt-0.5">{s.handle}</p>
+                    <p class="text-xs uppercase tracking-[0.18em] text-brown-500 italic mt-1">coming soon</p>
+                  </div>
+                  <span aria-hidden="true" class="text-cream-500">→</span>
+                </div>
+              )}
           </li>
         ))}
       </ul>
