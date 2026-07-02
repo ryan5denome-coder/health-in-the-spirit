@@ -5,6 +5,7 @@ import SectionContainer from '../../components/SectionContainer.astro';
 import Prose from '../../components/Prose.astro';
 import Button from '../../components/Button.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Ornament from '../../components/Ornament.astro';
 import { SITE_URL } from '../../lib/schema';
 
 export async function getStaticPaths() {
@@ -92,12 +93,13 @@ const articleJsonLd = {
       <p class="mt-6 text-sm text-brown-500 text-center">
         By {post.data.author}
       </p>
+      <Ornament class="mt-8" />
     </div>
   </SectionContainer>
 
   <SectionContainer variant="cream" padding="default" id="post-body">
     <article class="max-w-3xl mx-auto">
-      <Prose>
+      <Prose dropCap fleuron>
         <Content />
       </Prose>
     </article>

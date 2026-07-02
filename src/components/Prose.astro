@@ -1,8 +1,10 @@
 ---
 // Wraps long-form content (markdown bodies, page bodies) with consistent typography
 // matching the brand: Cormorant Garamond headings, Inter body, dark brown text.
+// Opt-in flourishes: dropCap (illuminated first letter), fleuron (end-of-text mark).
+const { dropCap = false, fleuron = false } = Astro.props;
 ---
-<div class="prose-hits">
+<div class:list={['prose-hits', dropCap && 'prose-hits--dropcap', fleuron && 'prose-hits--fleuron']}>
   <slot />
 </div>
 
@@ -56,6 +58,34 @@
     font-size: 1.375rem;
     line-height: 1.5;
     color: var(--quote);
+  }
+  .prose-hits blockquote::before {
+    content: '\201C';
+    display: block;
+    font-family: var(--font-display);
+    font-size: 2.5em;
+    line-height: 0.6;
+    margin-bottom: 0.15em;
+    color: var(--color-gold-500);
+  }
+  /* Illuminated first letter — opt-in via dropCap prop */
+  .prose-hits--dropcap > p:first-of-type::first-letter {
+    float: left;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 3.4em;
+    line-height: 0.85;
+    padding: 0.04em 0.12em 0 0;
+    color: var(--color-forest-700);
+  }
+  /* End-of-text fleuron — opt-in via fleuron prop */
+  .prose-hits--fleuron::after {
+    content: '\2766';
+    display: block;
+    text-align: center;
+    margin-top: 3rem;
+    font-size: 1.4rem;
+    color: var(--color-gold-500);
   }
   .prose-hits hr {
     border: 0;

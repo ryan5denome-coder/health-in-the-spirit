@@ -7,6 +7,7 @@ import SaintCard from '../components/SaintCard.astro';
 import BlogPostCard from '../components/BlogPostCard.astro';
 import Countdown from '../components/Countdown.astro';
 import Button from '../components/Button.astro';
+import Ornament from '../components/Ornament.astro';
 
 // Launch: Tuesday, July 7, 2026, 6:00 AM Eastern.
 const launchIso = '2026-07-07T06:00:00-04:00';
@@ -153,7 +154,7 @@ const blogGridClass =
         <p class="text-lg text-brown-700 leading-relaxed">
           A Catholic chiropractor and a theologian-advocate raising a family in Cincinnati, Ohio. Together they bring holistic health, the wisdom of the healing saints, and the teaching of the Church into one conversation about how to live well, body and soul.
         </p>
-        <p class="text-lg text-brown-700 leading-relaxed italic font-serif">
+        <p class="text-lg text-brown-700 leading-relaxed italic font-serif border-l-2 border-gold-500/70 pl-5">
           "We do not believe faith and health are separate. The world has just forgotten they were never apart."
         </p>
         <div class="mt-2">
@@ -168,6 +169,7 @@ const blogGridClass =
       <h2 class="font-serif text-3xl sm:text-4xl lg:text-5xl text-forest-700 leading-tight">
         The Healing Saints Who Guide Us
       </h2>
+      <Ornament class="mt-6" />
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8" data-reveal-children>
@@ -194,6 +196,7 @@ const blogGridClass =
       <h2 class="font-serif text-3xl sm:text-4xl lg:text-5xl text-forest-700 leading-tight">
         Listen wherever you get your podcasts
       </h2>
+      <Ornament class="mt-6" />
       <p class="mt-4 text-lg text-brown-700">
         Apple Podcasts, Spotify, YouTube, and Amazon Music are all coming soon. Subscribe now and the first episode lands automatically on launch day.
       </p>

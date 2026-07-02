@@ -28,7 +28,7 @@ const isActive = (href: string) =>
           <a
             href={item.href}
             class:list={[
-              'text-sm font-medium tracking-wide uppercase transition-colors',
+              'nav-link text-sm font-medium tracking-wide uppercase transition-colors',
               isActive(item.href)
                 ? 'text-terracotta-500'
                 : 'text-forest-700 hover:text-terracotta-500',

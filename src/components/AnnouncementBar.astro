@@ -16,12 +16,12 @@ const {
 } = Astro.props;
 ---
 <div
-  class="bg-forest-700 text-cream-200 text-sm relative"
+  class="bg-forest-700 text-cream-200 text-sm relative border-b border-gold-500/25"
   data-announcement
   data-storage-key={storageKey}
 >
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-center gap-3 text-center">
-    <span aria-hidden="true">🎙️</span>
+    <span aria-hidden="true" class="h-1.5 w-1.5 rotate-45 bg-gold-500 shrink-0"></span>
     <p class="text-cream-200">
       {message}
       {ctaLabel && ctaHref && (

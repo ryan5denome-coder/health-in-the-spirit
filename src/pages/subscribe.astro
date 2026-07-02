@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SectionContainer from '../components/SectionContainer.astro';
 import Button from '../components/Button.astro';
+import Ornament from '../components/Ornament.astro';
 import { site } from '../lib/site';
 
 // Single source of truth: src/content/settings/site.json → socialUrls.
@@ -41,6 +42,7 @@ const socials = socialDefs.map((s) => ({ ...s, href: site.socialUrls[s.key] }));
       <p class="mt-6 text-xl text-brown-700 italic font-serif">
         Listen wherever you get your podcasts. New episodes every Tuesday at 6 AM ET, beginning July 7, 2026.
       </p>
+      <Ornament class="mt-6" />
     </div>
   </SectionContainer>
 
@@ -59,13 +61,13 @@ const socials = socialDefs.map((s) => ({ ...s, href: site.socialUrls[s.key] }));
                   href={p.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="flex items-center justify-between gap-4 bg-cream-100 border border-cream-400 rounded-lg p-5 hover:border-gold-500 hover:shadow-sm transition-colors"
+                  class="group flex items-center justify-between gap-4 bg-cream-100 border border-cream-400 rounded-lg p-5 transition-[border-color,box-shadow,transform] duration-200 ease-out hover:border-gold-500 hover:shadow-md motion-safe:hover:-translate-y-0.5"
                 >
                   <div>
                     <p class="font-serif text-xl text-forest-700">{p.label}</p>
                     <p class="text-xs uppercase tracking-[0.18em] text-forest-600 italic mt-1">Listen now</p>
                   </div>
-                  <span aria-hidden="true" class="text-gold-500">→</span>
+                  <span aria-hidden="true" class="text-gold-500 transition-transform duration-200 motion-safe:group-hover:translate-x-1">→</span>
                 </a>
               )
               : (
@@ -105,14 +107,14 @@ const socials = socialDefs.map((s) => ({ ...s, href: site.socialUrls[s.key] }));
                   href={s.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="flex items-center justify-between gap-4 bg-cream-100 border border-cream-400 rounded-lg p-5 hover:border-gold-500 hover:shadow-sm transition-colors"
+                  class="group flex items-center justify-between gap-4 bg-cream-100 border border-cream-400 rounded-lg p-5 transition-[border-color,box-shadow,transform] duration-200 ease-out hover:border-gold-500 hover:shadow-md motion-safe:hover:-translate-y-0.5"
                 >
                   <div>
                     <p class="font-serif text-xl text-forest-700">{s.label}</p>
                     <p class="text-sm text-brown-700 mt-0.5">{s.handle}</p>
                     <p class="text-xs uppercase tracking-[0.18em] text-forest-600 italic mt-1">Follow</p>
                   </div>
-                  <span aria-hidden="true" class="text-gold-500">→</span>
+                  <span aria-hidden="true" class="text-gold-500 transition-transform duration-200 motion-safe:group-hover:translate-x-1">→</span>
                 </a>
               )
               : (
@@ -132,7 +134,7 @@ const socials = socialDefs.map((s) => ({ ...s, href: site.socialUrls[s.key] }));
   </SectionContainer>
 
   <SectionContainer variant="forest" padding="default" id="newsletter">
-    <div class="text-center max-w-2xl mx-auto">
+    <div class="text-center max-w-2xl mx-auto rounded-2xl border border-gold-500/40 ring-1 ring-gold-500/20 ring-offset-8 ring-offset-forest-700 px-6 py-10 sm:px-12">
       <p class="text-xs uppercase tracking-[0.25em] text-gold-500 font-semibold mb-3">Don't miss the launch</p>
       <h2 class="font-serif text-3xl sm:text-4xl text-cream-200 leading-tight">
         Get the first episode in your inbox.

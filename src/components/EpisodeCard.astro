@@ -35,10 +35,10 @@ const hasEmbed = Boolean(episode.buzzsproutEmbedId || episode.spotifyEmbedUrl ||
 <article class="bg-cream-100 border border-cream-400 rounded-lg overflow-hidden flex flex-col">
 
   {/* Header strip */}
-  <div class="px-6 sm:px-7 pt-6 pb-4 border-b border-cream-300">
+  <div class="px-6 sm:px-7 pt-6 pb-0">
     <div class="flex items-center justify-between gap-3">
       <p class="text-xs uppercase tracking-[0.18em] text-gold-700 font-semibold">
-        Episode {episode.number}
+        Episode Nº {episode.number}
       </p>
       <span class:list={[
         'text-[10px] uppercase tracking-[0.18em] font-semibold px-2 py-1 rounded',
@@ -53,6 +53,7 @@ const hasEmbed = Boolean(episode.buzzsproutEmbedId || episode.spotifyEmbedUrl ||
     {episode.guestName && (
       <p class="mt-1 text-sm italic font-serif text-brown-600">with {episode.guestName}</p>
     )}
+    <div class="mt-4 h-px bg-gradient-to-r from-gold-500/60 via-cream-300 to-transparent" aria-hidden="true"></div>
   </div>
 
   {/* Body */}

@@ -3,6 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import SectionContainer from '../components/SectionContainer.astro';
 import Button from '../components/Button.astro';
 import Prose from '../components/Prose.astro';
+import Ornament from '../components/Ornament.astro';
 
 const personJsonLd = [
   {
@@ -51,6 +52,7 @@ const personJsonLd = [
       <p class="mt-6 text-xl text-brown-700 italic font-serif">
         Where faith meets wellness, and the ancient wisdom of the Church meets modern health science.
       </p>
+      <Ornament class="mt-6" />
     </div>
   </SectionContainer>
 
@@ -60,7 +62,7 @@ const personJsonLd = [
         <h2 class="font-serif text-3xl sm:text-4xl text-forest-700 mt-3 leading-tight">How it all started</h2>
       </div>
       <div class="lg:col-span-8">
-        <Prose>
+        <Prose dropCap>
           <p>Some love stories begin over candlelight. Ours began over a Sunday brunch on the Loveland Bike Trail.</p>
           <p>Ryan and Annie met through mutual friends at Franciscan University of Steubenville — a place where conversations about saints and sacraments are as common as coffee runs. Their first date was a quiet Sunday afternoon: brunch and a picnic along the trail, talking about faith, family, and what they wanted their lives to look like. It was easy. It was natural. It felt like the beginning of something.</p>
           <p>Their second date made sure of it.</p>

@@ -50,18 +50,21 @@ const faqJsonLd = {
       <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl text-forest-700 leading-tight">
         Frequently asked questions
       </h1>
+      <p class="mt-6 text-xl text-brown-700 italic font-serif">
+        Straight answers about the show, guesting, and seeing Dr. Ryan.
+      </p>
     </div>
   </SectionContainer>
 
   <SectionContainer variant="cream" padding="default">
     <div class="max-w-3xl mx-auto space-y-4">
       {faqs.map((f) => (
-        <details class="group bg-cream-100 border border-cream-400 rounded-lg p-6 sm:p-7 [&_summary::-webkit-details-marker]:hidden">
+        <details class="group bg-cream-100 border border-cream-400 hover:border-gold-400 transition-colors rounded-lg p-6 sm:p-7 [&_summary::-webkit-details-marker]:hidden">
           <summary class="cursor-pointer flex items-start justify-between gap-4 list-none">
             <h2 class="font-serif text-xl sm:text-2xl text-forest-700 leading-tight">{f.q}</h2>
-            <span class="text-gold-600 text-2xl leading-none transition-transform group-open:rotate-45 mt-1" aria-hidden="true">+</span>
+            <span class="font-serif text-gold-500 text-2xl leading-none transition-transform motion-reduce:transition-none group-open:rotate-45 mt-1" aria-hidden="true">+</span>
           </summary>
-          <p class="mt-4 text-base text-brown-700 leading-relaxed">{f.a}</p>
+          <p class="mt-5 pt-4 border-t border-gold-500/30 text-base text-brown-700 leading-relaxed">{f.a}</p>
         </details>
       ))}
     </div>

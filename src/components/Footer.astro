@@ -29,11 +29,12 @@ const socialDefs = [
 
 const year = new Date().getFullYear();
 ---
-<footer class="bg-forest-700 text-cream-200 mt-16 sm:mt-24">
+<footer class="bg-forest-700 text-cream-200 mt-16 sm:mt-24 border-t-[3px] border-double border-gold-500/50">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
 
       <div>
+        <img src="/brand/emblem-transparent.svg" alt="" width="40" height="40" class="h-10 w-auto mb-3" loading="lazy" />
         <p class="font-serif text-2xl text-cream-200 leading-tight">
           Health<br/>in the Spirit
         </p>
@@ -80,7 +81,7 @@ const year = new Date().getFullYear();
 
     <div class="mt-12 pt-8 border-t border-forest-600/60 text-xs text-cream-300/70 flex flex-col sm:flex-row justify-between gap-2">
       <p>&copy; {year} Health in the Spirit. All rights reserved.</p>
-      <p class="italic">Sts. Cosmas & Damian · St. Hildegard of Bingen · St. Augustine of Hippo, pray for us.</p>
+      <p class="italic"><span class="text-gold-500" aria-hidden="true">✠</span> Sts. Cosmas & Damian · St. Hildegard of Bingen · St. Augustine of Hippo, pray for us.</p>
     </div>
   </div>
 </footer>

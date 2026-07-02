@@ -6,6 +6,7 @@ import Countdown from '../../components/Countdown.astro';
 import Button from '../../components/Button.astro';
 import EpisodeCard from '../../components/EpisodeCard.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Ornament from '../../components/Ornament.astro';
 import { SITE_URL } from '../../lib/schema';
 
 const launchIso = '2026-07-07T06:00:00-04:00';
@@ -86,7 +87,8 @@ const indexSchema: Record<string, unknown> = {
       <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl text-forest-700 leading-tight">
         Catholic Health Podcast Episodes
       </h1>
-      <p class="mt-6 text-xl text-brown-700 italic font-serif">
+      <Ornament class="mt-6" />
+      <p class="mt-5 text-xl text-brown-700 italic font-serif">
         Three episodes drop on launch day — Tuesday, July 7, 2026. Weekly after that.
       </p>
     </div>
@@ -136,7 +138,7 @@ const indexSchema: Record<string, unknown> = {
         <Button href="/saints" variant="secondary" size="lg">Meet the saints</Button>
       </div>
       <p class="mt-8 text-sm text-brown-500 italic max-w-xl mx-auto">
-        Episode players above auto-activate the moment audio is published. The page renders Buzzsprout, Spotify, or YouTube embeds based on whichever fields are set per episode — drop-in, no code change required.
+        Players appear right here the moment each episode goes live — come back launch morning, or subscribe and we'll bring it to you.
       </p>
     </div>
   </SectionContainer>

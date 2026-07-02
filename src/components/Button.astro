@@ -49,7 +49,9 @@ const sizeClasses: Record<Size, string> = {
 const baseClasses = [
   'inline-flex items-center justify-center gap-2',
   'font-semibold uppercase tracking-[0.12em]',
-  'rounded-md transition-colors',
+  'rounded-md group transition-[color,background-color,border-color,transform,box-shadow] duration-200 ease-out',
+  'motion-safe:hover:-translate-y-px active:translate-y-0',
+  variant !== 'ghost' ? 'hover:shadow-[0_4px_14px_-6px_rgba(45,59,45,0.4)] active:shadow-none' : '',
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-500',
   fullWidth ? 'w-full' : '',
   variantClasses[variant],
@@ -62,11 +64,11 @@ const externalAttrs = external ? { target: '_blank', rel: 'noopener noreferrer' 
 {href ? (
   <a href={href} class={baseClasses} aria-label={ariaLabel} {...externalAttrs}>
     <slot />
-    {arrow && <span aria-hidden="true">→</span>}
+    {arrow && <span aria-hidden="true" class="transition-transform duration-200 ease-out motion-safe:group-hover:translate-x-0.5 motion-safe:group-focus-visible:translate-x-0.5">→</span>}
   </a>
 ) : (
   <button type={type} class={baseClasses} aria-label={ariaLabel}>
     <slot />
-    {arrow && <span aria-hidden="true">→</span>}
+    {arrow && <span aria-hidden="true" class="transition-transform duration-200 ease-out motion-safe:group-hover:translate-x-0.5 motion-safe:group-focus-visible:translate-x-0.5">→</span>}
   </button>
 )}

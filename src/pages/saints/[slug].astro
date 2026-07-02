@@ -86,11 +86,11 @@ const saintJsonLd: Record<string, unknown>[] = [
     <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-5 gap-8 md:gap-12 items-center">
       <div class="md:col-span-2 flex justify-center">
         {s.iconImage ? (
-          <div class="aspect-square w-48 sm:w-64 rounded-full overflow-hidden border-4 border-gold-400 shadow-md">
+          <div class="aspect-square w-48 sm:w-64 rounded-full overflow-hidden border border-gold-500 ring-1 ring-gold-400/70 ring-offset-[5px] ring-offset-cream-200 shadow-md">
             <img src={s.iconImage} alt={s.iconAlt || s.name} class="w-full h-full object-cover" />
           </div>
         ) : (
-          <div class="aspect-square w-48 sm:w-64 rounded-full border-4 border-gold-400 bg-cream-200 flex items-center justify-center">
+          <div class="aspect-square w-48 sm:w-64 rounded-full border border-gold-500 ring-1 ring-gold-400/70 ring-offset-[5px] ring-offset-cream-200 bg-cream-200 flex items-center justify-center">
             <span class="font-serif text-7xl text-gold-600 italic">{s.name[0]}</span>
           </div>
         )}
@@ -112,15 +112,16 @@ const saintJsonLd: Record<string, unknown>[] = [
 
   <SectionContainer variant="cream" padding="default" id="profile">
     <div class="max-w-3xl mx-auto">
-      <Prose>
+      <Prose dropCap>
         <Content />
-        {s.feastDay && (
-          <>
-            <h2>Feast day</h2>
-            <p><strong>{s.feastDay}</strong> in the Roman Catholic calendar.</p>
-          </>
-        )}
       </Prose>
+      {s.feastDay && (
+        <aside class="mt-12 border-y border-gold-400/60 py-6 text-center">
+          <p class="text-xs uppercase tracking-[0.25em] text-gold-700 font-semibold">Feast Day</p>
+          <p class="mt-2 font-serif text-2xl sm:text-3xl text-forest-700">{s.feastDay}</p>
+          <p class="mt-1 text-sm text-brown-500 italic">in the Roman Catholic calendar</p>
+        </aside>
+      )}
     </div>
   </SectionContainer>
 
@@ -163,12 +164,14 @@ const saintJsonLd: Record<string, unknown>[] = [
 
   {augustineMottoBlock && (
     <SectionContainer variant="forest" padding="default">
-      <div class="max-w-3xl mx-auto text-center">
-        <p class="text-xs uppercase tracking-[0.25em] text-gold-500 font-semibold mb-3">Our motto, in his spirit</p>
-        <p class="font-serif text-2xl sm:text-3xl lg:text-4xl text-cream-200 italic leading-tight">
-          "Take care of your body as if you were going to live forever — and take care of your soul as if you were going to die tomorrow."
-        </p>
-        <p class="mt-6 text-sm text-cream-300/70 italic">Traditionally attributed to St. Augustine of Hippo</p>
+      <div class="max-w-3xl mx-auto rounded-xl border border-gold-500/50 p-1.5">
+        <div class="rounded-lg border border-gold-500/50 px-6 py-10 sm:px-12 text-center">
+          <p class="text-xs uppercase tracking-[0.25em] text-gold-500 font-semibold mb-3">Our motto, in his spirit</p>
+          <p class="font-serif text-2xl sm:text-3xl lg:text-4xl text-cream-200 italic leading-tight">
+            "Take care of your body as if you were going to live forever — and take care of your soul as if you were going to die tomorrow."
+          </p>
+          <p class="mt-6 text-sm text-cream-300/70 italic">Traditionally attributed to St. Augustine of Hippo</p>
+        </div>
       </div>
     </SectionContainer>
   )}
