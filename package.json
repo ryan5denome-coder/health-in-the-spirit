@@ -10,10 +10,13 @@
     "dev:cms": "concurrently --kill-others-on-fail --names ASTRO,DECAP --prefix-colors green,yellow \"astro dev\" \"decap-server\"",
     "cms:proxy": "decap-server",
     "build": "astro build",
-    "preview": "astro preview",
-    "astro": "astro"
+    "preview": "npm run build && wrangler dev",
+    "astro": "astro",
+    "generate-types": "wrangler types",
+    "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
+    "@astrojs/cloudflare": "^13.7.0",
     "@astrojs/rss": "^4.0.18",
     "astro": "^6.2.0"
   },
@@ -22,6 +25,10 @@
     "@tailwindcss/vite": "^4.2.4",
     "concurrently": "^9.2.1",
     "decap-server": "^3.7.0",
-    "tailwindcss": "^4.2.4"
+    "tailwindcss": "^4.2.4",
+    "wrangler": "^4.101.0"
+  },
+  "overrides": {
+    "vite": "^7"
   }
 }
