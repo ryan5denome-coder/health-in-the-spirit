@@ -1,20 +1,73 @@
 ---
+import { getCollection, getEntry } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SectionContainer from '../components/SectionContainer.astro';
 import Button from '../components/Button.astro';
+import { Icon } from 'astro-icon/components';
+import { site } from '../lib/site';
+
+const page = await getEntry('pages', 'press');
+const tagline =
+  page?.data.tagline ||
+  'A Christian health and wellness podcast where holistic medicine meets the wisdom of the healing saints.';
+
+const bios = [
+  { label: '50 words', text: page?.data.bio50 },
+  { label: '100 words', text: page?.data.bio100 },
+  { label: '250 words', text: page?.data.bio250 },
+].filter((b): b is { label: string; text: string } => Boolean(b.text));
+
+// Every number below is derived from the published feed, never typed by hand.
+// If a fact is not in the data, it does not get a row.
+const episodes = (await getCollection('episodes', ({ data }) => !data.draft && data.status === 'live'))
+  .map((e) => e.data);
+
+const episodeCount = episodes.length;
+
+const durations = episodes
+  .map((e) => e.durationMinutes)
+  .filter((d): d is number => typeof d === 'number' && d > 0)
+  .sort((a, b) => a - b);
+
+const durationRange =
+  durations.length > 0 ? `${durations[0]} to ${durations[durations.length - 1]} minutes` : null;
+
+const firstRelease = episodes
+  .map((e) => e.releaseDate)
+  .sort((a, b) => a.getTime() - b.getTime())[0];
+
+const premiereLabel = firstRelease
+  ? firstRelease.toLocaleDateString('en-US', { month: 'long', year: 'numeric', timeZone: 'America/New_York' })
+  : null;
+
+const stats: { label: string; value: string }[] = [
+  ...(premiereLabel ? [{ label: 'Premiered', value: premiereLabel }] : []),
+  { label: 'Episodes published', value: String(episodeCount) },
+  { label: 'Cadence', value: 'Weekly, every Tuesday morning' },
+  ...(durationRange ? [{ label: 'Episode length', value: durationRange }] : []),
+  { label: 'Format', value: 'Host conversations and guest interviews' },
+  { label: 'Available on', value: 'Apple Podcasts, Spotify, and RSS' },
+];
+
+const logos = [
+  { file: 'main-logo', label: 'Main logo' },
+  { file: 'emblem', label: 'Emblem only' },
+  { file: 'stacked', label: 'Stacked variant' },
+  { file: 'wordmark', label: 'Wordmark' },
+];
 ---
 <BaseLayout
   title="Press & Media Kit | Health in the Spirit"
-  description="Press and media kit for Health in the Spirit — bios, brand assets, show stats, and host headshots for journalists, bookers, and partners."
-  noindex={false}
+  description="Press and media kit for Health in the Spirit, a Christian health and wellness podcast. Bios, brand assets, show facts, and contacts for journalists, bookers, and partners."
+  breadcrumbs={[{ name: 'Press', url: '/press' }]}
 >
 
   <SectionContainer variant="cream" padding="large">
     <div class="max-w-3xl mx-auto text-center">
-      <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl text-forest-700 leading-tight">
+      <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl text-heading leading-tight">
         Press &amp; Media Kit
       </h1>
-      <p class="mt-6 text-xl text-brown-700 italic font-serif">
+      <p class="mt-6 text-xl text-ink italic font-serif">
         Everything journalists, bookers, and partners need in one place.
       </p>
     </div>
@@ -22,84 +75,84 @@ import Button from '../components/Button.astro';
 
   <SectionContainer variant="cream" padding="default" id="about-show">
     <div class="max-w-3xl mx-auto">
-      <h2 class="font-serif text-3xl text-forest-700">About the show</h2>
-      <p class="mt-3 text-xs uppercase tracking-[0.18em] text-gold-700 font-semibold">One-sentence tagline</p>
-      <p class="mt-2 text-lg text-brown-700">
-        A Catholic health and wellness podcast where holistic medicine meets the wisdom of the healing saints.
+      <h2 class="font-serif text-3xl text-heading">About the show</h2>
+      <p class="mt-4 text-lg text-ink max-w-[68ch]">
+        {tagline}
       </p>
 
-      <p class="mt-6 text-xs uppercase tracking-[0.18em] text-gold-700 font-semibold">50-word bio</p>
-      <div class="mt-2 rounded-xl border border-gold-400/70 p-1.5">
-        <div class="rounded-lg border border-gold-400/40 p-5 sm:p-6">
-          <p class="text-lg text-brown-700">
-            Health in the Spirit is the Catholic health and wellness podcast hosted by Dr. Ryan and Annie DeNome. Through the lens of Sts. Cosmas & Damian, Hildegard, and Augustine, they bridge holistic medicine with Catholic theology — caring for the body God designed and the soul He redeemed.
-          </p>
-        </div>
+      <h3 class="mt-12 font-serif text-2xl text-heading">Ready-to-run bios</h3>
+      <p class="mt-2 text-sm text-ink-subtle">Copy any of these verbatim. No approval needed.</p>
+
+      <div class="mt-6 space-y-5">
+        {bios.map((bio) => (
+          <div class="rounded-2xl border border-line bg-surface-raised p-6 sm:p-7">
+            <p class="text-xs uppercase tracking-[0.18em] text-gilt font-semibold">{bio.label}</p>
+            <p class="mt-3 text-base sm:text-lg text-ink leading-relaxed max-w-[68ch]">{bio.text}</p>
+          </div>
+        ))}
       </div>
 
-      <p class="mt-6 text-xs uppercase tracking-[0.18em] text-gold-700 font-semibold">Show stats <span class="text-brown-500 italic normal-case">(launching soon)</span></p>
-      <ul class="mt-2 text-base text-brown-700 list-disc pl-5 space-y-1">
-        <li>Launch date: <strong>Tuesday, July 7, 2026</strong></li>
-        <li>Cadence: Weekly, every Tuesday</li>
-        <li>Average episode length: 45–60 minutes</li>
-        <li>Format: Solo teaching + guest interviews</li>
-      </ul>
+      <h3 class="mt-12 font-serif text-2xl text-heading">Show facts</h3>
+      <dl class="mt-4 divide-y divide-line border-y border-line">
+        {stats.map((s) => (
+          <div class="py-3 flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-6">
+            <dt class="text-xs uppercase tracking-[0.18em] text-ink-subtle font-semibold sm:w-56 sm:shrink-0">
+              {s.label}
+            </dt>
+            <dd class="text-base text-ink tnum">{s.value}</dd>
+          </div>
+        ))}
+      </dl>
+      <p class="mt-4 text-sm text-ink-subtle">
+        Download and audience figures are not published. If you need them for a story, ask and we will share what we have.
+      </p>
     </div>
   </SectionContainer>
 
   <SectionContainer variant="sage" padding="default" id="brand-assets">
     <div class="max-w-3xl mx-auto">
-      <h2 class="font-serif text-3xl text-forest-700">Brand assets</h2>
-      <p class="mt-3 text-base text-brown-700">
-        Logos in SVG (scalable to any size, transparent backgrounds). Right-click and save, or contact us for higher-res variants.
+      <h2 class="font-serif text-3xl text-heading">Brand assets</h2>
+      <p class="mt-3 text-base text-ink max-w-[68ch]">
+        Logos in SVG, scalable to any size, with transparent backgrounds. Right-click and save, or contact us for higher-resolution variants.
       </p>
 
       <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-        <a href="/brand/main-logo.svg" download class="bg-cream-100 border border-cream-400 rounded-lg p-6 flex items-center gap-5 hover:border-gold-400 transition-colors">
-          <img src="/brand/main-logo.svg" alt="" class="w-16 h-16 object-contain" />
-          <div>
-            <p class="font-serif text-lg text-forest-700">Main logo</p>
-            <p class="text-xs uppercase tracking-[0.15em] text-terracotta-500 font-semibold mt-1">Download SVG →</p>
-          </div>
-        </a>
-        <a href="/brand/emblem.svg" download class="bg-cream-100 border border-cream-400 rounded-lg p-6 flex items-center gap-5 hover:border-gold-400 transition-colors">
-          <img src="/brand/emblem.svg" alt="" class="w-16 h-16 object-contain" />
-          <div>
-            <p class="font-serif text-lg text-forest-700">Emblem only</p>
-            <p class="text-xs uppercase tracking-[0.15em] text-terracotta-500 font-semibold mt-1">Download SVG →</p>
-          </div>
-        </a>
-        <a href="/brand/stacked.svg" download class="bg-cream-100 border border-cream-400 rounded-lg p-6 flex items-center gap-5 hover:border-gold-400 transition-colors">
-          <img src="/brand/stacked.svg" alt="" class="w-16 h-16 object-contain" />
-          <div>
-            <p class="font-serif text-lg text-forest-700">Stacked variant</p>
-            <p class="text-xs uppercase tracking-[0.15em] text-terracotta-500 font-semibold mt-1">Download SVG →</p>
-          </div>
-        </a>
-        <a href="/brand/wordmark.svg" download class="bg-cream-100 border border-cream-400 rounded-lg p-6 flex items-center gap-5 hover:border-gold-400 transition-colors">
-          <img src="/brand/wordmark.svg" alt="" class="w-16 h-16 object-contain" />
-          <div>
-            <p class="font-serif text-lg text-forest-700">Wordmark</p>
-            <p class="text-xs uppercase tracking-[0.15em] text-terracotta-500 font-semibold mt-1">Download SVG →</p>
-          </div>
-        </a>
+        {logos.map((logo) => (
+          <a
+            href={`/brand/${logo.file}.svg`}
+            download
+            class="bg-surface-raised border border-line rounded-2xl p-6 flex items-center gap-5 hover:border-line-strong transition-colors"
+          >
+            <img src={`/brand/${logo.file}.svg`} alt="" class="w-16 h-16 object-contain shrink-0" />
+            <div>
+              <p class="font-serif text-lg text-heading">{logo.label}</p>
+              <p class="text-xs uppercase tracking-[0.15em] text-accent font-semibold mt-1 inline-flex items-center gap-1.5">
+                Download SVG
+                <Icon name="ph:arrow-down-bold" class="w-3.5 h-3.5" aria-hidden="true" />
+              </p>
+            </div>
+          </a>
+        ))}
       </div>
     </div>
   </SectionContainer>
 
   <SectionContainer variant="cream" padding="default" id="contact">
     <div class="max-w-2xl mx-auto text-center">
-      <h2 class="font-serif text-3xl text-forest-700">Press inquiries</h2>
-      <p class="mt-4 text-lg text-brown-700">
+      <h2 class="font-serif text-3xl text-heading">Press inquiries</h2>
+      <p class="mt-4 text-lg text-ink">
         For interview requests, partnership opportunities, and press questions:
       </p>
       <p class="mt-3">
-        <a href="mailto:ryan@healthinthespirit.com" class="text-terracotta-500 hover:text-terracotta-600 underline underline-offset-2 font-semibold text-lg">
-          ryan@healthinthespirit.com
+        <a
+          href={`mailto:${site.contactEmail}`}
+          class="text-accent hover:text-accent-hover underline underline-offset-2 font-semibold text-lg"
+        >
+          {site.contactEmail}
         </a>
       </p>
       <div class="mt-8">
-        <Button href="/contact" variant="secondary" size="md">All contact options →</Button>
+        <Button href="/contact" variant="secondary" size="md" arrow>All contact options</Button>
       </div>
     </div>
   </SectionContainer>

@@ -67,8 +67,8 @@ const {
   <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
     {fields.map((field) => (
       <div class={field.fullWidth ? 'sm:col-span-2' : ''}>
-        <label for={`${formId}-${field.name}`} class="block text-xs uppercase tracking-[0.18em] text-gold-700 font-semibold mb-2">
-          {field.label}{field.required && <span class="text-terracotta-500" aria-hidden="true">*</span>}
+        <label for={`${formId}-${field.name}`} class="block text-xs uppercase tracking-[0.18em] text-ink font-semibold mb-2">
+          {field.label}{field.required && <span class="text-accent" aria-hidden="true">*</span>}
         </label>
         <input
           id={`${formId}-${field.name}`}
@@ -76,34 +76,34 @@ const {
           name={field.name}
           required={field.required}
           placeholder={field.placeholder}
-          class="w-full px-4 py-3 rounded-md bg-cream-100 border border-cream-400 text-brown-700 placeholder:text-brown-400 focus-visible:outline-2 focus-visible:outline-gold-500 focus-visible:border-gold-400"
+          class="w-full px-4 py-3 rounded-xl bg-surface-raised border border-line text-ink placeholder:text-ink-subtle focus-visible:outline-2 focus-visible:outline-gilt focus-visible:border-gilt"
         />
       </div>
     ))}
   </div>
 
   <div>
-    <label for={`${formId}-${textareaName}`} class="block text-xs uppercase tracking-[0.18em] text-gold-700 font-semibold mb-2">
-      {textareaLabel}{textareaRequired && <span class="text-terracotta-500" aria-hidden="true">*</span>}
+    <label for={`${formId}-${textareaName}`} class="block text-xs uppercase tracking-[0.18em] text-ink font-semibold mb-2">
+      {textareaLabel}{textareaRequired && <span class="text-accent" aria-hidden="true">*</span>}
     </label>
     <textarea
       id={`${formId}-${textareaName}`}
       name={textareaName}
       required={textareaRequired}
       rows="6"
-      class="w-full px-4 py-3 rounded-md bg-cream-100 border border-cream-400 text-brown-700 placeholder:text-brown-400 focus-visible:outline-2 focus-visible:outline-gold-500 focus-visible:border-gold-400"
+      class="w-full px-4 py-3 rounded-xl bg-surface-raised border border-line text-ink placeholder:text-ink-subtle focus-visible:outline-2 focus-visible:outline-gilt focus-visible:border-gilt"
     ></textarea>
   </div>
 
   <div class="flex flex-col sm:flex-row sm:items-center gap-4">
     <button
       type="submit"
-      class="inline-flex items-center justify-center gap-2 bg-terracotta-500 hover:bg-terracotta-600 text-cream-100 font-semibold uppercase tracking-[0.12em] text-sm px-7 py-3.5 rounded-md transition-colors disabled:opacity-60 disabled:cursor-wait"
+      class="inline-flex items-center justify-center gap-2 bg-accent hover:bg-accent-hover text-accent-ink font-semibold uppercase tracking-[0.12em] text-sm px-7 py-3.5 rounded-xl transition-colors disabled:opacity-60 disabled:cursor-wait"
     >
       <span data-submit-label>{submitLabel}</span>
       <span data-submit-spinner class="hidden">…sending</span>
     </button>
-    <p data-form-status class="text-sm text-brown-700 italic" aria-live="polite"></p>
+    <p data-form-status class="text-sm text-ink italic" aria-live="polite"></p>
   </div>
 </form>
 
@@ -122,7 +122,7 @@ const {
       if (button) button.disabled = true;
       label?.classList.add('hidden');
       spinner?.classList.remove('hidden');
-      if (status) { status.textContent = ''; status.className = 'text-sm text-brown-700 italic'; }
+      if (status) { status.textContent = ''; status.className = 'text-sm text-ink italic'; }
 
       try {
         const formData = new FormData(form);
@@ -136,18 +136,18 @@ const {
           form.reset();
           if (status) {
             status.textContent = successMsg;
-            status.className = 'text-sm text-forest-700 font-semibold';
+            status.className = 'text-sm text-heading font-semibold';
           }
         } else {
           if (status) {
             status.textContent = data.message || 'Could not send. Please try again or email directly.';
-            status.className = 'text-sm text-terracotta-600 font-semibold';
+            status.className = 'text-sm text-accent-hover font-semibold';
           }
         }
       } catch (err) {
         if (status) {
           status.textContent = 'Network error. Please try again or email directly.';
-          status.className = 'text-sm text-terracotta-600 font-semibold';
+          status.className = 'text-sm text-accent-hover font-semibold';
         }
       } finally {
         if (button) button.disabled = false;

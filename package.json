@@ -11,11 +11,15 @@
     "cms:proxy": "decap-server",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "sync:episodes": "python3 scripts/sync-transistor.py",
+    "sync:episodes:check": "python3 scripts/sync-transistor.py --dry-run"
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.18",
-    "astro": "^6.2.0"
+    "@iconify-json/ph": "^1.2.2",
+    "astro": "^6.2.0",
+    "astro-icon": "^1.2.0"
   },
   "devDependencies": {
     "@astrojs/sitemap": "^3.7.2",

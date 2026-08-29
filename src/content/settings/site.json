@@ -1,13 +1,29 @@
 {
   "siteTitle": "Health in the Spirit",
-  "tagline": "A Catholic Health & Wellness Podcast",
-  "defaultDescription": "A Catholic health and wellness podcast with Dr. Ryan and Annie DeNome. Holistic health rooted in Saints, Scripture, and the Catechism. Launching Tuesday, July 7, 2026.",
+  "tagline": "A Christian Health & Wellness Podcast",
+  "defaultDescription": "A Christian health and wellness podcast with Dr. Ryan and Annie DeNome, a chiropractor and a theologian bringing body and soul back into one conversation. New episodes every Tuesday.",
   "contactEmail": "ryan@healthinthespirit.com",
   "guestEmail": "annie@healthinthespirit.com",
   "privacyEmail": "privacy@healthinthespirit.com",
   "ryanWeb3Key": "PLACEHOLDER_RYAN_WEB3FORMS_KEY",
   "annieWeb3Key": "PLACEHOLDER_ANNIE_WEB3FORMS_KEY",
   "launchIso": "2026-07-07T06:00:00-04:00",
+  "newsletter": {
+    "provider": "mailerlite",
+    "formAction": "PLACEHOLDER_NEWSLETTER_FORM_ACTION",
+    "listName": "Health in the Spirit Weekly",
+    "cadence": "One email a week. Unsubscribe in one click.",
+    "offerTitle": "Where to start",
+    "offerBlurb": "Leave your email and we will send you the show, plus the three episodes worth starting with.",
+    "communityNote": "We are building a community of believers who want to grow together and say out loud what God has actually done for them. That starts here."
+  },
+  "community": {
+    "enabled": true,
+    "status": "waitlist",
+    "platform": "substack",
+    "substackUrl": "",
+    "waitlistFormAction": "PLACEHOLDER_COMMUNITY_FORM_ACTION"
+  },
   "socialUrls": {
     "applePodcasts": "https://podcasts.apple.com/podcast/health-in-the-spirit/id6786442723",
     "spotify": "https://open.spotify.com/show/033I8h4Yq8OGE2G7EujHX0",
@@ -18,6 +34,7 @@
     "tiktok": "",
     "facebook": "",
     "linkedin": "",
-    "twitter": ""
+    "twitter": "",
+    "substack": ""
   }
 }

@@ -26,10 +26,10 @@ const {
 } = Astro.props;
 
 const variantClasses: Record<Variant, string> = {
-  cream:   'bg-cream-100 border border-cream-400 text-brown-700',
-  sage:    'bg-sage-100 border border-sage-300 text-brown-700',
-  forest:  'bg-forest-700 border border-forest-600 text-cream-200',
-  outline: 'bg-transparent border-2 border-forest-700/20 text-brown-700',
+  cream:   'bg-surface-raised border border-line text-ink',
+  sage:    'bg-surface-sunken border border-line text-ink',
+  forest:  'bg-surface-inverse border border-line-strong text-ink-inverse',
+  outline: 'bg-transparent border-2 border-heading/20 text-ink',
 };
 
 const isLinked = Boolean(href);
@@ -41,28 +41,28 @@ const interactiveClasses = isLinked
 ---
 <Tag
   href={href}
-  class={`group flex flex-col rounded-lg overflow-hidden ${variantClasses[variant]} ${interactiveClasses}`}
+  class={`group flex flex-col rounded-2xl overflow-hidden ${variantClasses[variant]} ${interactiveClasses}`}
   {...externalAttrs}
 >
   {imageSrc && (
-    <div class="aspect-[4/3] overflow-hidden bg-cream-300">
+    <div class="aspect-[4/3] overflow-hidden bg-surface-sunken">
       <img src={imageSrc} alt={imageAlt} class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
     </div>
   )}
 
   <div class="flex flex-col gap-3 p-6 sm:p-7 flex-1">
     {eyebrow && (
-      <p class={`text-xs uppercase tracking-[0.2em] font-semibold ${variant === 'forest' ? 'text-gold-500' : 'text-gold-700'}`}>
+      <p class={`text-xs uppercase tracking-[0.2em] font-semibold ${variant === 'forest' ? 'text-gold-500' : 'text-gilt'}`}>
         {eyebrow}
       </p>
     )}
 
-    <h3 class={`font-serif text-2xl leading-tight font-semibold ${variant === 'forest' ? 'text-cream-200' : 'text-forest-700'}`}>
+    <h3 class={`font-serif text-2xl leading-tight font-semibold ${variant === 'forest' ? 'text-ink-inverse' : 'text-heading'}`}>
       {title}
     </h3>
 
     {description && (
-      <p class={`text-base leading-relaxed ${variant === 'forest' ? 'text-cream-300/90' : 'text-brown-700'}`}>
+      <p class={`text-base leading-relaxed ${variant === 'forest' ? 'text-ink-inverse/85/90' : 'text-ink'}`}>
         {description}
       </p>
     )}
@@ -70,7 +70,7 @@ const interactiveClasses = isLinked
     <slot />
 
     {ctaLabel && (
-      <p class={`mt-2 text-sm font-semibold uppercase tracking-[0.15em] inline-flex items-center gap-1 ${variant === 'forest' ? 'text-gold-500' : 'text-terracotta-500'}`}>
+      <p class={`mt-2 text-sm font-semibold uppercase tracking-[0.15em] inline-flex items-center gap-1 ${variant === 'forest' ? 'text-gold-500' : 'text-accent'}`}>
         {ctaLabel} <span aria-hidden="true" class="transition-transform group-hover:translate-x-0.5">→</span>
       </p>
     )}

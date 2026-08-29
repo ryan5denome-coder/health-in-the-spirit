@@ -1,0 +1,277 @@
+---
+/**
+ * /listen — the Instagram DM landing page.
+ *
+ * The funnel is: reel says "comment POD" → automated DM → this URL. The visitor
+ * is on a phone, inside Instagram's in-app browser, and has about eight seconds
+ * of patience. So the page carries no nav, no footer sitemap, and nothing above
+ * the fold except the ask and the two platform buttons.
+ *
+ * It is `noindex` on purpose: this is a paid-social landing page, not a search
+ * surface, and it must never compete with the homepage for the brand query.
+ *
+ * Copy comes from src/content/pages/listen.md (editable in Decap) rather than
+ * living here. Frontmatter supplies the hero; the two supporting paragraphs are
+ * pulled out of the body by a stable phrase so an edit in the markdown reaches
+ * the page. Every lookup has a fallback, so a rewrite of the file can never
+ * blank a section.
+ */
+import { getCollection, getEntry } from 'astro:content';
+import { Icon } from 'astro-icon/components';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import AudioPlayer from '../components/AudioPlayer.astro';
+import NewsletterForm from '../components/NewsletterForm.astro';
+import { site } from '../lib/site';
+
+const listen = await getEntry('pages', 'listen');
+
+// The pages collection is a passthrough schema shared by every singleton, so
+// read it as a bag of optional strings rather than assuming typed fields.
+const data = (listen?.data ?? {}) as Record<string, unknown>;
+const field = (key: string, fallback: string) => {
+  const value = data[key];
+  return typeof value === 'string' && value.trim() ? value.trim() : fallback;
+};
+
+const heroEyebrow = field('heroEyebrow', 'You commented pod');
+const heroTitle = field('heroTitle', 'Here it is.');
+const heroSubtitle = field(
+  'heroSubtitle',
+  'Health in the Spirit. A Christian health and wellness podcast with a chiropractor and a theologian who happen to be married.',
+);
+
+// Body paragraphs, flattened to plain text. Markdown emphasis is stripped
+// because these render as single lines of prose, not as rich text.
+const paragraphs = (listen?.body ?? '')
+  .split(/\n{2,}/)
+  .map((block) => block.replace(/\*\*/g, '').replace(/\s+/g, ' ').trim())
+  .filter((block) => block && !block.startsWith('#') && !block.startsWith('<!--'));
+
+const para = (needle: string, fallback: string) =>
+  paragraphs.find((block) => block.toLowerCase().includes(needle.toLowerCase())) ?? fallback;
+
+const inboxNote = para(
+  'Instagram decides',
+  'Instagram decides who sees us. We do not. The inbox is the only place we can be sure this reaches you.',
+);
+const realReason = para(
+  'community of believers',
+  'We are building a community of believers who want to grow together, and who want to say out loud what God has actually done for them.',
+);
+const noWallNote = para(
+  'hide a free show',
+  'Apple Podcasts or Spotify, whichever one is already on your phone. We are not going to hide a free show behind a form.',
+);
+
+// Episodes, newest first.
+const episodes = (await getCollection('episodes', ({ data: ep }) => !ep.draft)).sort(
+  (a, b) => b.data.releaseDate.valueOf() - a.data.releaseDate.valueOf(),
+);
+
+// Ryan's testimony is the intended entry point into the show. If the slug ever
+// changes, fall back to the newest episode rather than rendering nothing.
+const startHere =
+  episodes.find((ep) => ep.data.slug.includes('dr-ryan-s-testimony')) ?? episodes[0];
+
+const startHereMinutes =
+  startHere?.data.durationMinutes ??
+  (startHere?.data.durationSeconds
+    ? Math.round(startHere.data.durationSeconds / 60)
+    : undefined);
+
+// Only platforms with a real URL. A dead button on the one page that exists to
+// produce taps is worse than a missing one.
+const platforms = [
+  { name: 'Apple Podcasts', href: (site.socialUrls.applePodcasts ?? '').trim(), icon: 'ph:apple-logo-fill' },
+  { name: 'Spotify', href: (site.socialUrls.spotify ?? '').trim(), icon: 'ph:spotify-logo-fill' },
+].filter((platform) => platform.href.length > 0);
+
+// The first live platform carries the accent; the second takes the inverse
+// surface. Assigned after filtering so the primary tap is never the missing one.
+const platformClass = (index: number) =>
+  index === 0
+    ? 'bg-accent text-accent-ink hover:bg-accent-hover'
+    : 'bg-surface-inverse text-ink-inverse hover:opacity-90';
+
+// Read defensively rather than destructuring: this page is the funnel, and a
+// renamed settings key should degrade to sensible copy, never to a blank ask.
+const offer = (site.newsletter ?? {}) as Record<string, unknown>;
+const offerField = (key: string, fallback: string) => {
+  const value = offer[key];
+  return typeof value === 'string' && value.trim() ? value.trim() : fallback;
+};
+
+const offerTitle = offerField('offerTitle', 'Where to start');
+const offerBlurb = offerField(
+  'offerBlurb',
+  'Leave your email and we will send you the show, plus the three episodes worth starting with.',
+);
+const communityNote = offerField(
+  'communityNote',
+  'We are building a community of believers who want to grow together and say out loud what God has actually done for them. That starts here.',
+);
+---
+
+<BaseLayout
+  title="Listen to Health in the Spirit"
+  description={site.defaultDescription}
+  canonicalPath="/listen"
+  noindex
+  chrome="minimal"
+>
+  {/* ── The ask ────────────────────────────────────────────────────────────
+      Everything in this block has to clear a 390x844 viewport with the
+      buttons still visible. Nothing else belongs above the fold. */}
+  <section class="bg-surface">
+    <div class="max-w-lg mx-auto px-4 sm:px-6 pt-9 sm:pt-14 pb-12">
+      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-gilt">
+        {heroEyebrow}
+      </p>
+      <h1 class="mt-3 font-serif text-4xl sm:text-5xl leading-[1.05] text-heading">
+        {heroTitle}
+      </h1>
+      <p class="mt-4 text-base sm:text-lg text-ink-muted leading-relaxed">
+        {heroSubtitle}
+      </p>
+
+
+      {/* The ask. Everything above this line has to clear a 390x844 viewport
+          with the field still visible. */}
+      <div class="mt-7 rounded-2xl border border-line bg-surface-raised p-5 sm:p-6">
+        <h2 class="font-serif text-2xl sm:text-3xl leading-tight text-heading">
+          {offerTitle}
+        </h2>
+        <p class="mt-2 text-base text-ink-muted leading-relaxed">
+          {offerBlurb}
+        </p>
+        <NewsletterForm class="mt-5" cta="Send it over" source="ig-dm" />
+      </div>
+    </div>
+  </section>
+
+  {/* ── Why we ask ─────────────────────────────────────────────────────────
+      The community invitation is the actual pitch. The deliverability
+      argument is true but secondary, so it goes second. */}
+  <section class="bg-surface-sunken border-t border-line">
+    <div class="max-w-lg mx-auto px-4 sm:px-6 py-11 sm:py-14" data-reveal>
+      <h2 class="font-serif text-2xl sm:text-3xl leading-tight text-heading">
+        Why we ask for it
+      </h2>
+      <p class="mt-4 text-base text-ink-muted leading-relaxed">{inboxNote}</p>
+      <p class="mt-4 text-base text-ink leading-relaxed font-serif text-lg border-l-2 border-gilt pl-5">
+        {realReason}
+      </p>
+      <p class="mt-4 text-base text-ink-muted leading-relaxed">{communityNote}</p>
+    </div>
+  </section>
+
+  {/* ── Or go straight to it ───────────────────────────────────────────────
+      Deliberately still here. A hard wall on a show that is four seconds away
+      in Apple's search box reads as a bait and switch. */}
+  <section class="bg-surface border-t border-line">
+    <div class="max-w-lg mx-auto px-4 sm:px-6 py-11 sm:py-14" data-reveal>
+      <h2 class="font-serif text-2xl sm:text-3xl leading-tight text-heading">
+        Or go straight to it
+      </h2>
+      <p class="mt-3 text-base text-ink-muted leading-relaxed">{noWallNote}</p>
+      {platforms.length > 0 && (
+        <div class="mt-7 flex flex-col gap-3">
+          {platforms.map((platform, index) => (
+            <a
+              href={platform.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              class:list={[
+                'flex items-center gap-3 w-full min-h-[60px] px-5 py-4 rounded-xl',
+                'text-base font-semibold tracking-wide',
+                'transition-[background-color,opacity,transform] duration-200',
+                'motion-safe:hover:-translate-y-px active:translate-y-0',
+                'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gilt',
+                platformClass(index),
+              ]}
+            >
+              <Icon name={platform.icon} class="w-6 h-6 shrink-0" aria-hidden="true" />
+              <span>{platform.name}</span>
+              <Icon
+                name="ph:arrow-up-right-bold"
+                class="w-4 h-4 shrink-0 ml-auto opacity-70"
+                aria-hidden="true"
+              />
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+  </section>
+
+  {/* ── Start here ─────────────────────────────────────────────────────────
+      Someone who presses play here instead of leaving for Apple is a better
+      outcome, so the player is real and the episode is the one that explains
+      why the show exists. */}
+  {startHere?.data.audioUrl && (
+    <section class="bg-surface-sunken border-t border-line">
+      <div class="max-w-lg mx-auto px-4 sm:px-6 py-10 sm:py-12" data-reveal>
+        <h2 class="font-serif text-2xl sm:text-3xl leading-tight text-heading">
+          Never heard the show?
+        </h2>
+        <p class="mt-3 text-base text-ink-muted leading-relaxed">
+          Start with this one. It will tell you everything about why the show exists.
+          You can play it right here.
+        </p>
+
+        <p class="mt-6 font-serif text-xl sm:text-2xl leading-snug text-heading">
+          {startHere.data.title}
+        </p>
+        <p class="mt-1.5 flex items-center gap-2 text-xs text-ink-subtle tnum">
+          <span>Episode {startHere.data.number}</span>
+          {startHereMinutes && (
+            <>
+              <span aria-hidden="true" class="w-1 h-1 rounded-full bg-line-strong"></span>
+              <span>{startHereMinutes} min</span>
+            </>
+          )}
+        </p>
+
+        <p class="mt-3 text-sm text-ink-muted leading-relaxed">
+          {startHere.data.description}
+        </p>
+
+        <AudioPlayer
+          class="mt-4"
+          src={startHere.data.audioUrl}
+          title={startHere.data.title}
+          durationSeconds={startHere.data.durationSeconds}
+        />
+
+        <a
+          href={`/episodes/${startHere.data.slug}`}
+          class="group mt-4 inline-flex items-center gap-1.5 text-sm font-semibold
+                 uppercase tracking-[0.14em] text-accent"
+        >
+          Show notes
+          <Icon
+            name="ph:arrow-right-bold"
+            class="w-3.5 h-3.5 transition-transform duration-200 motion-safe:group-hover:translate-x-0.5"
+            aria-hidden="true"
+          />
+        </a>
+      </div>
+    </section>
+  )}
+
+  {/* Secondary, deliberately quiet, and only after the ask. */}
+  <nav class="max-w-lg mx-auto px-4 sm:px-6 pt-8" aria-label="More from Health in the Spirit">
+    <ul class="flex flex-col sm:flex-row sm:flex-wrap gap-x-8 gap-y-3 text-sm">
+      <li>
+        <a href="/episodes" class="text-ink-muted hover:text-accent transition-colors">
+          All {episodes.length} episodes
+        </a>
+      </li>
+      <li>
+        <a href="/community" class="text-ink-muted hover:text-accent transition-colors">
+          Join the community waitlist
+        </a>
+      </li>
+    </ul>
+  </nav>
+</BaseLayout>

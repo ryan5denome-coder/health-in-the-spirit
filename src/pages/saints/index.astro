@@ -4,43 +4,47 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import SectionContainer from '../../components/SectionContainer.astro';
 import SaintCard from '../../components/SaintCard.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Button from '../../components/Button.astro';
 import Ornament from '../../components/Ornament.astro';
 
 const allSaints = (await getCollection('saints', ({ data }) => !data.draft))
   .sort((a, b) => a.data.order - b.data.order);
 
 const page = await getEntry('pages', 'saints-index');
-const heroEyebrow = page?.data.heroEyebrow || 'The Saints';
-const heroTitle   = page?.data.heroTitle   || 'The Healing Saints Who Guide Us';
-const heroSubtitle = page?.data.heroSubtitle ||
-  'Three witnesses across eighteen centuries. One unbroken Tradition that has always held the body and soul together.';
-const moreSaintsNote = page?.data.moreSaintsNote ||
-  'As the podcast grows, so will this collection — Saint Luke the Beloved Physician, Saint Raphael the Archangel, Saint Padre Pio, Saint Charbel Makhlouf, Saint Gianna Beretta Molla, and more. Each one a different facet of the same truth.';
+const heroTitle = page?.data.heroTitle || 'The Healing Saints Who Guide Us';
+const heroSubtitle =
+  page?.data.heroSubtitle ||
+  'Three witnesses across eighteen centuries. One unbroken Christian conviction that the body and the soul belong together.';
+const moreSaintsNote =
+  page?.data.moreSaintsNote ||
+  'As the show grows, so will this collection. Saint Luke the Beloved Physician, Saint Raphael the Archangel, Saint Padre Pio, Saint Charbel Makhlouf, Saint Gianna Beretta Molla, and more. Each one a different facet of the same truth.';
+
+// The saints now live under Resources in the site structure, but they keep
+// their own URLs. The breadcrumb reflects the new parent; the paths do not move.
+const crumbs = [
+  { name: 'Resources', url: '/resources' },
+  { name: 'The Saints', url: '/saints' },
+];
 ---
 <BaseLayout
   title="The Healing Saints Who Guide Us | Health in the Spirit"
-  description="Meet the healing saints of the Catholic tradition — Augustine, Cosmas & Damian, Hildegard — who guide Health in the Spirit's approach to body and soul."
-  breadcrumbs={[{ name: 'The Saints', url: '/saints' }]}
-  keywords={['healing saints Catholic', 'Catholic patron saints', 'saints podcast', 'Cosmas and Damian', 'Hildegard of Bingen', 'Augustine of Hippo']}
+  description="Profiles of the healing saints who shape Health in the Spirit: Cosmas and Damian, Hildegard of Bingen, and Augustine of Hippo, on caring for body and soul together."
+  breadcrumbs={crumbs}
+  keywords={['healing saints', 'Cosmas and Damian', 'Hildegard of Bingen', 'Augustine of Hippo', 'faith and health']}
 >
 
   <SectionContainer variant="cream" padding="compact">
     <div class="max-w-3xl mx-auto">
-      <Breadcrumbs items={[{ name: 'The Saints', url: '/saints' }]} />
+      <Breadcrumbs items={crumbs} />
     </div>
   </SectionContainer>
 
   <SectionContainer variant="cream" padding="large">
     <div class="max-w-3xl mx-auto text-center">
-      <p class="mb-4 inline-flex items-center gap-3 text-xs uppercase tracking-[0.25em] text-gold-700 font-semibold">
-        <span class="h-px w-8 bg-gold-400/80" aria-hidden="true"></span>
-        {heroEyebrow}
-        <span class="h-px w-8 bg-gold-400/80" aria-hidden="true"></span>
-      </p>
-      <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl text-forest-700 leading-tight">
+      <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl text-heading leading-tight">
         {heroTitle}
       </h1>
-      <p class="mt-6 text-xl text-brown-700 italic font-serif">
+      <p class="mt-6 text-xl text-ink italic font-serif">
         {heroSubtitle}
       </p>
       <Ornament class="mt-6" />
@@ -66,10 +70,14 @@ const moreSaintsNote = page?.data.moreSaintsNote ||
   <SectionContainer variant="cream" padding="default">
     <div class="max-w-3xl mx-auto text-center">
       <Ornament class="mb-8" />
-      <h2 class="font-serif text-3xl sm:text-4xl text-forest-700 leading-tight">More saints coming soon</h2>
-      <p class="mt-4 text-lg text-brown-700">
+      <h2 class="font-serif text-3xl sm:text-4xl text-heading leading-tight">More to come</h2>
+      <p class="mt-4 text-lg text-ink">
         {moreSaintsNote}
       </p>
+      <div class="mt-8 flex flex-wrap justify-center gap-3">
+        <Button href="/resources" variant="secondary" size="md">Back to resources</Button>
+        <Button href="/episodes" variant="ghost" size="md">Listen to the show</Button>
+      </div>
     </div>
   </SectionContainer>
 

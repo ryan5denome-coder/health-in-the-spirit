@@ -27,7 +27,7 @@ draft: false
 
 St. Hildegard of Bingen (c. 1098–1179) is one of the most extraordinary figures in the history of the Catholic Church. A Benedictine abbess, polymath, mystic, composer, philosopher, and medical writer, she was named a **Doctor of the Church** by Pope Benedict XVI in 2012.
 
-For a podcast that bridges holistic health with Catholic theology, Hildegard is the ultimate guide. She lived the reality that physical health and spiritual vitality are inextricably linked — and she wrote the medical and theological works to prove it.
+For a show that brings holistic health and Christian faith back into one conversation, Hildegard is the ultimate guide. She lived the reality that physical health and spiritual vitality are inextricably linked — and she wrote the medical and theological works to prove it.
 
 ## Visions, music, and the courage to write
 
@@ -59,4 +59,4 @@ This is the medieval Catholic equivalent of holistic, root-cause medicine. Disea
 
 Because Hildegard refused to separate the physical from the spiritual. She understood that the same God who designed the cosmos also designed the intricate workings of the human body — that the green health of the natural world and the holistic health of the human person are intimately connected.
 
-She is the witness that orthodox Catholic tradition has always celebrated the healing power of nature as a direct reflection of the Holy Spirit's life-giving grace.
+She is the witness that Christian tradition has always celebrated the healing power of nature as a direct reflection of the Holy Spirit's life-giving grace.

@@ -23,6 +23,12 @@ interface Props {
   ogType?: 'website' | 'article' | 'profile';
   noindex?: boolean;
   canonicalPath?: string;
+  /**
+   * `minimal` strips the page down for single-purpose landing pages: a
+   * logo-only header and a legal-only footer, with nothing else competing for
+   * the tap. Every other page keeps the full chrome.
+   */
+  chrome?: 'full' | 'minimal';
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
   announcement?: Announcement;
   /** Optional breadcrumb chain for this page. Home crumb is always added first. */
@@ -37,7 +43,11 @@ const {
   title, description, ogImage, ogImageWidth, ogImageHeight, ogType,
   noindex, canonicalPath, jsonLd, announcement, breadcrumbs,
   publishedTime, modifiedTime, author, keywords,
+  chrome = 'full',
 } = Astro.props;
+
+const minimalChrome = chrome === 'minimal';
+const year = new Date().getFullYear();
 
 // Build the sitewide schema bundle (Organization + PodcastSeries + WebSite).
 const baseSchema: Record<string, unknown>[] = sitewideJsonLd();
@@ -58,6 +68,26 @@ if (breadcrumbs && breadcrumbs.length > 0) {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/brand/main-logo.png" />
+
+    {/* Tints the iOS status bar and the Android chrome to the page ground. */}
+    <meta name="theme-color" content="#F5F0E8" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#14180F" media="(prefers-color-scheme: dark)" />
+
+    {/* Runs before first paint so a dark-mode visitor never sees a cream flash.
+        Inlined deliberately: any external fetch here would defeat the point. */}
+    <script is:inline>
+      (function () {
+        try {
+          var stored = localStorage.getItem('hits-theme');
+          if (stored === 'dark' || stored === 'light') {
+            document.documentElement.dataset.theme = stored;
+          }
+        } catch (e) {
+          /* Storage blocked. Fall through to the system preference. */
+        }
+      })();
+    </script>
     <link rel="alternate" type="application/rss+xml" title="Health in the Spirit" href="/rss.xml" />
 
     {/* Google Fonts — Cormorant Garamond + Inter, weights matching brand-guidelines.md */}
@@ -89,7 +119,7 @@ if (breadcrumbs && breadcrumbs.length > 0) {
     <slot name="head" />
   </head>
   <body class="min-h-screen flex flex-col">
-    <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 bg-forest-700 text-cream-200 px-3 py-2 rounded-md z-50">
+    <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 bg-surface-inverse text-ink-inverse px-3 py-2 rounded-md z-50">
       Skip to main content
     </a>
     {announcement && (
@@ -100,11 +130,52 @@ if (breadcrumbs && breadcrumbs.length > 0) {
         dismissible={announcement.dismissible}
       />
     )}
-    <Header />
+    {minimalChrome ? (
+      /* Logo only, linking home. No nav, no theme toggle, no second CTA. */
+      <header class="border-b border-line">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center">
+          <a href="/" class="inline-flex items-center rounded-xl" aria-label="Health in the Spirit home">
+            <img
+              src="/brand/main-logo.svg"
+              alt="Health in the Spirit"
+              width="308"
+              height="100"
+              class="logo-light h-11 sm:h-14 w-auto"
+            />
+            <img
+              src="/brand/main-logo-dark.svg"
+              alt=""
+              aria-hidden="true"
+              width="308"
+              height="100"
+              class="logo-dark h-11 sm:h-14 w-auto"
+            />
+          </a>
+        </div>
+      </header>
+    ) : (
+      <Header />
+    )}
     <main id="main" class="flex-1">
       <slot />
     </main>
-    <Footer />
+    {minimalChrome ? (
+      <footer class="mt-16 border-t border-line">
+        <div
+          class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 safe-b
+                 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3
+                 text-xs text-ink-subtle"
+        >
+          <p>&copy; {year} Health in the Spirit. All rights reserved.</p>
+          <p class="flex items-center gap-5">
+            <a href="/privacy" class="hover:text-accent transition-colors">Privacy</a>
+            <a href="/terms" class="hover:text-accent transition-colors">Terms</a>
+          </p>
+        </div>
+      </footer>
+    ) : (
+      <Footer />
+    )}
 
     <script>
       // Scroll-reveal: reveal [data-reveal] / [data-reveal-children] elements once

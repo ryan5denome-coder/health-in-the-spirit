@@ -1,119 +1,125 @@
 ---
-// Episode shape — matches the `episodes` content collection schema in src/content.config.ts.
-// Accepts releaseDate as a Date (from the collection) OR string (legacy / hand-passed objects).
+/**
+ * One episode in a list. Card shape is justified here: each episode is a
+ * discrete, independently playable thing, so elevation is real hierarchy.
+ *
+ * The whole card is a link to the episode page, except the player, which sits
+ * above it and stops the click. Someone who wants to sample presses play;
+ * someone who wants the show notes taps anywhere else.
+ */
+import AudioPlayer from './AudioPlayer.astro';
+import { Icon } from 'astro-icon/components';
+
 interface Episode {
   number: number;
+  slug: string;
   title: string;
   description: string;
   releaseDate: Date | string;
-  status: 'upcoming' | 'live';
+  episodeType?: 'full' | 'trailer' | 'bonus';
+  durationSeconds?: number;
   durationMinutes?: number;
   guestName?: string;
-  buzzsproutEmbedId?: string;
-  spotifyEmbedUrl?: string;
-  youtubeEmbedUrl?: string;
-  appleEpisodeUrl?: string;
+  audioUrl?: string;
 }
 
 interface Props {
   episode: Episode;
+  /** `feature` is the larger treatment used for the newest episode. */
+  variant?: 'default' | 'feature';
 }
 
-const { episode } = Astro.props;
+const { episode, variant = 'default' } = Astro.props;
+const feature = variant === 'feature';
 
-const releaseDateObj = new Date(episode.releaseDate);
-const releaseLabel = releaseDateObj.toLocaleString('en-US', {
-  weekday: 'long', month: 'long', day: 'numeric',
-  hour: 'numeric', minute: '2-digit',
-  timeZone: 'America/New_York', timeZoneName: 'short',
+const date = new Date(episode.releaseDate);
+const dateLabel = date.toLocaleDateString('en-US', {
+  month: 'short',
+  day: 'numeric',
+  year: 'numeric',
+  timeZone: 'America/New_York',
 });
-const releaseIso = releaseDateObj.toISOString();
 
-const isLive = episode.status === 'live';
-const hasEmbed = Boolean(episode.buzzsproutEmbedId || episode.spotifyEmbedUrl || episode.youtubeEmbedUrl);
+const minutes =
+  episode.durationMinutes ??
+  (episode.durationSeconds ? Math.round(episode.durationSeconds / 60) : undefined);
+
+const isTrailer = episode.episodeType === 'trailer';
+const href = `/episodes/${episode.slug}`;
 ---
-<article class="bg-cream-100 border border-cream-400 rounded-lg overflow-hidden flex flex-col">
 
-  {/* Header strip */}
-  <div class="px-6 sm:px-7 pt-6 pb-0">
-    <div class="flex items-center justify-between gap-3">
-      <p class="text-xs uppercase tracking-[0.18em] text-gold-700 font-semibold">
-        Episode Nº {episode.number}
-      </p>
-      <span class:list={[
-        'text-[10px] uppercase tracking-[0.18em] font-semibold px-2 py-1 rounded',
-        isLive ? 'bg-sage-200 text-forest-700' : 'bg-cream-300 text-brown-600',
-      ]}>
-        {isLive ? 'Live now' : 'Upcoming'}
+<article
+  class="group relative flex flex-col rounded-2xl border border-line bg-surface-raised
+         overflow-hidden transition-[transform,box-shadow,border-color] duration-300
+         motion-safe:hover:-translate-y-0.5 hover:border-line-strong
+         hover:shadow-[0_12px_32px_-16px_rgba(45,59,45,0.35)]"
+>
+  <div class={feature ? 'p-6 sm:p-8' : 'p-5 sm:p-6'}>
+    <div class="flex items-center gap-2.5 text-xs text-ink-subtle tnum">
+      <span class="font-semibold uppercase tracking-[0.16em] text-gilt">
+        {isTrailer ? 'Trailer' : `Episode ${episode.number}`}
       </span>
-    </div>
-    <h3 class="mt-3 font-serif text-xl sm:text-2xl text-forest-700 leading-tight">
-      {episode.title}
-    </h3>
-    {episode.guestName && (
-      <p class="mt-1 text-sm italic font-serif text-brown-600">with {episode.guestName}</p>
-    )}
-    <div class="mt-4 h-px bg-gradient-to-r from-gold-500/60 via-cream-300 to-transparent" aria-hidden="true"></div>
-  </div>
-
-  {/* Body */}
-  <div class="px-6 sm:px-7 py-5 flex-1">
-    <p class="text-base text-brown-700 leading-relaxed">{episode.description}</p>
-
-    {hasEmbed ? (
-      <div class="mt-5 space-y-3">
-        {episode.buzzsproutEmbedId && (
-          <iframe
-            src={`https://www.buzzsprout.com/${episode.buzzsproutEmbedId}.html?artist=&container_id=buzzsprout-player-${episode.number}&player=small`}
-            loading="lazy"
-            width="100%"
-            height="200"
-            frameborder="0"
-            scrolling="no"
-            title={`${episode.title} — Buzzsprout player`}
-            class="rounded-md"
-          ></iframe>
-        )}
-        {episode.spotifyEmbedUrl && (
-          <iframe
-            src={episode.spotifyEmbedUrl}
-            loading="lazy"
-            width="100%"
-            height="152"
-            frameborder="0"
-            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-            allowfullscreen
-            title={`${episode.title} — Spotify player`}
-            class="rounded-md"
-          ></iframe>
-        )}
-        {episode.youtubeEmbedUrl && (
-          <iframe
-            src={episode.youtubeEmbedUrl}
-            loading="lazy"
-            width="100%"
-            height="200"
-            frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen
-            title={`${episode.title} — YouTube`}
-            class="rounded-md"
-          ></iframe>
-        )}
-      </div>
-    ) : (
-      <p class="mt-5 text-xs uppercase tracking-[0.18em] text-terracotta-500 font-semibold">
-        Drops <time datetime={releaseIso}>{releaseLabel}</time>
-      </p>
-    )}
-  </div>
-
-  {/* Footer links */}
-  {(episode.appleEpisodeUrl || episode.spotifyEmbedUrl) && (
-    <div class="px-6 sm:px-7 pb-5 pt-2 flex flex-wrap gap-2 text-xs uppercase tracking-[0.15em] font-semibold">
-      {episode.appleEpisodeUrl && (
-        <a href={episode.appleEpisodeUrl} target="_blank" rel="noopener noreferrer" class="text-terracotta-500 hover:text-terracotta-600">Apple Podcasts →</a>
+      <span aria-hidden="true" class="w-1 h-1 rounded-full bg-line-strong"></span>
+      <time datetime={date.toISOString()}>{dateLabel}</time>
+      {minutes && (
+        <>
+          <span aria-hidden="true" class="w-1 h-1 rounded-full bg-line-strong"></span>
+          <span>{minutes} min</span>
+        </>
       )}
     </div>
+
+    <h3
+      class:list={[
+        'mt-3 font-serif leading-tight text-heading',
+        feature ? 'text-2xl sm:text-3xl lg:text-4xl' : 'text-xl sm:text-2xl',
+      ]}
+    >
+      {/* Stretched link: the whole card is the hit target, and the anchor still
+          reads as a single link to assistive tech. */}
+      <a href={href} class="after:absolute after:inset-0 after:content-[''] focus-visible:outline-none">
+        {episode.title}
+      </a>
+    </h3>
+
+    {episode.guestName && (
+      <p class="mt-1.5 text-sm font-serif italic text-ink-muted">with {episode.guestName}</p>
+    )}
+
+    <p
+      class:list={[
+        'mt-3 text-ink-muted leading-relaxed',
+        feature ? 'text-base sm:text-lg' : 'text-sm sm:text-base line-clamp-3',
+      ]}
+    >
+      {episode.description}
+    </p>
+  </div>
+
+  {episode.audioUrl && (
+    /* z-10 lifts the player above the stretched link so its controls stay
+       clickable; the click handler is scoped by the player itself. */
+    <div class={`relative z-10 ${feature ? 'px-6 sm:px-8' : 'px-5 sm:px-6'} pb-2`}>
+      <AudioPlayer
+        src={episode.audioUrl}
+        title={episode.title}
+        durationSeconds={episode.durationSeconds}
+        size="compact"
+      />
+    </div>
   )}
+
+  <div class={`mt-auto ${feature ? 'px-6 sm:px-8' : 'px-5 sm:px-6'} pt-3 pb-5`}>
+    <span
+      class="inline-flex items-center gap-1.5 text-sm font-semibold uppercase
+             tracking-[0.14em] text-accent"
+    >
+      Show notes
+      <Icon
+        name="ph:arrow-right-bold"
+        class="w-3.5 h-3.5 transition-transform duration-200 motion-safe:group-hover:translate-x-0.5"
+        aria-hidden="true"
+      />
+    </span>
+  </div>
 </article>

@@ -1,146 +1,182 @@
 ---
+/**
+ * The episodes index. The show is live, so this page has one job: get someone
+ * from Instagram into an episode in as few taps as possible, and give search
+ * engines a clean, machine-readable list of every episode we have published.
+ *
+ * Ordering is by `releaseDate`, never by `number`: the Transistor export has
+ * two episodes numbered 3, so the date is the only reliable key.
+ */
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import SectionContainer from '../../components/SectionContainer.astro';
-import Countdown from '../../components/Countdown.astro';
-import Button from '../../components/Button.astro';
 import EpisodeCard from '../../components/EpisodeCard.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
-import Ornament from '../../components/Ornament.astro';
+import NewsletterForm from '../../components/NewsletterForm.astro';
+import { Icon } from 'astro-icon/components';
+import { site } from '../../lib/site';
 import { SITE_URL } from '../../lib/schema';
 
-const launchIso = '2026-07-07T06:00:00-04:00';
+const entries = await getCollection('episodes', ({ data }) => !data.draft);
 
-const allEntries = (await getCollection('episodes', ({ data }) => !data.draft));
-const allEpisodes = allEntries
+const episodes = entries
   .map((e) => e.data)
-  .sort((a, b) => {
-    const ad = a.releaseDate.getTime();
-    const bd = b.releaseDate.getTime();
-    if (bd !== ad) return bd - ad;
-    return b.number - a.number;
-  });
+  .sort((a, b) => b.releaseDate.getTime() - a.releaseDate.getTime());
 
-const liveEpisodes = allEpisodes.filter((e) => e.status === 'live');
-const upcomingEpisodes = allEpisodes.filter((e) => e.status === 'upcoming');
+const [newest, ...rest] = episodes;
 
-// Per-episode PodcastEpisode schema. When status flips to 'live' and an audio
-// URL exists, we emit a fully-spec'd PodcastEpisode (with associatedMedia /
-// contentUrl). Until then, an "upcoming" PodcastEpisode entry tells crawlers
-// the episode exists and when it drops.
-const episodeSchemas = allEpisodes.map((ep) => {
-  const epUrl = `${SITE_URL}/episodes/#ep${ep.number}`;
-  const base: Record<string, unknown> = {
+const fullCount = episodes.filter((e) => e.episodeType !== 'trailer').length;
+const hasTrailer = episodes.some((e) => e.episodeType === 'trailer');
+const countLine = hasTrailer
+  ? `${fullCount} episodes plus the trailer, all free to stream right here.`
+  : `${fullCount} episodes, all free to stream right here.`;
+
+/** Seconds to an ISO 8601 duration, e.g. 2093 becomes PT34M53S. */
+const isoDuration = (seconds?: number): string | undefined => {
+  if (!seconds || seconds <= 0) return undefined;
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = Math.floor(seconds % 60);
+  const parts = [h ? `${h}H` : '', m ? `${m}M` : '', s ? `${s}S` : ''].join('');
+  return `PT${parts || '0S'}`;
+};
+
+// Only platforms with a real URL. YouTube and Amazon are empty strings in
+// site.json, and a dead listening link is worse than a missing one.
+const platforms = [
+  { name: 'Apple Podcasts', href: site.socialUrls.applePodcasts, icon: 'ph:apple-logo' },
+  { name: 'Spotify', href: site.socialUrls.spotify, icon: 'ph:spotify-logo' },
+].filter((p): p is { name: string; href: string; icon: string } => Boolean(p.href));
+
+// One PodcastEpisode per episode, each pointing at its own page rather than a
+// fragment on this one, with the real audio file and a real ISO 8601 duration.
+const episodeSchemas = episodes.map((ep) => {
+  const epUrl = `${SITE_URL}/episodes/${ep.slug}`;
+  const duration = isoDuration(ep.durationSeconds);
+  const node: Record<string, unknown> = {
     '@context': 'https://schema.org',
     '@type': 'PodcastEpisode',
-    '@id': epUrl,
+    '@id': `${epUrl}#episode`,
     name: ep.title,
     description: ep.description,
-    episodeNumber: ep.number,
+    url: epUrl,
     datePublished: ep.releaseDate.toISOString(),
     inLanguage: 'en-US',
-    url: epUrl,
     partOfSeries: { '@id': `${SITE_URL}#podcast` },
   };
-  if (ep.guestName) base.actor = { '@type': 'Person', name: ep.guestName };
+  if (ep.episodeType !== 'trailer') node.episodeNumber = ep.number;
+  if (duration) node.timeRequired = duration;
+  if (ep.guestName) node.actor = { '@type': 'Person', name: ep.guestName };
   if (ep.audioUrl) {
-    base.associatedMedia = {
-      '@type': 'MediaObject',
+    node.associatedMedia = {
+      '@type': 'AudioObject',
       contentUrl: ep.audioUrl,
       encodingFormat: 'audio/mpeg',
+      ...(duration ? { duration } : {}),
+      ...(ep.audioBytes ? { contentSize: String(ep.audioBytes) } : {}),
     };
   }
-  if (ep.imageSrc) base.image = `${SITE_URL}${ep.imageSrc}`;
-  return base;
+  if (ep.artworkUrl) node.image = ep.artworkUrl;
+  return node;
 });
 
-// CollectionPage wrapping the episode list — helps Google understand this is
-// the canonical episodes index.
 const indexSchema: Record<string, unknown> = {
   '@context': 'https://schema.org',
   '@type': 'CollectionPage',
-  '@id': `${SITE_URL}/episodes/#page`,
+  '@id': `${SITE_URL}/episodes#page`,
   url: `${SITE_URL}/episodes`,
-  name: 'Health in the Spirit — Episodes',
-  description: 'All episodes of the Health in the Spirit Catholic health and wellness podcast.',
+  name: 'Every episode of Health in the Spirit',
+  description: `Every episode of Health in the Spirit, the Christian health and wellness podcast with Dr. Ryan and Annie DeNome. ${countLine}`,
+  inLanguage: 'en-US',
   isPartOf: { '@id': `${SITE_URL}#website` },
   about: { '@id': `${SITE_URL}#podcast` },
+  mainEntity: {
+    '@type': 'ItemList',
+    numberOfItems: episodes.length,
+    itemListOrder: 'https://schema.org/ItemListOrderDescending',
+    itemListElement: episodes.map((ep, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      url: `${SITE_URL}/episodes/${ep.slug}`,
+      name: ep.title,
+    })),
+  },
   hasPart: episodeSchemas.map((s) => ({ '@id': s['@id'] })),
 };
 ---
 <BaseLayout
-  title="Episodes | Catholic Health Podcast | Health in the Spirit"
-  description="Browse every episode of Health in the Spirit — the Catholic health and wellness podcast bridging holistic medicine, Catholic theology, and the healing saints. Three episodes drop on launch day, July 7, 2026."
+  title="All Episodes | Health in the Spirit Podcast"
+  description={`Listen to every episode of Health in the Spirit with Dr. Ryan and Annie DeNome. Show notes, chapters, and full audio for all ${episodes.length} episodes. New episodes every Tuesday.`}
   jsonLd={[indexSchema, ...episodeSchemas]}
   breadcrumbs={[{ name: 'Episodes', url: '/episodes' }]}
-  keywords={['Catholic podcast episodes', 'Catholic health podcast', 'Holistic health podcast', 'Saints podcast']}
+  keywords={['Christian health podcast', 'faith and health podcast', 'podcast episodes', 'holistic health podcast']}
 >
 
-  <SectionContainer variant="cream" padding="compact">
-    <div class="max-w-7xl mx-auto">
-      <Breadcrumbs items={[{ name: 'Episodes', url: '/episodes' }]} />
-    </div>
-  </SectionContainer>
+  <SectionContainer variant="transparent" padding="compact" reveal="none" class="bg-surface">
+    <div class="max-w-3xl">
+      <Breadcrumbs class="mb-6" items={[{ name: 'Episodes', url: '/episodes' }]} />
 
-  <SectionContainer variant="cream" padding="large">
-    <div class="max-w-3xl mx-auto text-center">
-      <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl text-forest-700 leading-tight">
-        Catholic Health Podcast Episodes
+      <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl leading-[1.05] text-heading">
+        Every episode of Health in the Spirit
       </h1>
-      <Ornament class="mt-6" />
-      <p class="mt-5 text-xl text-brown-700 italic font-serif">
-        Three episodes drop on launch day — Tuesday, July 7, 2026. Weekly after that.
+      <p class="mt-5 text-lg sm:text-xl text-ink-muted leading-relaxed">
+        New episodes every Tuesday. {countLine}
       </p>
     </div>
   </SectionContainer>
 
-  {liveEpisodes.length === 0 && (
-    <Countdown targetIso={launchIso} preLaunchHeadline="Episodes 1, 2 & 3 launch in" />
+  {newest && (
+    <SectionContainer variant="transparent" padding="compact" class="bg-surface">
+      <h2 class="sr-only">Latest episode</h2>
+      <EpisodeCard episode={newest} variant="feature" />
+    </SectionContainer>
   )}
 
-  {liveEpisodes.length > 0 && (
-    <SectionContainer variant="cream" padding="default" id="latest">
-      <div class="max-w-7xl mx-auto">
-        <h2 class="font-serif text-3xl sm:text-4xl text-forest-700 mb-10 leading-tight">Latest episodes</h2>
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
-          {liveEpisodes.map((ep) => <EpisodeCard episode={ep} />)}
-        </div>
+  {rest.length > 0 && (
+    <SectionContainer variant="transparent" padding="default" class="bg-surface">
+      <h2 class="sr-only">Earlier episodes</h2>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+        {rest.map((ep) => <EpisodeCard episode={ep} />)}
       </div>
     </SectionContainer>
   )}
 
-  {upcomingEpisodes.length > 0 && (
-    <SectionContainer variant="cream" padding="default" id="upcoming">
-      <div class="max-w-7xl mx-auto">
-        <div class="text-center max-w-2xl mx-auto mb-10">
-          <h2 class="font-serif text-3xl sm:text-4xl text-forest-700 leading-tight">
-            Three episodes, one launch day
-          </h2>
-          <p class="mt-4 text-lg text-brown-700">
-            We are dropping the full mission set on day one — so you can dive in deep, or come back through the week.
-          </p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-          {upcomingEpisodes.map((ep) => <EpisodeCard episode={ep} />)}
-        </div>
-      </div>
-    </SectionContainer>
-  )}
-
-  <SectionContainer variant="sage" padding="default">
-    <div class="max-w-3xl mx-auto text-center">
-      <h2 class="font-serif text-3xl sm:text-4xl text-forest-700 leading-tight">
-        Subscribe to be ready when it drops
-      </h2>
-      <div class="mt-8 flex flex-wrap justify-center gap-3 sm:gap-4">
-        <Button href="/subscribe" variant="primary" size="lg" arrow>Subscribe to be first</Button>
-        <Button href="/saints" variant="secondary" size="lg">Meet the saints</Button>
-      </div>
-      <p class="mt-8 text-sm text-brown-500 italic max-w-xl mx-auto">
-        Players appear right here the moment each episode goes live — come back launch morning, or subscribe and we'll bring it to you.
-      </p>
+  <SectionContainer variant="transparent" padding="default" class="bg-surface-inverse text-ink-inverse">
+    <div class="max-w-2xl">
+      <NewsletterForm
+        heading="One email a week, on the same subject"
+        subheading="The story behind the episode, what we cut, and what we are reading. Written by us, not a marketing team."
+        tone="inverse"
+        source="episodes"
+      />
     </div>
+
+    {platforms.length > 0 && (
+      <div class="mt-12 pt-10 border-t border-ink-inverse/20">
+        <h2 class="font-serif text-2xl sm:text-3xl leading-tight">Prefer your own player?</h2>
+        <p class="mt-2 text-base opacity-85">
+          Follow the show and every Tuesday episode lands on its own.
+        </p>
+        <ul class="mt-6 flex flex-wrap gap-3">
+          {platforms.map((p) => (
+            <li>
+              <a
+                href={p.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-2.5 min-h-11 px-5 py-3 rounded-xl
+                       bg-surface-raised text-ink border border-line font-semibold text-sm
+                       transition-[transform,border-color] duration-200
+                       hover:border-line-strong motion-safe:hover:-translate-y-px"
+              >
+                <Icon name={p.icon} class="w-5 h-5 shrink-0" aria-hidden="true" />
+                {p.name}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
   </SectionContainer>
 
 </BaseLayout>

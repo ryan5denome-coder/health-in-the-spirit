@@ -1,0 +1,350 @@
+---
+/**
+ * /community — the waitlist page.
+ *
+ * The community is NOT open. Every line on this page has to survive that fact,
+ * so nothing here implies a visitor can join today, and there are no prices:
+ * pricing is genuinely undecided (see docs/community-strategy.md §3).
+ *
+ * Copy lives in src/content/pages/community.md so Ryan and Annie can edit it in
+ * Decap. The "what it will be" offers are written there as `**Title.** body`
+ * paragraphs, which is the shape parsed below. Anything the markdown does not
+ * supply falls back to a default, so the page can never render blank.
+ */
+import { getEntry } from 'astro:content';
+import { Icon } from 'astro-icon/components';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import NewsletterForm from '../components/NewsletterForm.astro';
+import { site, communityWaitlistLive } from '../lib/site';
+
+const community = await getEntry('pages', 'community');
+
+// Shared passthrough schema: read frontmatter as a bag of optional strings.
+const data = (community?.data ?? {}) as Record<string, unknown>;
+const field = (key: string, fallback: string) => {
+  const value = data[key];
+  return typeof value === 'string' && value.trim() ? value.trim() : fallback;
+};
+
+const heroEyebrow = field('heroEyebrow', 'The Community');
+const heroTitle = field('heroTitle', 'Join the Community');
+const heroSubtitle = field(
+  'heroSubtitle',
+  'We are building a place for the people who take this seriously. It is not open yet. Put your name down and you will be in the first room.',
+);
+
+const body = community?.body ?? '';
+
+/** Sections keyed by their `## ` heading, lowercased. */
+const sections: Record<string, string> = Object.fromEntries(
+  body
+    .split(/^##\s+/m)
+    .slice(1)
+    .map((chunk) => {
+      const breakAt = chunk.indexOf('\n');
+      const heading = (breakAt === -1 ? chunk : chunk.slice(0, breakAt)).trim().toLowerCase();
+      const rest = breakAt === -1 ? '' : chunk.slice(breakAt + 1);
+      return [heading, rest.trim()];
+    }),
+);
+
+const section = (heading: string, fallback: string) => {
+  const raw = sections[heading.toLowerCase()];
+  if (!raw) return fallback;
+  const first = raw
+    .split(/\n{2,}/)
+    .map((block) => block.replace(/\*\*/g, '').replace(/\s+/g, ' ').trim())
+    .find((block) => block && !block.startsWith('<!--'));
+  return first ?? fallback;
+};
+
+/**
+ * The offers are authored as `**Weekly member Q&A.** Ryan and Annie, live, ...`
+ * paragraphs. Parse them into a title-keyed lookup so the descriptions on this
+ * page are the ones in the markdown, not a second copy that drifts.
+ */
+const authored = new Map<string, string>();
+for (const block of body.split(/\n{2,}/)) {
+  const match = block.trim().match(/^\*\*(.+?)\*\*\s*([\s\S]+)$/);
+  if (!match) continue;
+  const key = match[1].replace(/[.:]\s*$/, '').trim().toLowerCase();
+  authored.set(key, match[2].replace(/\*\*/g, '').replace(/\s+/g, ' ').trim());
+}
+const offer = (key: string, fallback: string) => authored.get(key.toLowerCase()) ?? fallback;
+
+const weeklyQa = offer(
+  'Weekly member Q&A',
+  'Ryan and Annie, live, answering the questions you bring. Not a webinar. A conversation, with a chiropractor and a theologian in the room.',
+);
+const bonusAudio = offer(
+  'Bonus episodes',
+  'A private audio feed. Conversations that ran long, topics too specific for the main feed, and the debrief we record right after each episode.',
+);
+const askTheDoc = offer(
+  'Ask the doc',
+  'A running thread where you can put a question in front of Ryan and get a real answer instead of a search engine guess.',
+);
+const seasonal = offer(
+  'Seasonal challenges',
+  'Health practices that follow the Christian calendar instead of fighting it. Fasting that means something in Lent. Feasting that means something at Easter.',
+);
+const protocols = offer(
+  'Downloadable protocols',
+  'The handouts. Sleep, gut, movement, food. Written down so you can start on a Monday.',
+);
+const prayerBoard = offer(
+  'Prayer intention board',
+  'Members post what they are carrying and the room prays for it. The oldest technology in the Church, and still the reason people stay.',
+);
+
+const whereItStands = section(
+  'Where it stands',
+  'Early. Honestly early. The show came first and the community is being built behind it, deliberately, so that the first hundred people get something worth their time instead of an empty forum. We would rather open late than open thin.',
+);
+const waitlistNote = section(
+  'Get on the list',
+  'One email when the doors open. Nothing else in the meantime.',
+);
+
+// Seasons are the shape of the challenge calendar, not a claim about dates.
+const seasons = ['Advent', 'Lent', 'Easter', 'Ordinary Time'];
+
+const cardBase = 'rounded-2xl border border-line p-6 sm:p-7 flex flex-col';
+---
+
+<BaseLayout
+  title="Join the Community Waitlist | Health in the Spirit"
+  description="Health in the Spirit is building a members community: a weekly Q&A with Dr. Ryan and Annie, a private bonus audio feed, seasonal challenges, and downloadable protocols. It is not open yet. Join the waitlist."
+  canonicalPath="/community"
+  breadcrumbs={[{ name: 'Community', url: '/community' }]}
+>
+  {/* ── Hero ───────────────────────────────────────────────────────────────
+      The subtitle says "not open yet" in the first three lines on purpose.
+      Honesty is the whole positioning here. */}
+  <section class="bg-surface">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-24 pb-14 sm:pb-20">
+      <div class="max-w-3xl">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-gilt">
+          {heroEyebrow}
+        </p>
+        <h1 class="mt-4 font-serif text-4xl sm:text-5xl lg:text-6xl leading-[1.05] text-heading">
+          {heroTitle}
+        </h1>
+        <p class="mt-5 text-lg sm:text-xl text-ink-muted leading-relaxed measure">
+          {heroSubtitle}
+        </p>
+        <a
+          href="#waitlist"
+          class="mt-8 inline-flex items-center gap-2 rounded-xl px-7 py-3.5
+                 bg-accent hover:bg-accent-hover text-accent-ink
+                 font-semibold uppercase tracking-[0.12em] text-sm whitespace-nowrap
+                 transition-[background-color,transform] duration-200
+                 motion-safe:hover:-translate-y-px active:translate-y-0
+                 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gilt"
+        >
+          Join the waitlist
+          <Icon name="ph:arrow-right-bold" class="w-4 h-4 shrink-0" aria-hidden="true" />
+        </a>
+      </div>
+    </div>
+  </section>
+
+  {/* ── What it will be ────────────────────────────────────────────────────
+      A bento, not three matching cards: the weekly Q&A is the reason anyone
+      would pay, so it gets the width, and the private feed gets the height. */}
+  <section class="bg-surface-sunken border-y border-line">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+      <div class="max-w-2xl" data-reveal>
+        <h2 class="font-serif text-3xl sm:text-4xl lg:text-5xl leading-tight text-heading">
+          What it will be
+        </h2>
+        <p class="mt-4 text-lg text-ink-muted leading-relaxed">
+          The show is one direction. This is meant to be the other one.
+        </p>
+      </div>
+
+      <div
+        class="mt-10 sm:mt-14 grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5"
+        data-reveal-children
+      >
+        {/* Lead cell. Inverted so it reads as the headline offer, not one of six. */}
+        <article class={`${cardBase} md:col-span-2 bg-surface-inverse text-ink-inverse border-transparent`}>
+          <Icon name="ph:users-three-fill" class="w-8 h-8 text-ink-inverse opacity-75" aria-hidden="true" />
+          <h3 class="mt-4 font-serif text-2xl sm:text-3xl lg:text-4xl leading-tight text-ink-inverse">
+            Weekly member Q&amp;A with Ryan and Annie
+          </h3>
+          <p class="mt-3 text-base sm:text-lg leading-relaxed opacity-85">
+            {weeklyQa}
+          </p>
+        </article>
+
+        {/* Tall cell. The waveform is decorative, and it is the one place on the
+            page where the subject is audio, so it earns the pixels. */}
+        <article class={`${cardBase} md:row-span-2 bg-surface-raised`}>
+          <Icon name="ph:headphones-fill" class="w-7 h-7 text-accent" aria-hidden="true" />
+          <h3 class="mt-4 font-serif text-2xl leading-tight text-heading">
+            A private bonus feed
+          </h3>
+          <p class="mt-3 text-base text-ink-muted leading-relaxed">
+            {bonusAudio}
+          </p>
+
+          <div
+            class="mt-6 flex items-end gap-[3px] h-20 sm:h-28 md:mt-auto"
+            aria-hidden="true"
+          >
+            {[28, 52, 40, 74, 96, 62, 38, 80, 54, 30, 66, 88, 46, 34, 70, 50, 26, 60, 42, 22].map(
+              (height) => (
+                <span
+                  class="flex-1 rounded-full bg-accent/35"
+                  style={`height:${height}%`}
+                ></span>
+              ),
+            )}
+          </div>
+        </article>
+
+        {/* Ask the doc carries the compliance note, because that is where the
+            question actually gets asked. */}
+        <article class={`${cardBase} bg-surface-raised`}>
+          <Icon name="ph:stethoscope-fill" class="w-7 h-7 text-accent" aria-hidden="true" />
+          <h3 class="mt-4 font-serif text-2xl leading-tight text-heading">Ask the doc</h3>
+          <p class="mt-3 text-base text-ink-muted leading-relaxed">
+            {askTheDoc}
+          </p>
+          <p
+            class="mt-5 rounded-xl border border-line bg-surface-sunken px-4 py-3
+                   text-xs leading-relaxed text-ink-subtle"
+          >
+            <strong class="font-semibold text-ink-muted">
+              General education, not medical advice.
+            </strong>{' '}
+            Answers cover physiology, labs, and research in general terms. Nothing here
+            diagnoses or treats a person, no doctor and patient relationship is created,
+            and none of it replaces your own provider.
+          </p>
+        </article>
+
+        <article class={`${cardBase} bg-surface`}>
+          <Icon name="ph:calendar-heart-fill" class="w-7 h-7 text-accent" aria-hidden="true" />
+          <h3 class="mt-4 font-serif text-2xl leading-tight text-heading">
+            Seasonal challenges
+          </h3>
+          <p class="mt-3 text-base text-ink-muted leading-relaxed">
+            {seasonal}
+          </p>
+          <ul class="mt-5 flex flex-wrap items-center gap-x-3 gap-y-2 text-xs uppercase tracking-[0.14em] text-gilt font-semibold">
+            {seasons.map((season, index) => (
+              <>
+                {index > 0 && (
+                  <li aria-hidden="true" class="h-1.5 w-1.5 rotate-45 bg-gold-500/70"></li>
+                )}
+                <li>{season}</li>
+              </>
+            ))}
+          </ul>
+        </article>
+
+        <article class={`${cardBase} bg-surface-raised`}>
+          <Icon name="ph:file-arrow-down-fill" class="w-7 h-7 text-accent" aria-hidden="true" />
+          <h3 class="mt-4 font-serif text-2xl leading-tight text-heading">
+            Downloadable protocols
+          </h3>
+          <p class="mt-3 text-base text-ink-muted leading-relaxed">
+            {protocols}
+          </p>
+        </article>
+
+        {/* Wide closer, set as a quote rather than another paragraph in a box. */}
+        <article class={`${cardBase} md:col-span-2 bg-surface justify-center`}>
+          <div class="flex items-start gap-4 sm:gap-6">
+            <Icon
+              name="ph:hands-praying-fill"
+              class="w-8 h-8 shrink-0 text-gilt mt-1"
+              aria-hidden="true"
+            />
+            <div class="border-l-2 border-gilt pl-5 sm:pl-6">
+              <h3 class="font-serif text-2xl sm:text-3xl leading-tight text-heading">
+                A prayer intention board
+              </h3>
+              <p class="mt-3 font-serif italic text-lg sm:text-xl text-ink-muted leading-relaxed">
+                {prayerBoard}
+              </p>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  {/* ── Where this stands ──────────────────────────────────────────────────
+      Candid on purpose. This audience can smell a launch, and the honest
+      version converts better than the hyped one. It is also just true. */}
+  <section class="bg-surface">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12" data-reveal>
+        <div class="lg:col-span-5">
+          <h2 class="font-serif text-3xl sm:text-4xl lg:text-5xl leading-tight text-heading">
+            Where this stands
+          </h2>
+        </div>
+        <div class="lg:col-span-7 flex flex-col gap-5">
+          <p class="text-lg text-ink-muted leading-relaxed measure">
+            {whereItStands}
+          </p>
+          <p class="text-lg text-ink-muted leading-relaxed measure">
+            Pricing is not set yet. When it is, the people on this list hear first and get
+            in before anyone else.
+          </p>
+          {!communityWaitlistLive && (
+            <p class="text-base text-ink-subtle leading-relaxed measure">
+              The waitlist signup is still being connected. Until it is, the form below
+              reaches us directly and we add every name by hand.
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* ── The waitlist ───────────────────────────────────────────────────────
+      The only ask on the page. It joins a list; it does not open a door. */}
+  <section id="waitlist" class="bg-surface-sunken border-t border-line">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+      <div class="max-w-2xl" data-reveal>
+        <h2 class="font-serif text-3xl sm:text-4xl lg:text-5xl leading-tight text-heading">
+          Get on the list
+        </h2>
+        <p class="mt-4 text-lg text-ink-muted leading-relaxed">
+          {waitlistNote}
+        </p>
+
+        <NewsletterForm
+          class="mt-8"
+          cta="Add me to the waitlist"
+          note="Unsubscribe in one click."
+          source="community-waitlist"
+        />
+
+        <p class="mt-6 text-sm text-ink-subtle leading-relaxed">
+          Prefer the show first? The weekly episodes are free and always will be.
+          <a
+            href="/episodes"
+            class="ml-1 text-ink font-medium underline decoration-gilt underline-offset-4
+                   hover:text-accent transition-colors"
+          >
+            Browse every episode
+          </a>
+          or write to
+          <a
+            href={`mailto:${site.contactEmail}`}
+            class="text-ink font-medium underline decoration-gilt underline-offset-4
+                   hover:text-accent transition-colors"
+          >
+            {site.contactEmail}
+          </a>.
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,162 +1,179 @@
 ---
+/**
+ * Subscribe.
+ *
+ * Two rules hold this page together:
+ *
+ *   1. Every platform link comes from `socialUrls` in
+ *      src/content/settings/site.json and an empty URL renders nothing at all.
+ *      A row that says "coming soon" is a promise we have not kept; a dead link
+ *      is worse. If it is not live, it is not on the page.
+ *
+ *   2. Email capture is the shared `NewsletterForm`. This page used to post to
+ *      `action="mailto:..."`, which most browsers silently drop, so every
+ *      address entered here since launch was lost. NewsletterForm posts to the
+ *      configured provider endpoint and, until one exists, says so plainly
+ *      instead of pretending to collect.
+ */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SectionContainer from '../components/SectionContainer.astro';
+import NewsletterForm from '../components/NewsletterForm.astro';
 import Button from '../components/Button.astro';
 import Ornament from '../components/Ornament.astro';
+import { Icon } from 'astro-icon/components';
 import { site } from '../lib/site';
 
-// Single source of truth: src/content/settings/site.json → socialUrls.
-// A platform becomes a live, clickable link the moment its URL is filled in
-// there (via Decap at /admin → Settings → Site). Empty = "coming soon".
-// This mirrors the same pattern used in Footer.astro.
+// Listening apps, in the order we want them read. Anything without a URL in
+// site.json is filtered out entirely rather than shown as pending.
 const podcastDefs = [
-  { key: 'applePodcasts', label: 'Apple Podcasts' },
-  { key: 'spotify',       label: 'Spotify' },
-  { key: 'youtube',       label: 'YouTube' },
-  { key: 'amazonMusic',   label: 'Amazon Music' },
-  { key: 'rss',           label: 'RSS Feed' },
+  { key: 'applePodcasts', label: 'Apple Podcasts', note: 'Follow the show' },
+  { key: 'spotify',       label: 'Spotify',        note: 'Follow the show' },
+  { key: 'youtube',       label: 'YouTube',        note: 'Watch the show' },
+  { key: 'amazonMusic',   label: 'Amazon Music',   note: 'Follow the show' },
 ] as const;
 
 const socialDefs = [
   { key: 'instagram', label: 'Instagram',   handle: '@HealthInTheSpirit' },
-  { key: 'youtube',   label: 'YouTube',     handle: 'Health in the Spirit' },
   { key: 'tiktok',    label: 'TikTok',      handle: '@HealthInTheSpirit' },
   { key: 'facebook',  label: 'Facebook',    handle: 'Health in the Spirit Podcast' },
   { key: 'linkedin',  label: 'LinkedIn',    handle: 'Health in the Spirit' },
-  { key: 'twitter',   label: 'X / Twitter', handle: '@HITSPodcast' },
+  { key: 'twitter',   label: 'X',           handle: '@HITSPodcast' },
 ] as const;
 
-const podcasts = podcastDefs.map((p) => ({ ...p, href: site.socialUrls[p.key] }));
-const socials = socialDefs.map((s) => ({ ...s, href: site.socialUrls[s.key] }));
+const podcasts = podcastDefs
+  .map((p) => ({ ...p, href: site.socialUrls[p.key]?.trim() ?? '' }))
+  .filter((p) => p.href.length > 0);
+
+const socials = socialDefs
+  .map((s) => ({ ...s, href: site.socialUrls[s.key]?.trim() ?? '' }))
+  .filter((s) => s.href.length > 0);
+
+const rssUrl = site.socialUrls.rss?.trim() ?? '';
 ---
 <BaseLayout
-  title="Subscribe | Catholic Health Podcast | Health in the Spirit"
-  description="Subscribe to Health in the Spirit, the Catholic health and wellness podcast with Dr. Ryan and Annie DeNome. Available on Apple Podcasts, Spotify, and YouTube."
+  title="Subscribe | Health in the Spirit"
+  description="Follow Health in the Spirit on Apple Podcasts or Spotify, and get the newsletter. New episodes every Tuesday morning."
+  breadcrumbs={[{ name: 'Subscribe', url: '/subscribe' }]}
 >
 
   <SectionContainer variant="cream" padding="large">
     <div class="max-w-3xl mx-auto text-center">
-      <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl text-forest-700 leading-tight">
-        Subscribe to the Catholic Health Podcast
+      <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl text-heading leading-tight">
+        Follow the show
       </h1>
-      <p class="mt-6 text-xl text-brown-700 italic font-serif">
-        Listen wherever you get your podcasts. New episodes every Tuesday at 6 AM ET, beginning July 7, 2026.
+      <p class="mt-6 text-xl text-ink-muted italic font-serif measure mx-auto">
+        Nine episodes are out, with a new one every Tuesday morning. Follow in your podcast app so each one arrives on its own.
       </p>
       <Ornament class="mt-6" />
     </div>
   </SectionContainer>
 
-  <SectionContainer variant="cream" padding="default" id="platforms">
-    <div class="max-w-3xl mx-auto">
-      <h2 class="font-serif text-3xl sm:text-4xl text-forest-700 text-center mb-10 leading-tight">
-        Podcast platforms
-      </h2>
+  {podcasts.length > 0 && (
+    <SectionContainer variant="cream" padding="default" id="platforms">
+      <div class="max-w-3xl mx-auto">
+        <h2 class="font-serif text-3xl sm:text-4xl text-heading text-center mb-10 leading-tight">
+          Where to listen
+        </h2>
 
-      <ul class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-        {podcasts.map((p) => (
-          <li>
-            {p.href
-              ? (
-                <a
-                  href={p.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="group flex items-center justify-between gap-4 bg-cream-100 border border-cream-400 rounded-lg p-5 transition-[border-color,box-shadow,transform] duration-200 ease-out hover:border-gold-500 hover:shadow-md motion-safe:hover:-translate-y-0.5"
-                >
-                  <div>
-                    <p class="font-serif text-xl text-forest-700">{p.label}</p>
-                    <p class="text-xs uppercase tracking-[0.18em] text-forest-600 italic mt-1">Listen now</p>
-                  </div>
-                  <span aria-hidden="true" class="text-gold-500 transition-transform duration-200 motion-safe:group-hover:translate-x-1">→</span>
-                </a>
-              )
-              : (
-                <div class="flex items-center justify-between gap-4 bg-cream-100 border border-cream-400 rounded-lg p-5 opacity-80">
-                  <div>
-                    <p class="font-serif text-xl text-forest-700">{p.label}</p>
-                    <p class="text-xs uppercase tracking-[0.18em] text-brown-500 italic mt-1">coming soon</p>
-                  </div>
-                  <span aria-hidden="true" class="text-cream-500">→</span>
+        <ul class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4" data-reveal-children>
+          {podcasts.map((p) => (
+            <li>
+              <a
+                href={p.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="group flex items-center justify-between gap-4 bg-surface-raised border border-line rounded-2xl p-5
+                       transition-[border-color,box-shadow,transform] duration-200 ease-out
+                       hover:border-gilt hover:shadow-[0_10px_30px_-14px_rgba(61,50,40,0.32)]
+                       motion-safe:hover:-translate-y-0.5"
+              >
+                <div>
+                  <p class="font-serif text-xl text-heading">{p.label}</p>
+                  <p class="text-xs uppercase tracking-[0.18em] text-gilt mt-1">{p.note}</p>
                 </div>
-              )}
-          </li>
-        ))}
-      </ul>
+                <Icon
+                  name="ph:arrow-up-right-bold"
+                  class="w-5 h-5 shrink-0 text-accent transition-transform duration-200 motion-safe:group-hover:translate-x-0.5"
+                  aria-hidden="true"
+                />
+              </a>
+            </li>
+          ))}
+        </ul>
 
-      <p class="mt-8 text-sm text-brown-500 italic text-center">
-        Each button goes live the moment that platform approves the show — usually within a few days of launch. Overcast, Castro, Pocket Casts and other apps pull the show in automatically once Apple Podcasts approves it. Until then, the surest way to be first is the email signup below.
-      </p>
-    </div>
-  </SectionContainer>
-
-  <SectionContainer variant="sage" padding="default" id="follow">
-    <div class="max-w-3xl mx-auto">
-      <h2 class="font-serif text-3xl sm:text-4xl text-forest-700 text-center mb-3 leading-tight">
-        Beyond the podcast
-      </h2>
-      <p class="text-center text-base text-brown-700 max-w-xl mx-auto mb-10">
-        Daily reflections, behind-the-scenes, and clips from the show. Follow on the platforms you already use — links activate as each account goes live.
-      </p>
-
-      <ul class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-        {socials.map((s) => (
-          <li>
-            {s.href
-              ? (
-                <a
-                  href={s.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="group flex items-center justify-between gap-4 bg-cream-100 border border-cream-400 rounded-lg p-5 transition-[border-color,box-shadow,transform] duration-200 ease-out hover:border-gold-500 hover:shadow-md motion-safe:hover:-translate-y-0.5"
-                >
-                  <div>
-                    <p class="font-serif text-xl text-forest-700">{s.label}</p>
-                    <p class="text-sm text-brown-700 mt-0.5">{s.handle}</p>
-                    <p class="text-xs uppercase tracking-[0.18em] text-forest-600 italic mt-1">Follow</p>
-                  </div>
-                  <span aria-hidden="true" class="text-gold-500 transition-transform duration-200 motion-safe:group-hover:translate-x-1">→</span>
-                </a>
-              )
-              : (
-                <div class="flex items-center justify-between gap-4 bg-cream-100 border border-cream-400 rounded-lg p-5 opacity-80">
-                  <div>
-                    <p class="font-serif text-xl text-forest-700">{s.label}</p>
-                    <p class="text-sm text-brown-700 mt-0.5">{s.handle}</p>
-                    <p class="text-xs uppercase tracking-[0.18em] text-brown-500 italic mt-1">coming soon</p>
-                  </div>
-                  <span aria-hidden="true" class="text-cream-500">→</span>
-                </div>
-              )}
-          </li>
-        ))}
-      </ul>
-    </div>
-  </SectionContainer>
+        {rssUrl && (
+          <p class="mt-8 text-sm text-ink-subtle text-center measure mx-auto">
+            Using Overcast, Pocket Casts, or another app? Paste the
+            {' '}
+            <a
+              href={rssUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="underline underline-offset-4 hover:text-accent transition-colors"
+            >
+              show feed
+            </a>
+            {' '}
+            into it and the episodes will follow.
+          </p>
+        )}
+      </div>
+    </SectionContainer>
+  )}
 
   <SectionContainer variant="forest" padding="default" id="newsletter">
-    <div class="text-center max-w-2xl mx-auto rounded-2xl border border-gold-500/40 ring-1 ring-gold-500/20 ring-offset-8 ring-offset-forest-700 px-6 py-10 sm:px-12">
-      <p class="text-xs uppercase tracking-[0.25em] text-gold-500 font-semibold mb-3">Don't miss the launch</p>
-      <h2 class="font-serif text-3xl sm:text-4xl text-cream-200 leading-tight">
-        Get the first episode in your inbox.
-      </h2>
-      <p class="mt-4 text-lg text-cream-300/90">
-        One email when we launch. Real updates only — no spam, no nonsense.
-      </p>
-
-      <form class="mt-8 flex flex-col sm:flex-row gap-3 max-w-xl mx-auto" action="mailto:ryan@healthinthespirit.com" method="post" enctype="text/plain">
-        <input type="email" name="email" required aria-label="Email address" placeholder="you@example.com"
-          class="flex-1 px-4 py-3 rounded-md bg-cream-100 text-brown-700 placeholder:text-brown-400 focus-visible:outline-2 focus-visible:outline-gold-500" />
-        <button type="submit"
-          class="bg-terracotta-500 hover:bg-terracotta-600 text-cream-100 font-semibold uppercase tracking-[0.12em] text-sm px-6 py-3 rounded-md transition-colors">
-          Notify me
-        </button>
-      </form>
+    <div class="max-w-2xl">
+      <NewsletterForm
+        heading="Get it in writing"
+        subheading="The episode, the notes behind it, and what we are reading. One email, most weeks."
+        tone="inverse"
+        source="subscribe"
+      />
     </div>
   </SectionContainer>
+
+  {socials.length > 0 && (
+    <SectionContainer variant="sage" padding="default" id="follow">
+      <div class="max-w-3xl mx-auto">
+        <h2 class="font-serif text-3xl sm:text-4xl text-heading text-center mb-3 leading-tight">
+          Beyond the podcast
+        </h2>
+        <p class="text-center text-base text-ink-muted measure mx-auto mb-10">
+          Clips from the show and shorter reflections in between episodes.
+        </p>
+
+        <ul class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4" data-reveal-children>
+          {socials.map((s) => (
+            <li>
+              <a
+                href={s.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="group flex items-center justify-between gap-4 bg-surface-raised border border-line rounded-2xl p-5
+                       transition-[border-color,box-shadow,transform] duration-200 ease-out
+                       hover:border-gilt hover:shadow-[0_10px_30px_-14px_rgba(61,50,40,0.32)]
+                       motion-safe:hover:-translate-y-0.5"
+              >
+                <div>
+                  <p class="font-serif text-xl text-heading">{s.label}</p>
+                  <p class="text-sm text-ink-muted mt-0.5">{s.handle}</p>
+                </div>
+                <Icon
+                  name="ph:arrow-up-right-bold"
+                  class="w-5 h-5 shrink-0 text-accent transition-transform duration-200 motion-safe:group-hover:translate-x-0.5"
+                  aria-hidden="true"
+                />
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </SectionContainer>
+  )}
 
   <SectionContainer variant="cream" padding="default">
     <div class="max-w-2xl mx-auto text-center">
-      <Button href="/" variant="secondary" size="md">← Back to homepage</Button>
+      <Button href="/episodes" variant="secondary" size="md" arrow>Browse all episodes</Button>
     </div>
   </SectionContainer>
 

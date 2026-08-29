@@ -1,50 +1,119 @@
 ---
+import { getCollection, getEntry } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SectionContainer from '../components/SectionContainer.astro';
 import Button from '../components/Button.astro';
+import SaintCard from '../components/SaintCard.astro';
+import NewsletterForm from '../components/NewsletterForm.astro';
+import { Icon } from 'astro-icon/components';
+
+const page = await getEntry('pages', 'resources');
+const heroSubtitle =
+  page?.data.heroSubtitle ||
+  "Books, supplements, and tools we trust. Held to the same standard we hold for ourselves: nothing here we wouldn't put on our own shelf.";
+
+const categories = page?.data.categories ?? [];
+
+// Icons are matched by name so a category added in the CMS still renders.
+const categoryIcons: Record<string, string> = {
+  Books: 'ph:books-bold',
+  Supplements: 'ph:pill-bold',
+  Tools: 'ph:wrench-bold',
+};
+
+const saints = (await getCollection('saints', ({ data }) => !data.draft))
+  .sort((a, b) => a.data.order - b.data.order);
 ---
 <BaseLayout
-  title="Catholic Health & Wellness Resources | Health in the Spirit"
-  description="Catholic health resources — books, supplements, and trusted tools recommended by Dr. Ryan and Annie DeNome for body, soul, and family wellness."
+  title="Resources | Health in the Spirit"
+  description="Books, supplements, and tools Dr. Ryan and Annie DeNome trust, plus profiles of the healing saints who shape how Health in the Spirit thinks about body and soul."
+  breadcrumbs={[{ name: 'Resources', url: '/resources' }]}
 >
 
   <SectionContainer variant="cream" padding="large">
     <div class="max-w-3xl mx-auto text-center">
-      <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl text-forest-700 leading-tight">
-        Catholic Health Resources &amp; Recommendations
+      <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl text-heading leading-tight">
+        Resources
       </h1>
-      <p class="mt-6 text-xl text-brown-700 italic font-serif">
-        Books, supplements, and tools we trust — coming soon, with the same standard we hold for ourselves: nothing here we wouldn't put on our own shelf.
+      <p class="mt-6 text-xl text-ink italic font-serif">
+        {heroSubtitle}
       </p>
     </div>
   </SectionContainer>
 
-  <SectionContainer variant="sage" padding="default">
-    <div class="max-w-4xl mx-auto">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-cream-100 border border-cream-400 rounded-lg p-7">
-          <h3 class="font-serif text-2xl text-forest-700 leading-tight">Books</h3>
-          <p class="mt-3 text-base text-brown-700">From Hildegard's <em>Physica</em> to modern Catholic theology of the body — the texts that have shaped how we think and practice.</p>
+  {categories.length > 0 && (
+    <SectionContainer variant="sage" padding="default" id="recommendations">
+      <div class="max-w-4xl mx-auto">
+        <h2 class="font-serif text-3xl sm:text-4xl text-heading leading-tight text-center">
+          What we recommend
+        </h2>
+
+        <div class="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6">
+          {categories.map((c) => (
+            <div class="bg-surface-raised border border-line rounded-2xl p-7">
+              <Icon
+                name={categoryIcons[c.name] ?? 'ph:bookmark-simple-bold'}
+                class="w-7 h-7 text-gilt"
+                aria-hidden="true"
+              />
+              <h3 class="mt-4 font-serif text-2xl text-heading leading-tight">{c.name}</h3>
+              <p class="mt-3 text-base text-ink">{c.description}</p>
+              {c.status && (
+                <p class="mt-4 text-xs uppercase tracking-[0.18em] text-ink-subtle font-semibold">
+                  In progress
+                </p>
+              )}
+            </div>
+          ))}
         </div>
-        <div class="bg-cream-100 border border-cream-400 rounded-lg p-7">
-          <h3 class="font-serif text-2xl text-forest-700 leading-tight">Supplements</h3>
-          <p class="mt-3 text-base text-brown-700">Specific products we use ourselves and recommend to patients — with honest reasoning for each one, not affiliate noise.</p>
+
+        <p class="mt-10 text-center text-sm text-ink-subtle max-w-[68ch] mx-auto">
+          We add each recommendation only after we have used it, tested it, and would hand it to a patient or a friend. That takes time, so this list grows slowly on purpose.
+        </p>
+      </div>
+    </SectionContainer>
+  )}
+
+  {saints.length > 0 && (
+    <SectionContainer variant="cream" padding="default" id="saints">
+      <div class="max-w-5xl mx-auto">
+        <div class="max-w-3xl mx-auto text-center">
+          <h2 class="font-serif text-3xl sm:text-4xl text-heading leading-tight">
+            The healing saints
+          </h2>
+          <p class="mt-4 text-lg text-ink">
+            Christians have been holding body and soul together for two thousand years, and some of them did it as physicians and herbalists. These profiles are where we go when we want to know how that was actually done.
+          </p>
         </div>
-        <div class="bg-cream-100 border border-cream-400 rounded-lg p-7">
-          <h3 class="font-serif text-2xl text-forest-700 leading-tight">Tools</h3>
-          <p class="mt-3 text-base text-brown-700">Apps, devices, and practical kits that have actually earned their place in our home and our practice.</p>
+
+        <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+          {saints.map((s) => (
+            <SaintCard
+              name={s.data.name}
+              href={`/saints/${s.data.slug}`}
+              role={s.data.role}
+              era={s.data.era}
+              summary={s.data.summary}
+              imageSrc={s.data.iconImage}
+              imageAlt={s.data.iconAlt}
+            />
+          ))}
+        </div>
+
+        <div class="mt-10 text-center">
+          <Button href="/saints" variant="secondary" size="md" arrow>All saint profiles</Button>
         </div>
       </div>
+    </SectionContainer>
+  )}
 
-      <p class="mt-12 text-center text-sm text-brown-500 italic">
-        Resources will be added gradually after launch — when each recommendation has been used, tested, and vetted personally.
-      </p>
-    </div>
-  </SectionContainer>
-
-  <SectionContainer variant="cream" padding="default">
-    <div class="max-w-2xl mx-auto text-center">
-      <Button href="/" variant="secondary" size="md">← Back to homepage</Button>
+  <SectionContainer variant="sage" padding="default" id="newsletter">
+    <div class="max-w-2xl mx-auto">
+      <NewsletterForm
+        heading="Get the new ones first"
+        subheading="When something earns a place on this page, subscribers hear about it before it shows up here."
+        source="resources"
+      />
     </div>
   </SectionContainer>
 

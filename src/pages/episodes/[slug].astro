@@ -1,0 +1,352 @@
+---
+/**
+ * One episode. This is the page that carries the written show notes, so it is
+ * the page search engines and AI crawlers actually index for the show.
+ *
+ * The body is raw HTML synced from the Transistor feed (<p>, <ul>, <strong>),
+ * so it goes through `render()` untouched and is handed to Prose, whose global
+ * `.prose-hits` descendant selectors style those tags directly.
+ *
+ * Nothing in the title or body is ever rewritten: it must match Apple and
+ * Spotify byte for byte.
+ */
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SectionContainer from '../../components/SectionContainer.astro';
+import AudioPlayer from '../../components/AudioPlayer.astro';
+import Prose from '../../components/Prose.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import NewsletterForm from '../../components/NewsletterForm.astro';
+import { Icon } from 'astro-icon/components';
+import { site } from '../../lib/site';
+import { SITE_URL } from '../../lib/schema';
+
+type EpisodeEntry = CollectionEntry<'episodes'>;
+
+export async function getStaticPaths() {
+  const entries = await getCollection('episodes', ({ data }) => !data.draft);
+
+  // Newest first. Two episodes share `number: 3` in the Transistor export, so
+  // the release date is the only ordering key that stays correct.
+  const ordered = entries.sort(
+    (a, b) => b.data.releaseDate.getTime() - a.data.releaseDate.getTime(),
+  );
+
+  return ordered.map((entry, i) => ({
+    params: { slug: entry.data.slug },
+    props: {
+      entry,
+      newer: ordered[i - 1] ?? null,
+      older: ordered[i + 1] ?? null,
+    },
+  }));
+}
+
+interface Props {
+  entry: EpisodeEntry;
+  newer: EpisodeEntry | null;
+  older: EpisodeEntry | null;
+}
+
+const { entry, newer, older } = Astro.props as Props;
+const { Content } = await render(entry);
+const ep = entry.data;
+
+const isTrailer = ep.episodeType === 'trailer';
+const pageUrl = `${SITE_URL}/episodes/${ep.slug}`;
+const publishedIso = ep.releaseDate.toISOString();
+const dateLabel = ep.releaseDate.toLocaleDateString('en-US', {
+  month: 'long',
+  day: 'numeric',
+  year: 'numeric',
+  timeZone: 'America/New_York',
+});
+
+const minutes =
+  ep.durationMinutes ??
+  (ep.durationSeconds ? Math.round(ep.durationSeconds / 60) : undefined);
+
+/** Seconds to an ISO 8601 duration, e.g. 2093 becomes PT34M53S. */
+const isoDuration = (seconds?: number): string | undefined => {
+  if (!seconds || seconds <= 0) return undefined;
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = Math.floor(seconds % 60);
+  const parts = [h ? `${h}H` : '', m ? `${m}M` : '', s ? `${s}S` : ''].join('');
+  return `PT${parts || '0S'}`;
+};
+
+const duration = isoDuration(ep.durationSeconds);
+
+const metaBits = [
+  isTrailer ? 'Trailer' : `Episode ${ep.number}`,
+  dateLabel,
+  minutes ? `${minutes} min` : null,
+  ep.guestName ? `with ${ep.guestName}` : null,
+].filter((b): b is string => Boolean(b));
+
+// Only platforms with a real URL. YouTube and Amazon are empty in site.json.
+const listenLinks = [
+  { name: 'Apple Podcasts', href: site.socialUrls.applePodcasts, icon: 'ph:apple-logo' },
+  { name: 'Spotify', href: site.socialUrls.spotify, icon: 'ph:spotify-logo' },
+  { name: 'Web player', href: ep.transistorShareUrl, icon: 'ph:broadcast' },
+].filter((l): l is { name: string; href: string; icon: string } => Boolean(l.href));
+
+const episodeJsonLd: Record<string, unknown> = {
+  '@context': 'https://schema.org',
+  '@type': 'PodcastEpisode',
+  '@id': `${pageUrl}#episode`,
+  name: ep.title,
+  description: ep.description,
+  url: pageUrl,
+  datePublished: publishedIso,
+  inLanguage: 'en-US',
+  partOfSeries: { '@id': `${SITE_URL}#podcast` },
+  publisher: { '@id': `${SITE_URL}#organization` },
+  author: [{ '@id': `${SITE_URL}/about#ryan` }, { '@id': `${SITE_URL}/about#annie` }],
+  mainEntityOfPage: pageUrl,
+  isPartOf: { '@id': `${SITE_URL}#website` },
+};
+if (!isTrailer) episodeJsonLd.episodeNumber = ep.number;
+if (duration) episodeJsonLd.timeRequired = duration;
+if (ep.keywords.length > 0) episodeJsonLd.keywords = ep.keywords.join(', ');
+if (ep.guestName) episodeJsonLd.actor = { '@type': 'Person', name: ep.guestName };
+if (ep.artworkUrl) episodeJsonLd.image = ep.artworkUrl;
+if (ep.audioUrl) {
+  episodeJsonLd.associatedMedia = {
+    '@type': 'AudioObject',
+    contentUrl: ep.audioUrl,
+    encodingFormat: 'audio/mpeg',
+    ...(duration ? { duration } : {}),
+    ...(ep.audioBytes ? { contentSize: String(ep.audioBytes) } : {}),
+  };
+}
+---
+<BaseLayout
+  title={`${ep.title} | Health in the Spirit`}
+  description={ep.description}
+  ogType="article"
+  publishedTime={publishedIso}
+  jsonLd={episodeJsonLd}
+  keywords={ep.keywords}
+  breadcrumbs={[
+    { name: 'Episodes', url: '/episodes' },
+    { name: ep.title, url: `/episodes/${ep.slug}` },
+  ]}
+>
+
+  <SectionContainer variant="transparent" padding="compact" reveal="none" class="bg-surface">
+    <div class="max-w-3xl">
+      <Breadcrumbs
+        class="mb-6"
+        items={[{ name: 'Episodes', url: '/episodes' }, { name: ep.title, url: `/episodes/${ep.slug}` }]}
+      />
+
+      <ul class="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs sm:text-sm text-ink-subtle tnum">
+        {metaBits.map((bit, i) => (
+          <li class="flex items-center gap-x-2.5">
+            {i > 0 && <span aria-hidden="true" class="w-1 h-1 rounded-full bg-line-strong"></span>}
+            <span class={i === 0 ? 'font-semibold uppercase tracking-[0.16em] text-gilt' : ''}>{bit}</span>
+          </li>
+        ))}
+      </ul>
+
+      <h1 class="mt-4 font-serif text-3xl sm:text-4xl lg:text-5xl leading-[1.1] text-heading">
+        {ep.title}
+      </h1>
+
+      {ep.audioUrl && (
+        <div class="mt-6">
+          <AudioPlayer
+            src={ep.audioUrl}
+            title={ep.title}
+            durationSeconds={ep.durationSeconds}
+            size="full"
+          />
+        </div>
+      )}
+
+      <div class="mt-7 flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+        {listenLinks.length > 0 && (
+          <div>
+            <h2 class="text-sm font-semibold text-ink-muted">Listen on</h2>
+            <ul class="mt-3 flex flex-wrap gap-2.5">
+              {listenLinks.map((l) => (
+                <li>
+                  <a
+                    href={l.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center gap-2 min-h-11 px-4 py-2.5 rounded-xl
+                           border border-line bg-surface-raised text-ink text-sm font-semibold
+                           transition-[transform,border-color] duration-200
+                           hover:border-line-strong motion-safe:hover:-translate-y-px"
+                  >
+                    <Icon name={l.icon} class="w-4.5 h-4.5 shrink-0" aria-hidden="true" />
+                    {l.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        <div class="sm:text-right" data-share data-url={pageUrl} data-title={ep.title}>
+          <h2 class="text-sm font-semibold text-ink-muted">Pass it on</h2>
+          <button
+            type="button"
+            data-share-btn
+            class="mt-3 inline-flex items-center gap-2 min-h-11 px-4 py-2.5 rounded-xl
+                   border border-line bg-surface-raised text-ink text-sm font-semibold
+                   transition-[transform,border-color] duration-200
+                   hover:border-line-strong motion-safe:hover:-translate-y-px"
+          >
+            <Icon name="ph:share-network" class="w-4.5 h-4.5 shrink-0" aria-hidden="true" />
+            <span data-share-label>Share this episode</span>
+          </button>
+          <p class="mt-2 text-sm text-ink-subtle hidden max-w-xs sm:ml-auto" data-share-status role="status"></p>
+          <div class="mt-3 hidden" data-share-fallback>
+            <label for={`share-url-${ep.slug}`} class="block text-sm font-medium text-ink mb-1.5 sm:text-right">
+              Episode link
+            </label>
+            <input
+              id={`share-url-${ep.slug}`}
+              data-share-field
+              type="text"
+              readonly
+              value={pageUrl}
+              class="w-full sm:w-72 px-3.5 py-2.5 rounded-xl border border-line bg-surface-sunken
+                     text-ink text-sm
+                     focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gilt"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </SectionContainer>
+
+  <SectionContainer variant="transparent" padding="default" class="bg-surface">
+    <div class="max-w-3xl">
+      <h2 class="font-serif text-2xl sm:text-3xl leading-tight text-heading">Show notes</h2>
+      <div class="mt-6">
+        <Prose>
+          <Content />
+        </Prose>
+      </div>
+    </div>
+  </SectionContainer>
+
+  {(older || newer) && (
+    <SectionContainer variant="transparent" padding="compact" class="bg-surface">
+      <nav aria-label="More episodes" class="max-w-3xl border-t border-line pt-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {older && (
+            <a
+              href={`/episodes/${older.data.slug}`}
+              class="group rounded-2xl border border-line bg-surface-raised p-5
+                     transition-[transform,border-color] duration-200
+                     hover:border-line-strong motion-safe:hover:-translate-y-0.5"
+            >
+              <span class="inline-flex items-center gap-1.5 text-sm font-semibold text-accent">
+                <Icon name="ph:arrow-left-bold" class="w-3.5 h-3.5 transition-transform duration-200 motion-safe:group-hover:-translate-x-0.5" aria-hidden="true" />
+                Previous episode
+              </span>
+              <span class="mt-2 block font-serif text-lg leading-snug text-heading">{older.data.title}</span>
+            </a>
+          )}
+          {newer && (
+            <a
+              href={`/episodes/${newer.data.slug}`}
+              class="group rounded-2xl border border-line bg-surface-raised p-5 sm:text-right
+                     transition-[transform,border-color] duration-200
+                     hover:border-line-strong motion-safe:hover:-translate-y-0.5"
+            >
+              <span class="inline-flex items-center gap-1.5 text-sm font-semibold text-accent">
+                Next episode
+                <Icon name="ph:arrow-right-bold" class="w-3.5 h-3.5 transition-transform duration-200 motion-safe:group-hover:translate-x-0.5" aria-hidden="true" />
+              </span>
+              <span class="mt-2 block font-serif text-lg leading-snug text-heading">{newer.data.title}</span>
+            </a>
+          )}
+        </div>
+        <p class="mt-6">
+          <a href="/episodes" class="inline-flex items-center gap-1.5 text-sm font-semibold text-ink-muted hover:text-ink transition-colors">
+            All episodes
+          </a>
+        </p>
+      </nav>
+    </SectionContainer>
+  )}
+
+  <SectionContainer variant="transparent" padding="default" class="bg-surface-inverse text-ink-inverse">
+    <div class="max-w-2xl">
+      <NewsletterForm
+        heading="Get the next one before anyone tells you about it"
+        subheading="One email a week with the story behind the episode. Written by us, not a marketing team."
+        tone="inverse"
+        source="episode-detail"
+      />
+    </div>
+  </SectionContainer>
+
+</BaseLayout>
+
+<script>
+  // Native share where the OS offers it (that is most of our traffic, which
+  // arrives on a phone), clipboard everywhere else, and a selectable field if
+  // the clipboard write is refused, which Safari does when the gesture is lost.
+  document.querySelectorAll<HTMLElement>('[data-share]').forEach((root) => {
+    const button = root.querySelector<HTMLButtonElement>('[data-share-btn]');
+    const label = root.querySelector<HTMLElement>('[data-share-label]');
+    const status = root.querySelector<HTMLElement>('[data-share-status]');
+    const fallback = root.querySelector<HTMLElement>('[data-share-fallback]');
+    const field = root.querySelector<HTMLInputElement>('[data-share-field]');
+    if (!button || !label) return;
+
+    const url = root.dataset.url || window.location.href;
+    const title = root.dataset.title || document.title;
+    const original = label.textContent ?? 'Share this episode';
+    let timer = 0;
+
+    const say = (message: string) => {
+      if (!status) return;
+      status.textContent = message;
+      status.classList.remove('hidden');
+    };
+
+    const reset = () => {
+      label.textContent = original;
+      status?.classList.add('hidden');
+    };
+
+    button.addEventListener('click', async () => {
+      window.clearTimeout(timer);
+
+      if (typeof navigator.share === 'function') {
+        try {
+          await navigator.share({ title, url });
+          return;
+        } catch (error) {
+          // The visitor dismissed the sheet. That is not a failure.
+          if (error instanceof DOMException && error.name === 'AbortError') return;
+          // Anything else falls through to the clipboard path.
+        }
+      }
+
+      try {
+        if (!navigator.clipboard) throw new Error('clipboard unavailable');
+        await navigator.clipboard.writeText(url);
+        label.textContent = 'Link copied';
+        say('The episode link is on your clipboard.');
+        timer = window.setTimeout(reset, 3000);
+      } catch {
+        // Permission denied, insecure context, or no clipboard API. Give them
+        // something they can select by hand rather than a silent no-op.
+        fallback?.classList.remove('hidden');
+        say('Copying was blocked, so the link is in the field below.');
+        field?.focus();
+        field?.select();
+      }
+    });
+  });
+</script>

@@ -47,7 +47,7 @@ const split = Boolean(image);
 const effectiveAlign = split ? 'left' : align;
 const alignClasses = effectiveAlign === 'center' ? 'text-center items-center' : 'text-left items-start';
 ---
-<section class="relative bg-cream-200 overflow-hidden">
+<section class="relative bg-surface overflow-hidden">
   {/* Warm ambient glow — layered radial tints, not an AI-gradient blob */}
   <div
     class="absolute inset-0 -z-0 opacity-70"
@@ -66,7 +66,7 @@ const alignClasses = effectiveAlign === 'center' ? 'text-center items-center' : 
         {/* Copy column */}
         <div class="lg:col-span-6 xl:col-span-7 flex flex-col gap-6 items-start text-left" data-reveal-children>
           {eyebrow && (
-            <p class="text-xs sm:text-sm uppercase tracking-[0.25em] text-gold-700 font-semibold">
+            <p class="text-xs sm:text-sm uppercase tracking-[0.25em] text-gilt font-semibold">
               {eyebrow}
             </p>
           )}
@@ -76,21 +76,30 @@ const alignClasses = effectiveAlign === 'center' ? 'text-center items-center' : 
               <img
                 src={logoSrc}
                 alt={title}
-                class="w-full max-w-lg h-auto"
+                class="logo-light w-full max-w-lg h-auto"
                 width="1200"
                 height="390"
                 loading="eager"
                 fetchpriority="high"
               />
+              <img
+                src={logoSrc.replace('.svg', '-dark.svg')}
+                alt=""
+                aria-hidden="true"
+                class="logo-dark w-full max-w-lg h-auto"
+                width="1200"
+                height="390"
+                loading="eager"
+              />
             </h1>
           ) : (
-            <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold text-forest-700 leading-[1.05] tracking-tight">
+            <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold text-heading leading-[1.05] tracking-tight">
               {title}
             </h1>
           )}
 
           {subtitle && (
-            <p class="text-lg sm:text-xl lg:text-2xl text-brown-700 italic font-serif leading-snug max-w-xl">
+            <p class="text-lg sm:text-xl lg:text-2xl text-ink-muted italic font-serif leading-snug max-w-xl">
               {subtitle}
             </p>
           )}
@@ -116,10 +125,10 @@ const alignClasses = effectiveAlign === 'center' ? 'text-center items-center' : 
           <div class="relative mx-auto max-w-md lg:max-w-none">
             {/* soft offset panel behind for depth */}
             <div
-              class="absolute -inset-3 sm:-inset-4 rounded-t-[7rem] rounded-b-2xl bg-sage-200/70 -z-0"
+              class="absolute -inset-3 sm:-inset-4 rounded-t-[7rem] rounded-b-2xl bg-surface-sunken -z-0"
               aria-hidden="true"
             ></div>
-            <div class="relative overflow-hidden rounded-t-[7rem] rounded-b-2xl ring-1 ring-gold-300/70 outline outline-1 outline-gold-400/45 outline-offset-4 shadow-[0_24px_60px_-24px_rgba(45,59,45,0.45)]">
+            <div class="relative overflow-hidden rounded-t-[7rem] rounded-b-2xl ring-1 ring-line-strong outline outline-1 outline-gilt/40 outline-offset-4 shadow-[0_24px_60px_-24px_rgba(45,59,45,0.45)]">
               <img
                 src={image.src}
                 alt={image.alt}
@@ -137,7 +146,7 @@ const alignClasses = effectiveAlign === 'center' ? 'text-center items-center' : 
               aria-hidden="true"
               width="96"
               height="96"
-              class="hidden sm:block absolute -bottom-5 -left-5 w-20 h-20 rounded-full bg-cream-100 p-3 ring-1 ring-gold-300/70 shadow-md"
+              class="hidden sm:block absolute -bottom-5 -left-5 w-20 h-20 rounded-full bg-surface-raised p-3 ring-1 ring-line-strong shadow-md"
             />
           </div>
         </div>
@@ -159,7 +168,7 @@ const alignClasses = effectiveAlign === 'center' ? 'text-center items-center' : 
         )}
 
         {eyebrow && (
-          <p class="text-xs sm:text-sm uppercase tracking-[0.25em] text-gold-600 font-semibold">
+          <p class="text-xs sm:text-sm uppercase tracking-[0.25em] text-gilt font-semibold">
             {eyebrow}
           </p>
         )}
@@ -169,21 +178,30 @@ const alignClasses = effectiveAlign === 'center' ? 'text-center items-center' : 
             <img
               src={logoSrc}
               alt={title}
-              class="w-full max-w-2xl h-auto"
+              class="logo-light w-full max-w-2xl h-auto"
               width="1200"
               height="390"
               loading="eager"
               fetchpriority="high"
             />
+            <img
+              src={logoSrc.replace('.svg', '-dark.svg')}
+              alt=""
+              aria-hidden="true"
+              class="logo-dark w-full max-w-2xl h-auto"
+              width="1200"
+              height="390"
+              loading="eager"
+            />
           </h1>
         ) : (
-          <h1 class="font-serif text-4xl sm:text-5xl lg:text-7xl font-bold text-forest-700 leading-[1.05] tracking-tight">
+          <h1 class="font-serif text-4xl sm:text-5xl lg:text-7xl font-bold text-heading leading-[1.05] tracking-tight">
             {title}
           </h1>
         )}
 
         {subtitle && (
-          <p class="text-lg sm:text-xl lg:text-2xl text-brown-700 italic font-serif leading-snug max-w-2xl">
+          <p class="text-lg sm:text-xl lg:text-2xl text-ink-muted italic font-serif leading-snug max-w-2xl">
             {subtitle}
           </p>
         )}

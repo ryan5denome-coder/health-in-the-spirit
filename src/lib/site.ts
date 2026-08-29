@@ -19,6 +19,30 @@ export interface SocialUrls {
   facebook?: string;
   linkedin?: string;
   twitter?: string;
+  substack?: string;
+}
+
+/** Email capture. `formAction` is the only thing that must change to go live. */
+export interface NewsletterSettings {
+  provider: 'mailerlite' | 'kit' | 'substack' | 'beehiiv' | 'none';
+  /** POST target for the signup form. Placeholder until the real form exists. */
+  formAction: string;
+  listName: string;
+  cadence: string;
+  /** What the visitor gets for their address. Not a PDF: the show itself,
+   *  a curated starting point, and an invitation into the community. */
+  offerTitle: string;
+  offerBlurb: string;
+  communityNote: string;
+}
+
+export interface CommunitySettings {
+  enabled: boolean;
+  /** `waitlist` shows the join-the-waitlist flow; `live` links straight out. */
+  status: 'waitlist' | 'live';
+  platform: 'substack' | 'patreon' | 'circle' | 'skool';
+  substackUrl?: string;
+  waitlistFormAction?: string;
 }
 
 export interface SiteSettings {
@@ -31,7 +55,22 @@ export interface SiteSettings {
   ryanWeb3Key?: string;
   annieWeb3Key?: string;
   launchIso: string;
+  newsletter: NewsletterSettings;
+  community: CommunitySettings;
   socialUrls: SocialUrls;
 }
 
 export const site = siteJson as SiteSettings;
+
+/**
+ * True once a real signup endpoint has replaced the placeholder. Components use
+ * this to decide between a live form and an honest "opening soon" state, so we
+ * never show a form that silently drops addresses.
+ */
+export const newsletterLive =
+  Boolean(site.newsletter?.formAction) &&
+  !site.newsletter.formAction.startsWith('PLACEHOLDER');
+
+export const communityWaitlistLive =
+  Boolean(site.community?.waitlistFormAction) &&
+  !site.community.waitlistFormAction.startsWith('PLACEHOLDER');

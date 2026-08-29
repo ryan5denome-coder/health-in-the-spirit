@@ -1,87 +1,118 @@
 ---
+import { Icon } from 'astro-icon/components';
 import { site } from '../lib/site';
 
-const siteCol = [
-  { label: 'Home',       href: '/' },
-  { label: 'About',      href: '/about' },
-  { label: 'The Saints', href: '/saints' },
-  { label: 'Episodes',   href: '/episodes' },
-  { label: 'Subscribe',  href: '/subscribe' },
-  { label: 'Resources',  href: '/resources' },
-  { label: 'Blog',       href: '/blog' },
-  { label: 'Contact',    href: '/contact' },
+// Mirrors the primary nav. The Saints are no longer top level: they sit under
+// Resources and keep their own URLs.
+const exploreCol = [
+  { label: 'About',     href: '/about' },
+  { label: 'Episodes',  href: '/episodes' },
+  { label: 'Resources', href: '/resources' },
+  { label: 'Blog',      href: '/blog' },
+  { label: 'Community', href: '/community' },
 ];
+
 const moreCol = [
+  { label: 'Listen',           href: '/listen' },
+  { label: 'Contact',          href: '/contact' },
   { label: 'FAQ',              href: '/faq' },
+  { label: 'The Saints',       href: '/saints' },
   { label: 'Press Kit',        href: '/press' },
   { label: 'Privacy Policy',   href: '/privacy' },
   { label: 'Terms of Service', href: '/terms' },
 ];
 
-// Social links — only the ones with real URLs become clickable.
-// Until accounts go live they show as "coming soon" placeholders.
-const socialDefs = [
-  { key: 'applePodcasts', label: 'Apple Podcasts' },
-  { key: 'spotify',       label: 'Spotify' },
-  { key: 'youtube',       label: 'YouTube' },
-  { key: 'instagram',     label: 'Instagram' },
+// Only platforms with a real URL in site.json are rendered. An account that
+// does not exist yet is simply absent: a dead link costs more than a missing
+// one.
+const platformDefs = [
+  { key: 'applePodcasts', label: 'Apple Podcasts', icon: 'ph:apple-podcasts-logo-bold' },
+  { key: 'spotify',       label: 'Spotify',        icon: 'ph:spotify-logo-bold' },
+  { key: 'youtube',       label: 'YouTube',        icon: 'ph:youtube-logo-bold' },
+  { key: 'amazonMusic',   label: 'Amazon Music',   icon: 'ph:music-notes-bold' },
+  { key: 'instagram',     label: 'Instagram',      icon: 'ph:instagram-logo-bold' },
+  { key: 'tiktok',        label: 'TikTok',         icon: 'ph:tiktok-logo-bold' },
+  { key: 'facebook',      label: 'Facebook',       icon: 'ph:facebook-logo-bold' },
+  { key: 'rss',           label: 'RSS feed',       icon: 'ph:rss-simple-bold' },
 ] as const;
+
+const platforms = platformDefs
+  .map((def) => ({ ...def, url: (site.socialUrls[def.key] ?? '').trim() }))
+  .filter((def) => def.url.length > 0);
+
+const linkClass =
+  'text-sm text-ink-muted hover:text-accent transition-colors';
 
 const year = new Date().getFullYear();
 ---
-<footer class="bg-forest-700 text-cream-200 mt-16 sm:mt-24 border-t-[3px] border-double border-gold-500/50">
+<footer class="bg-surface-sunken text-ink mt-16 sm:mt-24 border-t border-line">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12">
 
       <div>
-        <img src="/brand/emblem-transparent.svg" alt="" width="40" height="40" class="h-10 w-auto mb-3" loading="lazy" />
-        <p class="font-serif text-2xl text-cream-200 leading-tight">
-          Health<br/>in the Spirit
+        <img
+          src="/brand/emblem-transparent.svg"
+          alt=""
+          width="40"
+          height="40"
+          class="h-10 w-auto mb-3"
+          loading="lazy"
+        />
+        <p class="font-serif text-2xl text-heading leading-tight">
+          Health<br />in the Spirit
         </p>
-        <p class="mt-3 text-sm text-cream-300/80 italic max-w-xs">
+        <p class="mt-3 text-sm text-ink-muted italic max-w-xs">
           Care for your body like you're going to live forever. Care for your soul like you're going to die tomorrow.
         </p>
       </div>
 
       <nav aria-label="Footer site links">
-        <h2 class="text-xs font-semibold uppercase tracking-[0.18em] text-gold-500 mb-4">Site</h2>
+        <h2 class="text-xs font-semibold uppercase tracking-[0.18em] text-gilt mb-4">Explore</h2>
         <ul class="space-y-2">
-          {siteCol.map((item) => (
-            <li><a href={item.href} class="text-sm text-cream-200 hover:text-gold-500 transition-colors">{item.label}</a></li>
+          {exploreCol.map((item) => (
+            <li><a href={item.href} class={linkClass}>{item.label}</a></li>
           ))}
         </ul>
       </nav>
 
       <nav aria-label="Footer more links">
-        <h2 class="text-xs font-semibold uppercase tracking-[0.18em] text-gold-500 mb-4">More</h2>
+        <h2 class="text-xs font-semibold uppercase tracking-[0.18em] text-gilt mb-4">More</h2>
         <ul class="space-y-2">
           {moreCol.map((item) => (
-            <li><a href={item.href} class="text-sm text-cream-200 hover:text-gold-500 transition-colors">{item.label}</a></li>
+            <li><a href={item.href} class={linkClass}>{item.label}</a></li>
           ))}
         </ul>
       </nav>
 
       <div>
-        <h2 class="text-xs font-semibold uppercase tracking-[0.18em] text-gold-500 mb-4">Connect</h2>
-        <ul class="space-y-2 text-sm">
+        <h2 class="text-xs font-semibold uppercase tracking-[0.18em] text-gilt mb-4">Listen and connect</h2>
+        <ul class="space-y-2">
+          {platforms.map((p) => (
+            <li>
+              <a
+                href={p.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class={`inline-flex items-center gap-2 ${linkClass}`}
+              >
+                <Icon name={p.icon} class="w-4 h-4 shrink-0" aria-hidden="true" />
+                {p.label}
+              </a>
+            </li>
+          ))}
           <li>
-            <a href={`mailto:${site.contactEmail}`} class="text-cream-200 hover:text-gold-500 transition-colors">
+            <a href={`mailto:${site.contactEmail}`} class={`inline-flex items-center gap-2 ${linkClass}`}>
+              <Icon name="ph:envelope-simple-bold" class="w-4 h-4 shrink-0" aria-hidden="true" />
               {site.contactEmail}
             </a>
           </li>
-          {socialDefs.map(({ key, label }) => {
-            const url = site.socialUrls[key];
-            return url
-              ? <li><a href={url} target="_blank" rel="noopener noreferrer" class="text-cream-200 hover:text-gold-500 transition-colors">{label}</a></li>
-              : <li class="text-cream-300/60">{label} <span class="italic text-xs">(coming soon)</span></li>;
-          })}
         </ul>
       </div>
     </div>
 
-    <div class="mt-12 pt-8 border-t border-forest-600/60 text-xs text-cream-300/70 flex flex-col sm:flex-row justify-between gap-2">
+    <div class="mt-12 pt-8 border-t border-line text-xs text-ink-subtle flex flex-col sm:flex-row justify-between gap-2">
       <p>&copy; {year} Health in the Spirit. All rights reserved.</p>
-      <p class="italic"><span class="text-gold-500" aria-hidden="true">✠</span> Sts. Cosmas & Damian · St. Hildegard of Bingen · St. Augustine of Hippo, pray for us.</p>
+      <p>A Christian health and wellness podcast. New episodes every Tuesday.</p>
     </div>
   </div>
 </footer>

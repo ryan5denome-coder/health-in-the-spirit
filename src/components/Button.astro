@@ -29,15 +29,15 @@ const {
 // Variants — terracotta primary, forest secondary outline, gold filled, ghost text-only, cream-on-dark
 const variantClasses: Record<Variant, string> = {
   primary:
-    'bg-terracotta-500 text-cream-100 hover:bg-terracotta-600 active:bg-terracotta-700 border-2 border-terracotta-500 hover:border-terracotta-600',
+    'bg-accent text-accent-ink hover:bg-accent-hover border-2 border-accent hover:border-accent-hover',
   secondary:
-    'bg-transparent text-forest-700 hover:bg-forest-700 hover:text-cream-100 border-2 border-forest-700',
+    'bg-transparent text-heading hover:bg-surface-inverse hover:text-ink-inverse border-2 border-heading',
   gold:
-    'bg-gold-500 text-forest-700 hover:bg-gold-600 active:bg-gold-700 border-2 border-gold-500 hover:border-gold-600',
+    'bg-gold-500 text-heading hover:bg-gold-600 active:bg-gold-700 border-2 border-gold-500 hover:border-gold-600',
   ghost:
-    'bg-transparent text-forest-700 hover:text-terracotta-500 border-2 border-transparent',
+    'bg-transparent text-heading hover:text-accent border-2 border-transparent',
   cream:
-    'bg-cream-200 text-forest-700 hover:bg-cream-300 border-2 border-cream-200',
+    'bg-surface-raised text-heading hover:bg-surface-sunken border-2 border-surface-raised',
 };
 
 const sizeClasses: Record<Size, string> = {
@@ -49,10 +49,10 @@ const sizeClasses: Record<Size, string> = {
 const baseClasses = [
   'inline-flex items-center justify-center gap-2',
   'font-semibold uppercase tracking-[0.12em]',
-  'rounded-md group transition-[color,background-color,border-color,transform,box-shadow] duration-200 ease-out',
+  'rounded-xl group transition-[color,background-color,border-color,transform,box-shadow] duration-200 ease-out',
   'motion-safe:hover:-translate-y-px active:translate-y-0',
   variant !== 'ghost' ? 'hover:shadow-[0_4px_14px_-6px_rgba(45,59,45,0.4)] active:shadow-none' : '',
-  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-500',
+  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gilt',
   fullWidth ? 'w-full' : '',
   variantClasses[variant],
   sizeClasses[size],

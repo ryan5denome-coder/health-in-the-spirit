@@ -34,7 +34,7 @@ const ryanPerson = {
   honorificPrefix: 'Dr.',
   jobTitle: 'Chiropractor and Podcast Host',
   description:
-    'Catholic chiropractor at The Wellness Way Mason and co-host of Health in the Spirit. Franciscan University of Steubenville (Humanities & Catholic Culture); Life University (Doctor of Chiropractic).',
+    'Chiropractor at The Wellness Way Mason and co-host of Health in the Spirit. Franciscan University of Steubenville (Humanities & Catholic Culture); Life University (Doctor of Chiropractic).',
   alumniOf: [
     { '@type': 'CollegeOrUniversity', name: 'Franciscan University of Steubenville' },
     { '@type': 'CollegeOrUniversity', name: 'Life University' },
@@ -45,7 +45,7 @@ const ryanPerson = {
   knowsAbout: [
     'Chiropractic',
     'Functional medicine',
-    'Catholic theology of the body',
+    'Christian theology of the body',
     'Holistic health',
     'Stewardship of the body',
   ],
@@ -67,10 +67,10 @@ const anniePerson = {
   url: `${SITE_URL}/about`,
   email: 'annie@healthinthespirit.com',
   knowsAbout: [
-    'Catholic theology',
+    'Christian theology',
     'Catholic Social Teaching',
     'Integral human development',
-    'Catholic spirituality',
+    'Christian spirituality',
   ],
 };
 
@@ -88,22 +88,23 @@ export const podcastSeries = (): Record<string, unknown> => ({
   url: SITE_URL,
   description: settings.defaultDescription,
   inLanguage: 'en-US',
-  genre: ['Religion & Spirituality', 'Health & Fitness', 'Catholic', 'Wellness'],
+  genre: ['Religion & Spirituality', 'Health & Fitness', 'Christianity', 'Wellness'],
   keywords: [
-    'Catholic podcast',
-    'Catholic health podcast',
-    'Catholic wellness',
+    'Christian podcast',
+    'Christian health podcast',
+    'Christian wellness',
+    'Faith and health',
     'Holistic health',
     'Saints and health',
-    'Catholic theology of the body',
-    'Functional medicine Catholic',
+    'Theology of the body',
+    'Functional medicine and faith',
     'St. Hildegard of Bingen',
     'Sts. Cosmas and Damian',
     'St. Augustine of Hippo',
   ].join(', '),
   audience: {
     '@type': 'Audience',
-    audienceType: 'Catholics in the United States interested in holistic health',
+    audienceType: 'Christians in the United States interested in holistic health',
     geographicArea: { '@type': 'Country', name: 'United States' },
   },
   webFeed: settings.socialUrls.rss || `${SITE_URL}/rss.xml`,

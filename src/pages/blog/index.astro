@@ -1,54 +1,158 @@
 ---
+/**
+ * The blog index.
+ *
+ * Local markdown in `src/content/posts` is the canonical source of truth and
+ * leads the page. The Substack feed, when one is configured, is a secondary
+ * "recent issues" strip that links out. Substack self-canonicals, so its posts
+ * can never be our indexable content. See docs/substack-integration.md.
+ */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import SectionContainer from '../../components/SectionContainer.astro';
 import BlogPostCard from '../../components/BlogPostCard.astro';
-import Button from '../../components/Button.astro';
+import NewsletterForm from '../../components/NewsletterForm.astro';
+import { Icon } from 'astro-icon/components';
 import { getCollection } from 'astro:content';
+import { getSubstackItems, substackHomeUrl } from '../../lib/substack';
 
 const allPosts = (await getCollection('posts', ({ data }) => !data.draft))
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+// A single post in a three-column grid reads as two missing cards. Narrow the
+// container instead so a short list looks deliberate. Same instinct as the
+// "Latest reflections" block on the homepage.
+const gridClass =
+  allPosts.length === 1 ? 'max-w-2xl mx-auto'
+  : allPosts.length === 2 ? 'sm:grid-cols-2 max-w-4xl mx-auto'
+  : 'md:grid-cols-2 lg:grid-cols-3';
+
+// Build-time only. Returns [] when no publication is configured, which is the
+// case today, and the whole Substack section below then never renders.
+const substackItems = await getSubstackItems({ limit: 6 });
+const substackHome = substackHomeUrl();
+
+const issueDate = new Intl.DateTimeFormat('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+  timeZone: 'UTC', // Substack always publishes pubDate in GMT.
+});
 ---
 <BaseLayout
-  title="Blog — Catholic Health & Faith | Health in the Spirit"
-  description="Written reflections on Catholic health and faith — nutrition, the saints, holistic medicine, and Catholic family wellness from Health in the Spirit."
+  title="Blog | Christian Health and Faith | Health in the Spirit"
+  description="Written reflections on faith and health from Dr. Ryan and Annie DeNome: nutrition, the saints, and the theology of the body, alongside the weekly podcast."
   breadcrumbs={[{ name: 'Blog', url: '/blog' }]}
-  keywords={['Catholic health blog', 'Catholic wellness blog', 'Saints reflections', 'Catholic family health']}
+  keywords={['Christian health blog', 'faith and wellness', 'saint reflections', 'Christian family health']}
 >
 
   <SectionContainer variant="cream" padding="large">
     <div class="max-w-3xl mx-auto text-center">
-      <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl text-forest-700 leading-tight">
+      <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl text-heading leading-tight">
         The Health in the Spirit Blog
       </h1>
-      <p class="mt-6 text-xl text-brown-700 italic font-serif">
-        Reflections, recipes, saint wisdom, and practical theology of the body — slower thoughts than the podcast can hold.
+      <p class="mt-6 text-xl text-ink-muted italic font-serif measure mx-auto">
+        Reflections, recipes, saint wisdom, and practical theology of the body. Slower thoughts than the podcast can hold.
       </p>
     </div>
   </SectionContainer>
 
-  <SectionContainer variant="cream" padding="default">
-    <div class="max-w-7xl mx-auto">
-      {allPosts.length > 0 ? (
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-          {allPosts.map((post) => (
-            <BlogPostCard
-              title={post.data.title}
-              href={`/blog/${post.id}/`}
-              date={post.data.pubDate}
-              excerpt={post.data.description}
-              tags={post.data.tags}
-            />
+  {allPosts.length > 0 && (
+    <SectionContainer variant="cream" padding="default" id="posts">
+      <div class={`grid grid-cols-1 gap-6 sm:gap-8 ${gridClass}`} data-reveal-children>
+        {allPosts.map((post) => (
+          <BlogPostCard
+            title={post.data.title}
+            href={`/blog/${post.id}/`}
+            date={post.data.pubDate}
+            excerpt={post.data.description}
+            tags={post.data.tags}
+          />
+        ))}
+      </div>
+    </SectionContainer>
+  )}
+
+  {/* Secondary, and only when a Substack publication is configured AND its feed
+      answered. No empty state: an absent newsletter should leave no trace. */}
+  {substackItems.length > 0 && (
+    <SectionContainer variant="sage" padding="default" id="newsletter-issues">
+      <div class="max-w-3xl mx-auto">
+        <h2 class="font-serif text-3xl sm:text-4xl text-heading leading-tight">
+          Recent newsletter issues
+        </h2>
+        <p class="mt-3 text-base text-ink-muted measure">
+          These go out by email first and live on Substack. The posts above are the full articles, written here.
+        </p>
+
+        <ul class="mt-10 divide-y divide-line border-t border-line">
+          {substackItems.map((item) => (
+            <li>
+              <a
+                href={item.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="group flex items-start justify-between gap-6 py-6
+                       transition-colors duration-200"
+              >
+                <div class="min-w-0">
+                  <div class="flex items-center gap-3 text-xs uppercase tracking-[0.18em] text-gilt">
+                    <time datetime={item.pubDate.toISOString()} class="tnum">
+                      {issueDate.format(item.pubDate)}
+                    </time>
+                    {item.isPodcast && (
+                      <>
+                        <span aria-hidden="true">·</span>
+                        <span>Audio</span>
+                      </>
+                    )}
+                  </div>
+
+                  <h3 class="mt-2 font-serif text-xl sm:text-2xl leading-tight text-heading group-hover:text-accent transition-colors">
+                    {item.title}
+                  </h3>
+
+                  {item.excerpt && (
+                    <p class="mt-2 text-base leading-relaxed text-ink-muted measure">
+                      {item.excerpt}
+                    </p>
+                  )}
+                </div>
+
+                <Icon
+                  name="ph:arrow-up-right-bold"
+                  class="w-5 h-5 shrink-0 mt-1 text-accent transition-transform duration-200 motion-safe:group-hover:translate-x-0.5"
+                  aria-hidden="true"
+                />
+                <span class="sr-only">Opens on Substack</span>
+              </a>
+            </li>
           ))}
-        </div>
-      ) : (
-        <div class="max-w-2xl mx-auto text-center py-16">
-          <h2 class="font-serif text-3xl text-forest-700">New reflections coming soon</h2>
-          <p class="mt-4 text-lg text-brown-700">The first posts go up alongside the podcast launch on July 7, 2026.</p>
-          <div class="mt-8">
-            <Button href="/subscribe" variant="primary" size="md" arrow>Subscribe to be notified</Button>
-          </div>
-        </div>
-      )}
+        </ul>
+
+        {substackHome && (
+          <p class="mt-8 text-sm text-ink-subtle">
+            <a
+              href={substackHome}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="underline underline-offset-4 hover:text-accent transition-colors"
+            >
+              Browse every issue on Substack
+            </a>
+          </p>
+        )}
+      </div>
+    </SectionContainer>
+  )}
+
+  <SectionContainer variant="forest" padding="default" id="newsletter">
+    <div class="max-w-2xl">
+      <NewsletterForm
+        heading="New writing, straight to you"
+        subheading="A note from us most weeks, plus whatever we published here and on the show."
+        tone="inverse"
+        source="blog"
+      />
     </div>
   </SectionContainer>
 

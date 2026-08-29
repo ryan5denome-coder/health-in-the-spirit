@@ -83,45 +83,46 @@ collections:
       - { label: "Body", name: "body", widget: "markdown" }
 
   # -----------------------------------------------------------------
-  # EPISODES — one markdown file per podcast episode.
+  # EPISODES — synced from the Transistor RSS feed.
+  #
+  # Transistor is the source of truth. `scripts/sync-transistor.py` rewrites
+  # these files from the feed, so only the fields listed in that script's
+  # LOCAL_FIELDS survive a re-sync. Everything else is read-only here on
+  # purpose: change the title or the show notes in Transistor, not here.
   # -----------------------------------------------------------------
   - name: "episodes"
     label: "Episodes"
     label_singular: "Episode"
     folder: "src/content/episodes"
-    create: true
-    delete: true
-    slug: "ep{{number}}-{{slug}}"
-    summary: "Ep {{number}} — {{title}}"
-    sortable_fields: ['number', 'releaseDate']
+    create: false
+    delete: false
+    summary: "Ep {{number}}: {{title}}"
+    sortable_fields: ['releaseDate', 'number']
     fields:
-      - { label: "Episode number", name: "number", widget: "number", value_type: "int", min: 1, hint: "1, 2, 3, …" }
-      - { label: "Title", name: "title", widget: "string" }
-      - label: "Slug (URL fragment)"
-        name: "slug"
-        widget: "string"
-        pattern: ['^[a-z0-9-]+$', "Lowercase letters, numbers, and hyphens only — no spaces or punctuation."]
-        hint: "Used in /episodes/ep1-<this>. Example: 'welcome-to-health-in-the-spirit'"
-      - { label: "Description / one-liner", name: "description", widget: "string" }
-      - { label: "Release date & time (Eastern Time)", name: "releaseDate", widget: "datetime", date_format: "YYYY-MM-DD", time_format: "HH:mm" }
-      - { label: "Status", name: "status", widget: "select", options: ["upcoming", "live"], default: "upcoming" }
-      - { label: "Duration in minutes (optional)", name: "durationMinutes", widget: "number", required: false, value_type: "int", min: 1 }
-      - { label: "Guest name (optional)", name: "guestName", widget: "string", required: false }
-
-      # ===== Episode media — fill these in once audio is live =====
-      - label: "Buzzsprout embed ID (optional)"
-        name: "buzzsproutEmbedId"
-        widget: "string"
+      - label: "Heads up"
+        name: "syncNotice"
+        widget: "object"
         required: false
-        hint: "From your Buzzsprout episode page URL — e.g. for buzzsprout.com/2123456/12345678 the ID is '2123456/12345678'. Leave blank until episode is live."
-      - { label: "Spotify embed URL (optional)", name: "spotifyEmbedUrl", widget: "string", required: false, hint: "https://open.spotify.com/embed/episode/…" }
-      - { label: "YouTube embed URL (optional)", name: "youtubeEmbedUrl", widget: "string", required: false, hint: "https://www.youtube.com/embed/…" }
-      - { label: "Apple Podcasts episode URL (optional)", name: "appleEpisodeUrl", widget: "string", required: false }
+        collapsed: true
+        hint: "Title, description, show notes, audio, and artwork all come from Transistor and are overwritten every time the feed is synced. Edit those in Transistor. The fields below are safe to change here."
+        fields:
+          - { label: "(nothing to edit)", name: "noop", widget: "hidden", required: false }
 
-      - { label: "Episode artwork (optional)", name: "imageSrc", widget: "image", required: false }
-      - { label: "Image alt text", name: "imageAlt", widget: "string", required: false }
-      - { label: "Save as draft (uncheck to publish)", name: "draft", widget: "boolean", default: true }
-      - { label: "Show notes (optional)", name: "showNotes", widget: "markdown", required: false }
+      # Read-only mirrors of the feed, shown so you can tell episodes apart.
+      - { label: "Episode number (from Transistor)", name: "number", widget: "number", value_type: "int" }
+      - { label: "Title (from Transistor)", name: "title", widget: "string" }
+      - { label: "Slug (from Transistor)", name: "slug", widget: "string" }
+      - { label: "Description (from Transistor)", name: "description", widget: "text" }
+      - { label: "Release date (from Transistor)", name: "releaseDate", widget: "datetime" }
+
+      # These are the LOCAL_FIELDS. Safe to edit; a re-sync preserves them.
+      - { label: "Guest name", name: "guestName", widget: "string", required: false, hint: "Safe to edit. Shown under the episode title." }
+      - { label: "Apple Podcasts episode URL", name: "appleEpisodeUrl", widget: "string", required: false, hint: "Safe to edit. Links straight to this episode in Apple." }
+      - { label: "Spotify embed URL", name: "spotifyEmbedUrl", widget: "string", required: false, hint: "Safe to edit." }
+      - { label: "YouTube embed URL", name: "youtubeEmbedUrl", widget: "string", required: false, hint: "Safe to edit." }
+      - { label: "Transcript URL", name: "transcriptUrl", widget: "string", required: false, hint: "Safe to edit." }
+      - { label: "Feature this episode", name: "featured", widget: "boolean", required: false, default: false, hint: "Safe to edit." }
+      - { label: "Hide from the site", name: "draft", widget: "boolean", default: false, hint: "Safe to edit. Hides it here only. It stays public in Apple and Spotify." }
 
   # -----------------------------------------------------------------
   # SAINTS — one markdown file per saint profile page.
@@ -187,7 +188,7 @@ collections:
           - { label: "Hero primary CTA href", name: "heroPrimaryCtaHref", widget: "string" }
           - { label: "Hero secondary CTA label", name: "heroSecondaryCtaLabel", widget: "string" }
           - { label: "Hero secondary CTA href", name: "heroSecondaryCtaHref", widget: "string" }
-          - label: "Three pillars (Saints / Scripture / Catechism)"
+          - label: "Three pillars shown under the hero"
             name: "pillars"
             widget: "list"
             fields:
@@ -200,6 +201,24 @@ collections:
           - { label: "About teaser pull quote", name: "aboutTeaserQuote", widget: "string" }
           - { label: "Newsletter heading", name: "newsletterHeading", widget: "string" }
           - { label: "Newsletter subtitle", name: "newsletterSubtitle", widget: "text" }
+
+      - file: "src/content/pages/listen.md"
+        label: "Listen Page (the Instagram DM landing page)"
+        name: "listen"
+        fields:
+          - { label: "Hero eyebrow", name: "heroEyebrow", widget: "string", required: false }
+          - { label: "Hero title", name: "heroTitle", widget: "string" }
+          - { label: "Hero subtitle", name: "heroSubtitle", widget: "text", required: false }
+          - { label: "Body", name: "body", widget: "markdown", required: false }
+
+      - file: "src/content/pages/community.md"
+        label: "Community Page"
+        name: "community"
+        fields:
+          - { label: "Hero eyebrow", name: "heroEyebrow", widget: "string", required: false }
+          - { label: "Hero title", name: "heroTitle", widget: "string" }
+          - { label: "Hero subtitle", name: "heroSubtitle", widget: "text", required: false }
+          - { label: "Body", name: "body", widget: "markdown", required: false }
 
       - file: "src/content/pages/about.md"
         label: "About Page"
@@ -274,14 +293,38 @@ collections:
         name: "site"
         fields:
           - { label: "Site title", name: "siteTitle", widget: "string", default: "Health in the Spirit" }
-          - { label: "Tagline", name: "tagline", widget: "string", default: "A Catholic Health & Wellness Podcast" }
+          - { label: "Tagline", name: "tagline", widget: "string", default: "A Christian Health & Wellness Podcast" }
           - { label: "Default meta description", name: "defaultDescription", widget: "text" }
           - { label: "General contact email", name: "contactEmail", widget: "string", default: "ryan@healthinthespirit.com" }
           - { label: "Guest applications email", name: "guestEmail", widget: "string", default: "annie@healthinthespirit.com" }
           - { label: "Privacy email", name: "privacyEmail", widget: "string", required: false }
           - { label: "Web3Forms key (Ryan — general form)", name: "ryanWeb3Key", widget: "string", required: false, hint: "From web3forms.com sign-up" }
           - { label: "Web3Forms key (Annie — guest form)", name: "annieWeb3Key", widget: "string", required: false }
-          - { label: "Launch date (ISO 8601)", name: "launchIso", widget: "string", default: "2026-07-07T06:00:00-04:00" }
+          - { label: "Launch date (ISO 8601)", name: "launchIso", widget: "string", default: "2026-07-07T06:00:00-04:00", hint: "Historical record only. Nothing on the site counts down to it any more." }
+
+          - label: "Newsletter"
+            name: "newsletter"
+            widget: "object"
+            hint: "Paste the form action from your email provider to switch every signup form on the site from the placeholder to live."
+            fields:
+              - { label: "Provider", name: "provider", widget: "select", options: ["mailerlite", "kit", "beehiiv", "substack", "none"], default: "mailerlite" }
+              - { label: "Form action URL", name: "formAction", widget: "string", hint: "The POST URL from your provider's embedded HTML form. While this starts with PLACEHOLDER the site shows an honest fallback instead of a form that drops addresses." }
+              - { label: "List name", name: "listName", widget: "string", required: false }
+              - { label: "Cadence promise (shown under the email field)", name: "cadence", widget: "string" }
+              - { label: "Offer heading (what they get for their email)", name: "offerTitle", widget: "string" }
+              - { label: "Offer blurb", name: "offerBlurb", widget: "text" }
+              - { label: "Community note (the real reason we ask)", name: "communityNote", widget: "text" }
+
+          - label: "Community"
+            name: "community"
+            widget: "object"
+            fields:
+              - { label: "Show the community page", name: "enabled", widget: "boolean", default: true }
+              - { label: "Status", name: "status", widget: "select", options: ["waitlist", "live"], default: "waitlist", hint: "Leave on waitlist until the community is genuinely open to join." }
+              - { label: "Platform", name: "platform", widget: "select", options: ["substack", "patreon", "circle", "skool"], default: "substack" }
+              - { label: "Community URL (once live)", name: "substackUrl", widget: "string", required: false }
+              - { label: "Waitlist form action URL", name: "waitlistFormAction", widget: "string", required: false }
+
           - label: "Social URLs (leave blank until each goes live)"
             name: "socialUrls"
             widget: "object"
@@ -296,6 +339,7 @@ collections:
               - { label: "Facebook", name: "facebook", widget: "string", required: false }
               - { label: "LinkedIn", name: "linkedin", widget: "string", required: false }
               - { label: "X / Twitter", name: "twitter", widget: "string", required: false }
+              - { label: "Substack", name: "substack", widget: "string", required: false, hint: "e.g. https://healthinthespirit.substack.com — leave blank until it exists. Filling this in turns on the Substack section of the blog." }
 
       - file: "src/content/settings/authors.json"
         label: "Hosts / Authors"

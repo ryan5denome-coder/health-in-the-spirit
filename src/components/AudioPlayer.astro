@@ -1,0 +1,278 @@
+---
+/**
+ * Episode player, built on a native <audio> element.
+ *
+ * Why not the Transistor iframe: it is a third-party frame that cannot inherit
+ * the brand, cannot follow dark mode, adds a cross-origin request to the
+ * critical path, and looks like every other podcast site. We already have the
+ * direct MP3 URL from the feed, so we own the surface instead.
+ *
+ * `preload="none"` means zero audio bytes until the visitor presses play.
+ */
+import { Icon } from 'astro-icon/components';
+
+interface Props {
+  src: string;
+  title: string;
+  /** Seconds. Renders the duration before metadata loads, avoiding a layout shift. */
+  durationSeconds?: number;
+  /** `compact` for cards, `full` for the episode page. */
+  size?: 'compact' | 'full';
+  class?: string;
+}
+
+const { src, title, durationSeconds, size = 'full', class: extraClass = '' } = Astro.props;
+
+const fmt = (total: number) => {
+  const s = Math.max(0, Math.floor(total));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  return h > 0
+    ? `${h}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`
+    : `${m}:${String(sec).padStart(2, '0')}`;
+};
+
+const initialDuration = durationSeconds ? fmt(durationSeconds) : '--:--';
+const compact = size === 'compact';
+const playSize = compact ? 'w-12 h-12' : 'w-16 h-16';
+const iconSize = compact ? 'w-5 h-5' : 'w-7 h-7';
+---
+
+<div
+  class={`hits-player rounded-2xl border border-line bg-surface-raised ${compact ? 'p-4' : 'p-5 sm:p-6'} ${extraClass}`}
+  data-player
+  data-duration={durationSeconds ?? ''}
+>
+  <audio preload="none" src={src} data-audio>
+    <track kind="captions" />
+    Your browser does not support audio playback.
+    <a href={src}>Download the episode</a> instead.
+  </audio>
+
+  <div class="flex items-center gap-3 sm:gap-4">
+    <button
+      type="button"
+      data-play
+      aria-label={`Play ${title}`}
+      class={`${playSize} shrink-0 grid place-items-center rounded-full
+              bg-accent text-accent-ink
+              transition-[transform,background-color] duration-200
+              hover:bg-accent-hover motion-safe:hover:scale-[1.03] active:scale-95
+              focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gilt`}
+    >
+      <Icon name="ph:play-fill" class={`${iconSize} translate-x-px`} data-icon-play aria-hidden="true" />
+      <Icon name="ph:pause-fill" class={`${iconSize} hidden`} data-icon-pause aria-hidden="true" />
+      <Icon name="ph:spinner-gap-bold" class={`${iconSize} hidden motion-safe:animate-spin`} data-icon-wait aria-hidden="true" />
+    </button>
+
+    <div class="flex-1 min-w-0">
+      {!compact && (
+        <p class="text-sm font-medium text-ink truncate mb-2">{title}</p>
+      )}
+
+      {/* Scrubber. The <input range> is the real control (keyboard + screen
+          reader get it for free); the bars behind it are the visible track. */}
+      <div class="relative h-6 flex items-center group">
+        <div class="absolute inset-x-0 h-1.5 rounded-full bg-line overflow-hidden">
+          <div class="h-full bg-line-strong w-0" data-buffered></div>
+        </div>
+        <div
+          class="absolute left-0 h-1.5 rounded-full bg-accent w-0 pointer-events-none"
+          data-progress
+        ></div>
+        <div
+          class="absolute w-3 h-3 -ml-1.5 rounded-full bg-accent shadow-sm pointer-events-none
+                 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+          data-thumb
+          style="left:0"
+        ></div>
+        <input
+          type="range"
+          min="0"
+          max="100"
+          value="0"
+          step="0.1"
+          data-seek
+          aria-label={`Seek within ${title}`}
+          class="relative w-full h-6 appearance-none bg-transparent cursor-pointer
+                 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6
+                 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:opacity-0
+                 [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6
+                 [&::-moz-range-thumb]:opacity-0 [&::-moz-range-thumb]:border-0
+                 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gilt"
+        />
+      </div>
+
+      <div class="flex items-center justify-between mt-1.5 text-xs tnum text-ink-subtle">
+        <span data-current>0:00</span>
+        <span data-total>{initialDuration}</span>
+      </div>
+    </div>
+
+    {!compact && (
+      <div class="hidden sm:flex items-center gap-1 shrink-0">
+        <button
+          type="button"
+          data-back
+          aria-label="Rewind 15 seconds"
+          class="w-10 h-10 grid place-items-center rounded-full text-ink-muted
+                 hover:text-ink hover:bg-surface-sunken transition-colors
+                 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gilt"
+        >
+          <Icon name="ph:arrow-counter-clockwise-bold" class="w-5 h-5" aria-hidden="true" />
+        </button>
+        <button
+          type="button"
+          data-forward
+          aria-label="Skip forward 30 seconds"
+          class="w-10 h-10 grid place-items-center rounded-full text-ink-muted
+                 hover:text-ink hover:bg-surface-sunken transition-colors
+                 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gilt"
+        >
+          <Icon name="ph:arrow-clockwise-bold" class="w-5 h-5" aria-hidden="true" />
+        </button>
+        <button
+          type="button"
+          data-rate
+          aria-label="Playback speed"
+          class="h-10 px-3 grid place-items-center rounded-full text-sm font-semibold tnum
+                 text-ink-muted hover:text-ink hover:bg-surface-sunken transition-colors
+                 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gilt"
+        >
+          1&times;
+        </button>
+      </div>
+    )}
+  </div>
+</div>
+
+<script>
+  const SPEEDS = [1, 1.25, 1.5, 1.75, 2];
+
+  const format = (total: number) => {
+    if (!Number.isFinite(total)) return '--:--';
+    const s = Math.max(0, Math.floor(total));
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const sec = s % 60;
+    return h > 0
+      ? `${h}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`
+      : `${m}:${String(sec).padStart(2, '0')}`;
+  };
+
+  document.querySelectorAll<HTMLElement>('[data-player]').forEach((root) => {
+    const audio = root.querySelector<HTMLAudioElement>('[data-audio]');
+    const playBtn = root.querySelector<HTMLButtonElement>('[data-play]');
+    const seek = root.querySelector<HTMLInputElement>('[data-seek]');
+    const progress = root.querySelector<HTMLElement>('[data-progress]');
+    const thumb = root.querySelector<HTMLElement>('[data-thumb]');
+    const buffered = root.querySelector<HTMLElement>('[data-buffered]');
+    const current = root.querySelector<HTMLElement>('[data-current]');
+    const total = root.querySelector<HTMLElement>('[data-total]');
+    const iconPlay = root.querySelector<HTMLElement>('[data-icon-play]');
+    const iconPause = root.querySelector<HTMLElement>('[data-icon-pause]');
+    const iconWait = root.querySelector<HTMLElement>('[data-icon-wait]');
+    if (!audio || !playBtn || !seek) return;
+
+    // While the user drags, ignore timeupdate so the handle does not fight them.
+    let scrubbing = false;
+
+    const setIcon = (state: 'play' | 'pause' | 'wait') => {
+      iconPlay?.classList.toggle('hidden', state !== 'play');
+      iconPause?.classList.toggle('hidden', state !== 'pause');
+      iconWait?.classList.toggle('hidden', state !== 'wait');
+    };
+
+    const paint = (percent: number) => {
+      if (progress) progress.style.width = `${percent}%`;
+      if (thumb) thumb.style.left = `${percent}%`;
+    };
+
+    playBtn.addEventListener('click', () => {
+      // Pause every other player on the page first. Two episodes at once is
+      // never what someone meant to do.
+      document.querySelectorAll<HTMLAudioElement>('[data-audio]').forEach((other) => {
+        if (other !== audio) other.pause();
+      });
+      if (audio.paused) {
+        setIcon('wait');
+        void audio.play().catch(() => setIcon('play'));
+      } else {
+        audio.pause();
+      }
+    });
+
+    audio.addEventListener('play', () => {
+      setIcon('pause');
+      playBtn.setAttribute('aria-label', 'Pause');
+    });
+    audio.addEventListener('pause', () => {
+      setIcon('play');
+      playBtn.setAttribute('aria-label', 'Play');
+    });
+    audio.addEventListener('waiting', () => setIcon('wait'));
+    audio.addEventListener('playing', () => setIcon('pause'));
+    audio.addEventListener('ended', () => {
+      setIcon('play');
+      paint(0);
+      seek.value = '0';
+    });
+
+    audio.addEventListener('loadedmetadata', () => {
+      if (total) total.textContent = format(audio.duration);
+    });
+
+    audio.addEventListener('timeupdate', () => {
+      if (scrubbing || !audio.duration) return;
+      const percent = (audio.currentTime / audio.duration) * 100;
+      seek.value = String(percent);
+      paint(percent);
+      if (current) current.textContent = format(audio.currentTime);
+    });
+
+    audio.addEventListener('progress', () => {
+      if (!buffered || !audio.duration || audio.buffered.length === 0) return;
+      const end = audio.buffered.end(audio.buffered.length - 1);
+      buffered.style.width = `${(end / audio.duration) * 100}%`;
+    });
+
+    audio.addEventListener('error', () => {
+      setIcon('play');
+      if (total) total.textContent = 'Unavailable';
+    });
+
+    const startScrub = () => { scrubbing = true; };
+    const applyScrub = () => {
+      const percent = Number(seek.value);
+      paint(percent);
+      if (audio.duration && current) {
+        current.textContent = format((percent / 100) * audio.duration);
+      }
+    };
+    const endScrub = () => {
+      if (audio.duration) audio.currentTime = (Number(seek.value) / 100) * audio.duration;
+      scrubbing = false;
+    };
+
+    seek.addEventListener('pointerdown', startScrub);
+    seek.addEventListener('input', applyScrub);
+    seek.addEventListener('change', endScrub);
+    // Keyboard arrows fire input+change without a pointerdown, so commit there too.
+    seek.addEventListener('keyup', endScrub);
+
+    root.querySelector('[data-back]')?.addEventListener('click', () => {
+      audio.currentTime = Math.max(0, audio.currentTime - 15);
+    });
+    root.querySelector('[data-forward]')?.addEventListener('click', () => {
+      audio.currentTime = Math.min(audio.duration || Infinity, audio.currentTime + 30);
+    });
+
+    const rateBtn = root.querySelector<HTMLButtonElement>('[data-rate]');
+    rateBtn?.addEventListener('click', () => {
+      const next = SPEEDS[(SPEEDS.indexOf(audio.playbackRate) + 1) % SPEEDS.length];
+      audio.playbackRate = next;
+      rateBtn.textContent = `${next}×`;
+    });
+  });
+</script>

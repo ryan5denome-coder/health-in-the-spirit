@@ -2,19 +2,22 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SectionContainer from '../components/SectionContainer.astro';
 import Prose from '../components/Prose.astro';
+import { site } from '../lib/site';
+
+const privacyEmail = site.privacyEmail || site.contactEmail;
 ---
 <BaseLayout
   title="Privacy Policy | Health in the Spirit"
   description="How Health in the Spirit collects, stores, and uses information from visitors and newsletter subscribers."
+  breadcrumbs={[{ name: 'Privacy Policy', url: '/privacy' }]}
 >
 
   <SectionContainer variant="cream" padding="large">
     <div class="max-w-3xl mx-auto text-center">
-      <p class="text-xs uppercase tracking-[0.25em] text-gold-700 font-semibold mb-4">Privacy</p>
-      <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl text-forest-700 leading-tight">
+      <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl text-heading leading-tight">
         Privacy Policy
       </h1>
-      <p class="mt-4 text-sm text-brown-500 italic">Last updated: June 15, 2026</p>
+      <p class="mt-4 text-sm text-ink-subtle italic">Last updated: August 29, 2026</p>
     </div>
   </SectionContainer>
 
@@ -24,7 +27,7 @@ import Prose from '../components/Prose.astro';
         <p>This Privacy Policy explains what information Health in the Spirit collects, how we use it, and the choices you have. We keep it short and plain because we collect very little, and we never sell your data.</p>
 
         <h2>Who we are</h2>
-        <p>Health in the Spirit is a podcast and content website operated by Dr. Ryan DeNome and Annie DeNome in Ohio, United States. The site is built with Astro and Decap CMS and hosted on Cloudflare Pages. You can reach us about privacy at <a href="mailto:privacy@healthinthespirit.com">privacy@healthinthespirit.com</a>. The site address is <a href="https://healthinthespirit.com">https://healthinthespirit.com</a>.</p>
+        <p>Health in the Spirit is a podcast and content website operated by Dr. Ryan DeNome and Annie DeNome in Ohio, United States. The site is built with Astro and Decap CMS and hosted on Cloudflare Pages. You can reach us about privacy at <a href={`mailto:${privacyEmail}`}>{privacyEmail}</a>. The site address is <a href="https://healthinthespirit.com">https://healthinthespirit.com</a>.</p>
 
         <h2>What we collect, and why</h2>
         <p>We only collect what we need to run the site and respond to you:</p>
@@ -49,7 +52,7 @@ import Prose from '../components/Prose.astro';
         <p>We use a small amount of browser storage for site preferences only, such as remembering that you have dismissed our top announcement bar. We do not use cookies to track you across other websites.</p>
 
         <h2>Your choices and rights</h2>
-        <p>You can unsubscribe from emails at any time, and you can ask us to access, correct, or delete the personal information we hold about you. Depending on where you live, you may have additional rights under laws such as the California Consumer Privacy Act (CCPA) or the EU General Data Protection Regulation (GDPR). We honor these requests for everyone. Email <a href="mailto:privacy@healthinthespirit.com">privacy@healthinthespirit.com</a> and we will respond within a reasonable period.</p>
+        <p>You can unsubscribe from emails at any time, and you can ask us to access, correct, or delete the personal information we hold about you. Depending on where you live, you may have additional rights under laws such as the California Consumer Privacy Act (CCPA) or the EU General Data Protection Regulation (GDPR). We honor these requests for everyone. Email <a href={`mailto:${privacyEmail}`}>{privacyEmail}</a> and we will respond within a reasonable period.</p>
 
         <h2>Children's privacy</h2>
         <p>This site is intended for a general adult audience. We do not knowingly collect personal information from children under 13. If you believe a child has provided us information, email us and we will delete it.</p>
@@ -61,7 +64,7 @@ import Prose from '../components/Prose.astro';
         <p>We may update this Privacy Policy from time to time. The "Last updated" date at the top of this page reflects the most recent change.</p>
 
         <h2>Contact</h2>
-        <p>Questions about privacy: <a href="mailto:privacy@healthinthespirit.com">privacy@healthinthespirit.com</a>.</p>
+        <p>Questions about privacy: <a href={`mailto:${privacyEmail}`}>{privacyEmail}</a>.</p>
       </Prose>
     </div>
   </SectionContainer>

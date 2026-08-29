@@ -1,9 +1,24 @@
 @import "tailwindcss";
 
-/* Brand tokens — full palette + typography pulled from brand-guidelines.md.
-   Tailwind v4 reads these via @theme so utility classes like bg-forest-700,
-   text-cream-200, font-display work everywhere. */
+/* ═══════════════════════════════════════════════════════════════════════════
+   Health in the Spirit — design tokens
+
+   Two layers:
+     1. The raw brand palette (from brand-guidelines.md). Fixed hex values.
+        Never changes between light and dark. Use these when you mean a
+        specific brand color, e.g. the gold hairline under a nav link.
+     2. Semantic tokens (--color-surface, --color-ink, ...). These point at
+        swappable vars that flip under dark mode. Use these for anything
+        structural: page background, body text, card fills, borders.
+
+   Rule of thumb: if a color describes a ROLE, use a semantic token. If it
+   describes a HUE, use the palette. New work should reach for semantics first
+   so it survives the theme switch for free.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 @theme {
+  /* ── Raw brand palette ─────────────────────────────────────────────────── */
+
   /* Dark Forest Green — primary brand color */
   --color-forest-50:  #EDF1ED;
   --color-forest-100: #D3DCD3;
@@ -43,7 +58,7 @@
   --color-cream-900: #6B5F48;
   --color-cream-950: #4D4433;
 
-  /* Burnished Gold — CTAs, accents */
+  /* Burnished Gold — accents, hairlines */
   --color-gold-50:  #FBF7EE;
   --color-gold-100: #F3EACD;
   --color-gold-200: #E6D6A5;
@@ -69,7 +84,7 @@
   --color-brown-900: #231C17;
   --color-brown-950: #16110E;
 
-  /* Terracotta — sparse warm accent (Sacred Heart, focal CTAs) */
+  /* Terracotta — the single accent. Every CTA on the site is this color. */
   --color-terracotta-50:  #FDF5F1;
   --color-terracotta-100: #F8E3D8;
   --color-terracotta-200: #F0C7B1;
@@ -82,90 +97,326 @@
   --color-terracotta-900: #5B3424;
   --color-terracotta-950: #3E2318;
 
+  /* ── Semantic tokens ───────────────────────────────────────────────────── */
+  /* Each points at a swappable var defined below. Tailwind emits
+     `var(--color-surface)`, which resolves through to the themed value at
+     runtime, so `bg-surface` is correct in both modes with no `dark:` variant. */
+
+  --color-surface:          var(--t-surface);
+  --color-surface-sunken:   var(--t-surface-sunken);
+  --color-surface-raised:   var(--t-surface-raised);
+  --color-surface-inverse:  var(--t-surface-inverse);
+
+  --color-ink:              var(--t-ink);
+  --color-ink-muted:        var(--t-ink-muted);
+  --color-ink-subtle:       var(--t-ink-subtle);
+  --color-ink-inverse:      var(--t-ink-inverse);
+  --color-heading:          var(--t-heading);
+
+  --color-line:             var(--t-line);
+  --color-line-strong:      var(--t-line-strong);
+
+  --color-accent:           var(--t-accent);
+  --color-accent-hover:     var(--t-accent-hover);
+  --color-accent-ink:       var(--t-accent-ink);
+  --color-gilt:             var(--t-gilt);
+
   /* Typography */
   --font-display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
   --font-body:    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-sans:    var(--font-body);
   --font-serif:   var(--font-display);
+
+  /* Motion. One spring for entrances, one ease for state changes. iOS reads as
+     "premium" largely because everything decelerates on the same curve. */
+  --ease-spring: linear(
+    0, 0.0018 0.9%, 0.0146 2.4%, 0.0563 4.9%, 0.1721 9.4%, 0.5236 21.4%,
+    0.6739 26.8%, 0.7916 32%, 0.8354 34.4%, 0.8722 36.9%, 0.9026 39.5%,
+    0.9272 42.3%, 0.9469 45.3%, 0.9679 49.6%, 0.9862 55.4%, 0.9995 65.4%, 1
+  );
+  --ease-out-quint: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Sensible site-wide defaults */
-@media (prefers-reduced-motion: no-preference) {
-  html {
-    scroll-behavior: smooth;
+/* ── Theme values ─────────────────────────────────────────────────────────── */
+
+:root {
+  color-scheme: light;
+
+  --t-surface:         #F5F0E8; /* cream-200 */
+  --t-surface-sunken:  #EDE5D8; /* cream-300 — recessed wells, input fields */
+  --t-surface-raised:  #FAF8F4; /* cream-100 — cards lift toward white */
+  --t-surface-inverse: #2D3B2D; /* forest-700 — inverted sections */
+
+  --t-ink:         #3D3228; /* brown-700 */
+  --t-ink-muted:   #574A3C; /* brown-600 */
+  --t-ink-subtle:  #6B5D50; /* brown-500 — captions, timestamps */
+  --t-ink-inverse: #F5F0E8;
+  --t-heading:     #2D3B2D; /* forest-700 */
+
+  --t-line:        #E2D7C5; /* cream-400 */
+  --t-line-strong: #D5C7B0; /* cream-500 */
+
+  --t-accent:       #C67D5B; /* terracotta-500 */
+  --t-accent-hover: #B26A49;
+  --t-accent-ink:   #FAF8F4; /* text ON the accent — 4.6:1 against #C67D5B */
+  --t-gilt:         #96804D; /* gold-700 — passes AA on cream; gold-500 does not */
+
+  /* Grain sits at 3% on paper. It reads as texture, not dirt. */
+  --t-grain-opacity: 0.035;
+  --t-grain-blend: multiply;
+}
+
+/* Dark mode. Guarded with :not([data-theme="light"]) so an explicit light
+   choice wins over the system preference. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    /* Not neutral grey: a forest-tinted near-black keeps the brand identity
+       in dark mode instead of washing it out to a generic dark theme. */
+    --t-surface:         #14180F;
+    --t-surface-sunken:  #0E1109;
+    --t-surface-raised:  #1D2317;
+    --t-surface-inverse: #E6EBE0;
+
+    --t-ink:         #E4E7DC;
+    --t-ink-muted:   #B9C0AE;
+    --t-ink-subtle:  #949C8A;
+    --t-ink-inverse: #14180F;
+    --t-heading:     #EDF1ED;
+
+    --t-line:        #2C3325;
+    --t-line-strong: #3E4735;
+
+    /* Terracotta lightens in dark mode so it stays legible against the
+       near-black and keeps roughly the same perceived weight as in light. */
+    --t-accent:       #DB9370;
+    --t-accent-hover: #E5A98A;
+    --t-accent-ink:   #2A160C;
+    --t-gilt:         #CFB576; /* gold-400 — AA on the dark surface */
+
+    /* Multiply would erase the grain on a dark ground; screen adds a
+       film-stock speckle instead. Lower opacity because it reads hotter. */
+    --t-grain-opacity: 0.02;
+    --t-grain-blend: screen;
   }
 }
 
-body {
-  font-family: var(--font-body);
-  color: var(--color-brown-700);
-  background-color: var(--color-cream-200);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --t-surface:         #14180F;
+  --t-surface-sunken:  #0E1109;
+  --t-surface-raised:  #1D2317;
+  --t-surface-inverse: #E6EBE0;
+
+  --t-ink:         #E4E7DC;
+  --t-ink-muted:   #B9C0AE;
+  --t-ink-subtle:  #949C8A;
+  --t-ink-inverse: #14180F;
+  --t-heading:     #EDF1ED;
+
+  --t-line:        #2C3325;
+  --t-line-strong: #3E4735;
+
+  --t-accent:       #DB9370;
+  --t-accent-hover: #E5A98A;
+  --t-accent-ink:   #2A160C;
+  --t-gilt:         #CFB576;
+
+  --t-grain-opacity: 0.02;
+  --t-grain-blend: screen;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-display);
-  color: var(--color-forest-700);
-  text-wrap: balance; /* avoid orphaned single words on display headings */
+/* ═══════════════════════════════════════════════════════════════════════════
+   Base
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@layer base {
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  html {
+    /* Keep the themed color behind the rubber-band overscroll area on iOS,
+       so a hard flick does not expose a white strip above the header. */
+    background-color: var(--t-surface);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    font-family: var(--font-body);
+    color: var(--color-ink);
+    background-color: var(--color-surface);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    /* Stop a scroll that reaches the end of a modal or player from chaining
+       into the page behind it. */
+    overscroll-behavior-y: none;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    color: var(--color-heading);
+    text-wrap: balance;
+  }
+
+  /* Inside an inverted section the global heading color above is exactly wrong:
+     `surface-inverse` flips with the theme (dark forest in light mode, pale sage
+     in dark), so a heading painted `--color-heading` lands light-on-light in dark
+     mode and disappears. Body copy does not have this problem because it inherits
+     from the section's own `text-ink-inverse`; headings do not, because the rule
+     above always repaints them.
+
+     Wrapped in :where() so this contributes zero specificity: any explicit
+     text-* utility on the heading still wins. */
+  :where(.bg-surface-inverse) :where(h1, h2, h3, h4, h5, h6) {
+    color: var(--color-ink-inverse);
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Anchor jumps clear the sticky header instead of hiding under it. */
+  :where([id]) {
+    scroll-margin-top: 7rem;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-gilt);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  ::selection {
+    background: var(--color-gold-200);
+    color: var(--color-brown-900);
+  }
+  .bg-surface-inverse ::selection,
+  .bg-forest-700 ::selection,
+  .bg-forest-800 ::selection {
+    background: var(--color-gold-500);
+    color: var(--color-forest-900);
+  }
 }
 
-/* Long-form copy reads better with smarter line breaks */
-p {
-  text-wrap: pretty;
+/* ═══════════════════════════════════════════════════════════════════════════
+   iOS / touch behavior
+
+   The things that separate a web page from something that feels native on a
+   phone. All cheap, all worth it.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Kill the grey flash Safari paints over any tapped element. We supply our own
+   :active feedback instead, which is faster and matches the brand. */
+* {
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* Anchor jumps clear the sticky header instead of hiding under it */
-:where([id]) {
-  scroll-margin-top: 7rem;
+/* Anything the user can press gets a real press. 60ms is below the threshold
+   where a tap feels laggy but above where it looks like a glitch. */
+@media (hover: none) and (pointer: coarse) {
+  a[href],
+  button:not(:disabled),
+  [role="button"] {
+    transition: transform 0.06s var(--ease-out-quint);
+  }
+  a[href]:active,
+  button:not(:disabled):active,
+  [role="button"]:active {
+    transform: scale(0.975);
+  }
 }
 
-/* Visible focus ring for keyboard nav (WCAG 2.1 AA) */
-:focus-visible {
-  outline: 2px solid var(--color-gold-500);
-  outline-offset: 3px;
+/* Respect the notch and the home indicator. */
+.safe-x {
+  padding-left: max(1rem, env(safe-area-inset-left));
+  padding-right: max(1rem, env(safe-area-inset-right));
+}
+.safe-b {
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
-/* Gold text selection — light wash on cream, solid gold on forest sections */
-::selection {
-  background: var(--color-gold-200);
-  color: var(--color-brown-900);
+/* Horizontal rails (episode carousels, platform chips) get iOS paging feel. */
+.rail {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
 }
-.bg-forest-700 ::selection,
-.bg-forest-800 ::selection {
-  background: var(--color-gold-500);
-  color: var(--color-forest-900);
+.rail::-webkit-scrollbar {
+  display: none;
+}
+.rail > * {
+  scroll-snap-align: start;
+  flex: 0 0 auto;
 }
 
-/* ─────────────────────────────────────────────────────────
-   Scroll-reveal motion layer
-   Elements tagged [data-reveal] fade + rise into view once.
-   Driven by an IntersectionObserver in BaseLayout. Fully
-   disabled under prefers-reduced-motion (content shows instantly).
-   ───────────────────────────────────────────────────────── */
+/* Frosted chrome. Labeled honestly: this is web glassmorphism via
+   backdrop-filter, not Apple's Liquid Glass material. */
+.material-chrome {
+  background: color-mix(in srgb, var(--t-surface) 82%, transparent);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+/* Without backdrop-filter (or when the user asks for less transparency) the
+   chrome must still be opaque, or text lands on top of scrolling content. */
+@supports not (backdrop-filter: blur(1px)) {
+  .material-chrome {
+    background: var(--t-surface);
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .material-chrome {
+    background: var(--t-surface);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+/* Numbers in the player and episode metadata: tabular so the timecode does not
+   jitter as the seconds tick over. */
+.tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Scroll-reveal
+   Driven by the IntersectionObserver in BaseLayout. Entirely disabled under
+   reduced motion, where content just renders.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 @media (prefers-reduced-motion: no-preference) {
   [data-reveal] {
     opacity: 0;
-    transform: translateY(1.5rem);
+    transform: translate3d(0, 1.25rem, 0);
     transition:
-      opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
-      transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+      opacity 0.65s var(--ease-out-quint),
+      transform 0.75s var(--ease-spring);
     transition-delay: var(--reveal-delay, 0ms);
+    will-change: transform, opacity;
   }
 
   [data-reveal].is-visible {
     opacity: 1;
     transform: none;
+    will-change: auto;
   }
 
-  /* Stagger direct children when a container opts in with [data-reveal-children] */
   [data-reveal-children] > * {
     opacity: 0;
-    transform: translateY(1.25rem);
+    transform: translate3d(0, 1rem, 0);
     transition:
-      opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
-      transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      opacity 0.55s var(--ease-out-quint),
+      transform 0.65s var(--ease-spring);
   }
 
   [data-reveal-children].is-visible > * {
@@ -173,18 +424,20 @@ p {
     transform: none;
   }
 
-  [data-reveal-children].is-visible > *:nth-child(2) { transition-delay: 0.08s; }
-  [data-reveal-children].is-visible > *:nth-child(3) { transition-delay: 0.16s; }
-  [data-reveal-children].is-visible > *:nth-child(4) { transition-delay: 0.24s; }
-  [data-reveal-children].is-visible > *:nth-child(5) { transition-delay: 0.32s; }
-  [data-reveal-children].is-visible > *:nth-child(6) { transition-delay: 0.40s; }
+  [data-reveal-children].is-visible > *:nth-child(2) { transition-delay: 0.06s; }
+  [data-reveal-children].is-visible > *:nth-child(3) { transition-delay: 0.12s; }
+  [data-reveal-children].is-visible > *:nth-child(4) { transition-delay: 0.18s; }
+  [data-reveal-children].is-visible > *:nth-child(5) { transition-delay: 0.24s; }
+  [data-reveal-children].is-visible > *:nth-child(6) { transition-delay: 0.30s; }
+  [data-reveal-children].is-visible > *:nth-child(n+7) { transition-delay: 0.36s; }
 }
 
-/* ─────────────────────────────────────────────────────────
-   Desktop nav: gold hairline that draws in from the left,
-   persistent on the current page. Layers under the existing
-   terracotta active color.
-   ───────────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════════════════
+   Chrome details
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Desktop nav: a gold hairline that draws in from the left and stays on the
+   current page. */
 .nav-link {
   position: relative;
 }
@@ -194,10 +447,10 @@ p {
   inset-inline: 0;
   bottom: -6px;
   height: 1px;
-  background: var(--color-gold-500);
+  background: var(--color-gilt);
   transform: scaleX(0);
   transform-origin: left;
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.25s var(--ease-out-quint);
 }
 .nav-link:hover::after,
 .nav-link[aria-current="page"]::after {
@@ -209,19 +462,36 @@ p {
   }
 }
 
-/* ─────────────────────────────────────────────────────────
-   Paper-grain texture — one fixed fractal-noise overlay.
-   Static (reduced-motion safe), pointer-events none, multiply
-   so it reads on cream and forest alike. If it ever looks
-   dirty on a new page, delete this one rule.
-   ───────────────────────────────────────────────────────── */
+/* Paper grain. One fixed, non-interactive overlay — never on a scrolling
+   container, which would force a repaint on every frame. */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  z-index: 60;
   pointer-events: none;
-  opacity: 0.03;
-  mix-blend-mode: multiply;
+  opacity: var(--t-grain-opacity);
+  mix-blend-mode: var(--t-grain-blend);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Brand mark. The artwork carries a cream backdrop and navy letterforms, so on
+   a dark ground it needs a different asset rather than a filter. Both are in
+   the markup; CSS picks one. `.logo-dark` is hidden by default so a viewer with
+   no dark preference never sees it. */
+.logo-dark { display: none; }
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .logo-light { display: none; }
+  :root:not([data-theme="light"]) .logo-dark  { display: block; }
+}
+[data-theme="dark"] .logo-light { display: none; }
+[data-theme="dark"] .logo-dark  { display: block; }
+/* An explicit light choice must win over the media query above. */
+[data-theme="light"] .logo-light { display: block; }
+[data-theme="light"] .logo-dark  { display: none; }
+
+/* Long-form prose measure. Applied by the Prose component. */
+.measure {
+  max-width: 68ch;
 }

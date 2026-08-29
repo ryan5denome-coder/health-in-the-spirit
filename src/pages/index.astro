@@ -1,33 +1,35 @@
 ---
 import { getCollection, getEntry } from 'astro:content';
+import { Icon } from 'astro-icon/components';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/Hero.astro';
 import SectionContainer from '../components/SectionContainer.astro';
 import SaintCard from '../components/SaintCard.astro';
-import BlogPostCard from '../components/BlogPostCard.astro';
-import Countdown from '../components/Countdown.astro';
+import EpisodeCard from '../components/EpisodeCard.astro';
+import NewsletterForm from '../components/NewsletterForm.astro';
 import Button from '../components/Button.astro';
 import Ornament from '../components/Ornament.astro';
+import { site } from '../lib/site';
 
-// Launch: Tuesday, July 7, 2026, 6:00 AM Eastern.
-const launchIso = '2026-07-07T06:00:00-04:00';
-
-// Pull homepage editable copy from the Decap-managed home.md singleton.
-// Falls back to sensible defaults if the file/field is missing.
 const home = await getEntry('pages', 'home');
+
 const announcement = home?.data.announcementMessage
   ? {
       message: home.data.announcementMessage,
       ctaLabel: home.data.announcementCtaLabel,
       ctaHref: home.data.announcementCtaHref,
     }
-  : {
-      message: 'The podcast launches Tuesday, July 7, 2026.',
-      ctaLabel: 'Subscribe to be first',
-      ctaHref: '/subscribe',
-    };
+  : undefined;
 
-// Saints teaser pulls the live collection (sorted by `order`).
+// Episodes, newest first. Sorted by date rather than number because two
+// episodes share number 3 in the Transistor feed.
+const episodes = (await getCollection('episodes', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.releaseDate.valueOf() - a.data.releaseDate.valueOf(),
+);
+const [latest, ...rest] = episodes;
+const recent = rest.slice(0, 3);
+const episodeCount = episodes.length;
+
 const saints = (await getCollection('saints', ({ data }) => !data.draft))
   .sort((a, b) => a.data.order - b.data.order)
   .map((s) => ({
@@ -40,104 +42,136 @@ const saints = (await getCollection('saints', ({ data }) => !data.draft))
     imageAlt: s.data.iconAlt,
   }));
 
-const pillars = home?.data.pillars ?? [
-  {
-    eyebrow: 'The Saints',
-    title: 'Wisdom from the healing saints',
-    description: 'Sts. Cosmas & Damian, St. Hildegard of Bingen, St. Augustine of Hippo: physicians, herbalists, and theologians who never separated body from soul.',
-    href: '/saints',
-    cta: 'Meet the saints',
-  },
-  {
-    eyebrow: 'Sacred Scripture',
-    title: 'Your body is a temple',
-    description: 'From St. Paul to the Gospels, Scripture has always treated physical health as part of spiritual life. We bring it back into the conversation.',
-    href: '/about',
-    cta: 'Read our why',
-  },
-  {
-    eyebrow: 'The Catechism',
-    title: 'Stewardship of the body',
-    description: 'The CCC teaches that life and physical health are precious gifts entrusted to us by God. Caring for them is not vanity. It is responsibility.',
-    href: '/about',
-    cta: 'Learn more',
-  },
-];
+const pillars = home?.data.pillars ?? [];
 
-// Latest reflections — real, published posts only (no fake samples).
-const posts = (await getCollection('posts', ({ data }) => !data.draft))
-  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
-  .slice(0, 3)
-  .map((p) => ({
-    title: p.data.title,
-    href: `/blog/${p.id}`,
-    date: p.data.pubDate,
-    excerpt: p.data.description,
-    tags: p.data.tags,
-  }));
-
-const blogGridClass =
-  posts.length === 1 ? 'max-w-2xl mx-auto'
-  : posts.length === 2 ? 'sm:grid-cols-2 max-w-4xl mx-auto'
-  : 'md:grid-cols-3';
+// Only platforms that actually exist. An empty string here means the show is
+// not on that platform yet, and a dead link costs more trust than a missing one.
+const platforms = [
+  { name: 'Apple Podcasts', href: site.socialUrls.applePodcasts, icon: 'ph:apple-logo-fill' },
+  { name: 'Spotify', href: site.socialUrls.spotify, icon: 'ph:spotify-logo-fill' },
+  { name: 'RSS', href: site.socialUrls.rss, icon: 'ph:rss-simple-bold' },
+].filter((p): p is { name: string; href: string; icon: string } => Boolean(p.href));
 ---
+
 <BaseLayout
-  title="Health in the Spirit: A Catholic Health & Wellness Podcast"
-  description="A Catholic health and wellness podcast with Dr. Ryan and Annie DeNome. Holistic health rooted in Saints, Scripture, and the Catechism. Launching Tuesday, July 7, 2026."
+  title={`Health in the Spirit: ${site.tagline}`}
+  description={site.defaultDescription}
   announcement={announcement}
 >
-
   <Hero
-    eyebrow="A Catholic Health & Wellness Podcast"
+    eyebrow={home?.data.heroEyebrow ?? site.tagline}
     title="Health in the Spirit"
-    logoSrc="/brand/main-logo.png"
-    subtitle="Care for your body like you are going to live forever. Care for your soul like you are going to die tomorrow."
-    primaryCta={{ label: 'Subscribe', href: '/subscribe' }}
-    secondaryCta={{ label: 'Meet the Hosts', href: '/about' }}
+    logoSrc="/brand/main-logo.svg"
+    subtitle={home?.data.heroSubtitle}
+    primaryCta={{
+      label: home?.data.heroPrimaryCtaLabel ?? 'Listen now',
+      href: home?.data.heroPrimaryCtaHref ?? '/episodes',
+    }}
+    secondaryCta={{
+      label: home?.data.heroSecondaryCtaLabel ?? 'Meet the hosts',
+      href: home?.data.heroSecondaryCtaHref ?? '/about',
+    }}
     image={{
       src: '/photos/ryan-annie-formal.jpg',
-      alt: 'Dr. Ryan and Annie DeNome, hosts of the Health in the Spirit Catholic health and wellness podcast',
+      alt: 'Dr. Ryan and Annie DeNome, hosts of Health in the Spirit',
       width: 1400,
       height: 2100,
     }}
   />
 
-  <SectionContainer variant="sage" id="pillars" reveal="none">
-    <div class="max-w-2xl mb-12 sm:mb-16" data-reveal>
-      <h2 class="font-serif text-3xl sm:text-4xl lg:text-5xl text-forest-700 leading-tight">
-        Saints. Scripture. The Catechism.
-      </h2>
-      <p class="mt-4 text-lg text-brown-700 italic font-serif">
-        Three sources. One unbroken Tradition that has always taught the body and soul belong together.
-      </p>
-    </div>
+  {/* ── Latest episode ──────────────────────────────────────────────────────
+      Straight after the hero because it is the thing a first-time visitor
+      came for. The newest episode gets the full feature treatment; the three
+      behind it sit in a swipeable rail on phones and a grid on desktop. */}
+  {latest && (
+    <SectionContainer variant="cream" id="latest" reveal="none">
+      <div class="flex items-end justify-between flex-wrap gap-4 mb-8 sm:mb-10" data-reveal>
+        <h2 class="font-serif text-3xl sm:text-4xl lg:text-5xl leading-tight">
+          The latest episode
+        </h2>
+        <Button href="/episodes" variant="ghost" size="md" arrow>
+          All {episodeCount} episodes
+        </Button>
+      </div>
 
-    <div
-      class="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-gold-300/50"
-      data-reveal-children
-    >
-      {pillars.map((p) => (
-        <div class="flex flex-col gap-3 py-8 md:py-0 md:px-8 first:md:pl-0 last:md:pr-0">
-          <p class="text-xs uppercase tracking-[0.2em] text-gold-700 font-semibold">{p.eyebrow}</p>
-          <h3 class="font-serif text-2xl leading-tight font-semibold text-forest-700">{p.title}</h3>
-          <p class="text-base leading-relaxed text-brown-700">{p.description}</p>
-          <a
-            href={p.href}
-            class="group mt-1 text-sm font-semibold uppercase tracking-[0.15em] text-terracotta-500 hover:text-terracotta-600 inline-flex items-center gap-1.5"
+      <div data-reveal>
+        <EpisodeCard episode={latest.data} variant="feature" />
+      </div>
+
+      {recent.length > 0 && (
+        <>
+          {/* Rail on phones, grid from md up. Same markup, no duplication. */}
+          <div
+            class="mt-6 sm:mt-8 rail gap-4 -mx-4 px-4 sm:mx-0 sm:px-0
+                   md:grid md:grid-cols-3 md:gap-6 md:overflow-visible"
+            data-reveal-children
           >
-            {p.cta}
-            <span aria-hidden="true" class="transition-transform group-hover:translate-x-0.5">→</span>
-          </a>
-        </div>
-      ))}
-    </div>
-  </SectionContainer>
+            {recent.map((ep) => (
+              <div class="w-[85vw] max-w-sm md:w-auto md:max-w-none">
+                <EpisodeCard episode={ep.data} />
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </SectionContainer>
+  )}
 
-  <Countdown targetIso={launchIso} preLaunchHeadline="Episode 1 launches in" />
+  {/* ── What the show is about ──────────────────────────────────────────────
+      Asymmetric: the lead pillar takes half the row, the other two split the
+      rest. Hairline dividers rather than three matching boxes. */}
+  {pillars.length > 0 && (
+    <SectionContainer variant="sage" id="pillars" reveal="none">
+      <div class="max-w-2xl mb-10 sm:mb-14" data-reveal>
+        <h2 class="font-serif text-3xl sm:text-4xl lg:text-5xl leading-tight">
+          Body and soul were never meant to be separate subjects.
+        </h2>
+        <p class="mt-4 text-lg text-ink-muted italic font-serif">
+          Two thousand years of Christians have said so. Somewhere along the way we stopped listening.
+        </p>
+      </div>
 
-  <SectionContainer variant="cream" id="about-teaser">
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-      <div class="aspect-square overflow-hidden rounded-lg shadow-sm ring-1 ring-cream-400">
+      <div
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12
+               gap-y-8 md:gap-8 lg:gap-0
+               divide-y md:divide-y-0 lg:divide-x divide-line"
+        data-reveal-children
+      >
+        {pillars.map((p, i) => (
+          <div
+            class:list={[
+              'flex flex-col gap-3 pt-8 md:pt-0 first:pt-0',
+              // The lead pillar gets 5 of 12; the other two take 4 and 3, so the
+              // row reads as a composition rather than three matching columns.
+              i === 0 ? 'lg:col-span-5 lg:pr-10'
+                : i === 1 ? 'lg:col-span-4 lg:px-8'
+                : 'lg:col-span-3 lg:pl-8',
+            ]}
+          >
+            <h3 class="font-serif text-2xl leading-tight font-semibold">{p.title}</h3>
+            <p class="text-base leading-relaxed text-ink-muted">{p.description}</p>
+            <a
+              href={p.href}
+              class="group mt-1 text-sm font-semibold uppercase tracking-[0.14em] text-accent
+                     inline-flex items-center gap-1.5 self-start"
+            >
+              {p.cta}
+              <Icon
+                name="ph:arrow-right-bold"
+                class="w-3.5 h-3.5 transition-transform duration-200 motion-safe:group-hover:translate-x-0.5"
+                aria-hidden="true"
+              />
+            </a>
+          </div>
+        ))}
+      </div>
+    </SectionContainer>
+  )}
+
+  {/* ── The hosts ──────────────────────────────────────────────────────────── */}
+  <SectionContainer variant="cream" id="hosts">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+      <div class="aspect-square overflow-hidden rounded-2xl ring-1 ring-line">
         <img
           src="/photos/ryan-annie.jpg"
           alt="Dr. Ryan and Annie DeNome at home"
@@ -148,15 +182,17 @@ const blogGridClass =
         />
       </div>
       <div class="flex flex-col gap-5">
-        <h2 class="font-serif text-3xl sm:text-4xl lg:text-5xl text-forest-700 leading-tight">
+        <h2 class="font-serif text-3xl sm:text-4xl lg:text-5xl leading-tight">
           Dr. Ryan &amp; Annie DeNome
         </h2>
-        <p class="text-lg text-brown-700 leading-relaxed">
-          A Catholic chiropractor and a theologian-advocate raising a family in Cincinnati, Ohio. Together they bring holistic health, the wisdom of the healing saints, and the teaching of the Church into one conversation about how to live well, body and soul.
+        <p class="text-lg text-ink-muted leading-relaxed measure">
+          {home?.data.aboutTeaserBody}
         </p>
-        <p class="text-lg text-brown-700 leading-relaxed italic font-serif border-l-2 border-gold-500/70 pl-5">
-          "We do not believe faith and health are separate. The world has just forgotten they were never apart."
-        </p>
+        {home?.data.aboutTeaserQuote && (
+          <p class="text-lg text-ink leading-relaxed italic font-serif border-l-2 border-gilt pl-5">
+            {home.data.aboutTeaserQuote}
+          </p>
+        )}
         <div class="mt-2">
           <Button href="/about" variant="secondary" size="md" arrow>Read our story</Button>
         </div>
@@ -164,97 +200,66 @@ const blogGridClass =
     </div>
   </SectionContainer>
 
-  <SectionContainer variant="sage" id="saints-teaser">
-    <div class="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
-      <h2 class="font-serif text-3xl sm:text-4xl lg:text-5xl text-forest-700 leading-tight">
-        The Healing Saints Who Guide Us
-      </h2>
-      <Ornament class="mt-6" />
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8" data-reveal-children>
-      {saints.map((s) => (
-        <SaintCard
-          name={s.name}
-          href={s.href}
-          role={s.role}
-          era={s.era}
-          summary={s.summary}
-          imageSrc={s.imageSrc}
-          imageAlt={s.imageAlt}
-        />
-      ))}
-    </div>
-
-    <div class="mt-12 text-center">
-      <Button href="/saints" variant="secondary" size="md" arrow>Meet all the saints</Button>
-    </div>
-  </SectionContainer>
-
-  <SectionContainer variant="cream" id="subscribe-row">
-    <div class="text-center max-w-3xl mx-auto">
-      <h2 class="font-serif text-3xl sm:text-4xl lg:text-5xl text-forest-700 leading-tight">
-        Listen wherever you get your podcasts
-      </h2>
-      <Ornament class="mt-6" />
-      <p class="mt-4 text-lg text-brown-700">
-        Apple Podcasts, Spotify, YouTube, and Amazon Music are all coming soon. Subscribe now and the first episode lands automatically on launch day.
-      </p>
-
-      <div class="mt-10 flex flex-wrap justify-center gap-3 sm:gap-4">
-        <Button href="/subscribe" variant="primary" size="lg" arrow>All platforms</Button>
-      </div>
-    </div>
-  </SectionContainer>
-
-  <SectionContainer variant="forest" id="newsletter">
-    <div class="text-center max-w-2xl mx-auto">
-      <p class="text-xs uppercase tracking-[0.25em] text-gold-500 font-semibold mb-3">Don't miss the launch</p>
-      <h2 class="font-serif text-3xl sm:text-4xl lg:text-5xl text-cream-200 leading-tight">
-        Get the first episode in your inbox.
-      </h2>
-      <p class="mt-4 text-lg text-cream-300/90">
-        One email when we launch. Real updates only. No spam, no nonsense.
-      </p>
-
-      <form class="mt-8 flex flex-col sm:flex-row gap-3 max-w-xl mx-auto" action="mailto:ryan@healthinthespirit.com" method="post" enctype="text/plain">
-        <input
-          type="email"
-          name="email"
-          required
-          aria-label="Email address"
-          placeholder="you@example.com"
-          class="flex-1 px-4 py-3 rounded-md bg-cream-100 text-brown-700 placeholder:text-brown-500 focus-visible:outline-2 focus-visible:outline-gold-500"
-        />
-        <button
-          type="submit"
-          class="bg-terracotta-500 hover:bg-terracotta-600 text-cream-100 font-semibold uppercase tracking-[0.12em] text-sm px-6 py-3 rounded-md transition-colors"
-        >
-          Notify me
-        </button>
-      </form>
-    </div>
-  </SectionContainer>
-
-  {posts.length > 0 && (
-    <SectionContainer variant="cream" id="latest-blog">
-      <div class="flex items-end justify-between flex-wrap gap-4 mb-10">
-        <h2 class="font-serif text-3xl sm:text-4xl text-forest-700 leading-tight">Latest reflections</h2>
-        <Button href="/blog" variant="ghost" size="md" arrow>All posts</Button>
+  {/* ── Saints, as undertone ────────────────────────────────────────────────
+      A quiet horizontal strip rather than a headline section. They inform the
+      show; they are not the show. */}
+  {saints.length > 0 && (
+    <SectionContainer variant="sage" id="saints" reveal="none">
+      <div class="max-w-2xl mb-10" data-reveal>
+        <h2 class="font-serif text-3xl sm:text-4xl leading-tight">
+          Physicians, herbalists, and one very stubborn abbess
+        </h2>
+        <Ornament class="mt-5" />
+        <p class="mt-4 text-lg text-ink-muted leading-relaxed">
+          Long before anyone said "holistic," Christians were treating the body as part of the soul's
+          business. We keep their company on this show.
+        </p>
       </div>
 
-      <div class={`grid grid-cols-1 gap-6 sm:gap-8 ${blogGridClass}`} data-reveal-children>
-        {posts.map((p) => (
-          <BlogPostCard
-            title={p.title}
-            href={p.href}
-            date={p.date}
-            excerpt={p.excerpt}
-            tags={p.tags}
-          />
-        ))}
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" data-reveal-children>
+        {saints.map((s) => <SaintCard {...s} />)}
       </div>
     </SectionContainer>
   )}
 
+  {/* ── Email capture ───────────────────────────────────────────────────────
+      The one conversion goal on the page. Inverted so it reads as a stop. */}
+  <SectionContainer variant="forest" id="newsletter">
+    <div class="max-w-2xl mx-auto text-center">
+      <NewsletterForm
+        heading={home?.data.newsletterHeading ?? 'Get the show in your inbox.'}
+        subheading={home?.data.newsletterSubtitle}
+        tone="inverse"
+        source="home"
+        class="text-left"
+      />
+    </div>
+  </SectionContainer>
+
+  {/* ── Where to listen ─────────────────────────────────────────────────────── */}
+  {platforms.length > 0 && (
+    <SectionContainer variant="cream" id="platforms" padding="compact">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+        <h2 class="font-serif text-2xl sm:text-3xl leading-tight">
+          Listen wherever you already listen
+        </h2>
+        <div class="flex flex-wrap gap-3">
+          {platforms.map((p) => (
+            <a
+              href={p.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-2 rounded-xl border border-line bg-surface-raised
+                     px-4 py-3 text-sm font-semibold text-ink
+                     transition-[border-color,transform] duration-200
+                     hover:border-line-strong motion-safe:hover:-translate-y-px"
+            >
+              <Icon name={p.icon} class="w-5 h-5 text-accent" aria-hidden="true" />
+              {p.name}
+            </a>
+          ))}
+        </div>
+      </div>
+    </SectionContainer>
+  )}
 </BaseLayout>
