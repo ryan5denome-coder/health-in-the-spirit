@@ -122,6 +122,33 @@ const indexSchema: Record<string, unknown> = {
       <p class="mt-5 text-lg sm:text-xl text-ink-muted leading-relaxed">
         New episodes every Tuesday. {countLine}
       </p>
+
+      {platforms.length > 0 && (
+        <>
+          <ul class="mt-7 flex flex-wrap gap-3">
+            {platforms.map((p) => (
+              <li>
+                <a
+                  href={p.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center gap-2.5 min-h-12 px-5 py-3 rounded-xl
+                         bg-accent text-accent-ink font-semibold text-sm
+                         transition-[background-color,transform] duration-200
+                         hover:bg-accent-hover motion-safe:hover:-translate-y-px active:translate-y-0
+                         focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gilt"
+                >
+                  <Icon name={p.icon} class="w-5 h-5 shrink-0" aria-hidden="true" />
+                  Follow on {p.name}
+                </a>
+              </li>
+            ))}
+          </ul>
+          <p class="mt-3 text-sm text-ink-subtle">
+            Follow once and every Tuesday episode arrives on its own. Or play any episode below.
+          </p>
+        </>
+      )}
     </div>
   </SectionContainer>
 
@@ -151,32 +178,6 @@ const indexSchema: Record<string, unknown> = {
       />
     </div>
 
-    {platforms.length > 0 && (
-      <div class="mt-12 pt-10 border-t border-ink-inverse/20">
-        <h2 class="font-serif text-2xl sm:text-3xl leading-tight">Prefer your own player?</h2>
-        <p class="mt-2 text-base opacity-85">
-          Follow the show and every Tuesday episode lands on its own.
-        </p>
-        <ul class="mt-6 flex flex-wrap gap-3">
-          {platforms.map((p) => (
-            <li>
-              <a
-                href={p.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="inline-flex items-center gap-2.5 min-h-11 px-5 py-3 rounded-xl
-                       bg-surface-raised text-ink border border-line font-semibold text-sm
-                       transition-[transform,border-color] duration-200
-                       hover:border-line-strong motion-safe:hover:-translate-y-px"
-              >
-                <Icon name={p.icon} class="w-5 h-5 shrink-0" aria-hidden="true" />
-                {p.name}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </div>
-    )}
   </SectionContainer>
 
 </BaseLayout>
