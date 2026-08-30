@@ -1,7 +1,7 @@
 ---
 heroEyebrow: "You commented pod"
 heroTitle: "Here it is."
-heroSubtitle: "Health in the Spirit. A chiropractor and a theologian, married, on what it looks like to care for a body that belongs to God. Nine episodes out, a new one every Tuesday."
+heroSubtitle: "Health in the Spirit. Dr. Ryan and Annie DeNome discuss where modern Medicine and the Wisdom of Christianity meet in new episodes every Tuesday!"
 ---
 
 Leave your email and we will send you the show, plus the three episodes worth starting with.

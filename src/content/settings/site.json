@@ -13,8 +13,8 @@
     "formAction": "/api/subscribe",
     "listName": "Health in the Spirit Weekly",
     "cadence": "One email a week. Unsubscribe in one click.",
-    "offerTitle": "Where to start",
-    "offerBlurb": "Leave your email and we will send you the show, plus the three episodes worth starting with.",
+    "offerTitle": "Get the episodes",
+    "offerBlurb": "Put in your email to get emailed the episodes and for future announcements about when our community opens!",
     "communityNote": "We are building a community of believers who want to grow together and say out loud what God has actually done for them. That starts here."
   },
   "community": {
