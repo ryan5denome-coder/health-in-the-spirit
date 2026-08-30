@@ -9,8 +9,8 @@
   "annieWeb3Key": "PLACEHOLDER_ANNIE_WEB3FORMS_KEY",
   "launchIso": "2026-07-07T06:00:00-04:00",
   "newsletter": {
-    "provider": "mailerlite",
-    "formAction": "PLACEHOLDER_NEWSLETTER_FORM_ACTION",
+    "provider": "brevo",
+    "formAction": "/api/subscribe",
     "listName": "Health in the Spirit Weekly",
     "cadence": "One email a week. Unsubscribe in one click.",
     "offerTitle": "Where to start",

@@ -2,14 +2,14 @@
 /**
  * Email capture. The one conversion surface on the site.
  *
- * Provider-agnostic: it POSTs to `site.newsletter.formAction`, which is a plain
- * HTML form action so no JavaScript is required for it to work. MailerLite,
- * Kit, and Beehiiv all accept a same-shaped POST with an `email` field, so
- * switching providers is a one-line change in site.json.
+ * Posts to our own Cloudflare Worker at /api/subscribe, not to a vendor. The
+ * Worker writes the address to D1 first and then forwards it to Brevo, so a
+ * provider outage cannot lose a signup and swapping providers never touches
+ * this component.
  *
- * Until a real endpoint is configured, `newsletterLive` is false and we render
- * a mailto fallback instead of a form. A form that silently drops addresses is
- * worse than no form: the visitor believes they subscribed.
+ * Works with JavaScript off: a native form POST gets a 303 back to this page
+ * with ?subscribed=ok, which the script below turns into a confirmation. With
+ * JavaScript on, the same request is made by fetch and the form swaps in place.
  */
 import { site, newsletterLive } from '../lib/site';
 import { Icon } from 'astro-icon/components';
@@ -69,7 +69,8 @@ const subClass = inverse ? 'text-ink-inverse/85' : 'text-ink-muted';
     <form
       action={site.newsletter.formAction}
       method="post"
-      class="mt-6"
+      class="mt-6 scroll-mt-28"
+      id="signup"
       data-newsletter
       data-source={source}
     >
@@ -92,6 +93,7 @@ const subClass = inverse ? 'text-ink-inverse/85' : 'text-ink-muted';
                   focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gilt`}
         />
         <input type="hidden" name="source" value={source} />
+        <input type="hidden" name="page" value={Astro.url.pathname} />
         {/* Honeypot. Bots fill it, humans never see it. */}
         <div class="absolute w-px h-px -m-px overflow-hidden" aria-hidden="true">
           <label>
@@ -144,8 +146,48 @@ const subClass = inverse ? 'text-ink-inverse/85' : 'text-ink-muted';
 </div>
 
 <script>
-  // Progressive enhancement only. Without JS the form still submits normally to
-  // the provider and the visitor lands on the provider's own thank-you page.
+  // ── The no-JS return path ────────────────────────────────────────────────
+  // Without JavaScript the browser navigates to the Worker and is sent back
+  // here with ?subscribed=ok (or =error). Turn that into a real message and
+  // then clean the URL so a refresh does not re-show it.
+  (function () {
+    const params = new URLSearchParams(window.location.search);
+    const status = params.get('subscribed');
+    if (!status) return;
+
+    const form = document.querySelector<HTMLFormElement>('form[data-newsletter]');
+    if (form) {
+      if (status === 'ok') {
+        form.replaceChildren(confirmation());
+      } else {
+        const err = form.querySelector<HTMLElement>('[data-newsletter-error]');
+        if (err) {
+          err.textContent = 'That did not go through. Please try again.';
+          err.classList.remove('hidden');
+        }
+      }
+    }
+
+    params.delete('subscribed');
+    params.delete('reason');
+    const clean =
+      window.location.pathname + (params.toString() ? `?${params}` : '') + '#signup';
+    window.history.replaceState({}, '', clean);
+  })();
+
+  function confirmation() {
+    const p = document.createElement('p');
+    p.className = 'text-lg font-serif';
+    p.setAttribute('role', 'status');
+    p.textContent =
+      'You are on the list. We will email you the moment there is something worth sending.';
+    return p;
+  }
+
+  // ── Progressive enhancement ──────────────────────────────────────────────
+  // Same request, made by fetch so the page does not navigate. If fetch fails
+  // for any reason we hand the submission back to the browser rather than
+  // losing the address.
   document.querySelectorAll<HTMLFormElement>('form[data-newsletter]').forEach((form) => {
     const button = form.querySelector('button[type="submit"]');
     const label = form.querySelector<HTMLElement>('[data-newsletter-label]');
@@ -153,7 +195,6 @@ const subClass = inverse ? 'text-ink-inverse/85' : 'text-ink-muted';
     const original = label?.textContent ?? '';
 
     form.addEventListener('submit', async (event) => {
-      // Let the browser handle its own validation message first.
       if (!form.checkValidity()) return;
 
       event.preventDefault();
@@ -167,22 +208,37 @@ const subClass = inverse ? 'text-ink-inverse/85' : 'text-ink-muted';
           body: new FormData(form),
           headers: { Accept: 'application/json' },
         });
-        if (!response.ok) throw new Error(String(response.status));
 
-        form.innerHTML = `
-          <p class="text-lg font-serif" role="status">
-            You are in. Check your inbox to confirm, then look for the first email.
-          </p>`;
-      } catch {
-        // Fall back to a real navigation rather than losing the address: some
-        // providers reject cross-origin fetch but accept a normal form post.
+        if (response.ok) {
+          form.replaceChildren(confirmation());
+          return;
+        }
+
+        // The Worker explains itself on 422 and 502; surface that rather than
+        // a generic failure.
+        let message = 'That did not go through. Please try again in a moment.';
+        try {
+          const body = await response.json();
+          if (body?.error) message = body.error;
+        } catch {
+          /* Non-JSON response; keep the default. */
+        }
         button?.removeAttribute('disabled');
         if (label) label.textContent = original;
         if (error) {
-          error.textContent = 'That did not go through. Press again and we will send you to the signup page.';
+          error.textContent = message;
           error.classList.remove('hidden');
         }
+      } catch {
+        // Network died. Let the browser submit normally on the next press,
+        // which still reaches the Worker and redirects back.
+        button?.removeAttribute('disabled');
+        if (label) label.textContent = original;
         form.removeAttribute('data-newsletter');
+        if (error) {
+          error.textContent = 'Connection problem. Press again to retry.';
+          error.classList.remove('hidden');
+        }
       }
     });
   });

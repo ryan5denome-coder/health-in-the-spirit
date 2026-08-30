@@ -24,7 +24,7 @@ export interface SocialUrls {
 
 /** Email capture. `formAction` is the only thing that must change to go live. */
 export interface NewsletterSettings {
-  provider: 'mailerlite' | 'kit' | 'substack' | 'beehiiv' | 'none';
+  provider: 'brevo' | 'mailerlite' | 'kit' | 'substack' | 'beehiiv' | 'none';
   /** POST target for the signup form. Placeholder until the real form exists. */
   formAction: string;
   listName: string;
