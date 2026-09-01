@@ -1,5 +1,5 @@
 ---
-announcementMessage: "The show is live. Nine episodes are out, with a new one every Tuesday."
+announcementMessage: "The show is live. Ten episodes are out, with a new one every Tuesday."
 announcementCtaLabel: "Start listening"
 announcementCtaHref: "/episodes"
 heroEyebrow: "A Christian Health & Wellness Podcast"

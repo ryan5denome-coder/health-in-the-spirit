@@ -6,6 +6,7 @@ description: "Ryan and Annie sit down with Xavier Evans — Naval Academy grad, 
 releaseDate: "2026-09-01T10:17:25-04:00"
 status: "live"
 episodeType: "full"
+guestName: "Xavier Evans"
 durationSeconds: 2443
 durationMinutes: 41
 audioUrl: "https://media.transistor.fm/81f6ec78/2fe26cc8.mp3"
