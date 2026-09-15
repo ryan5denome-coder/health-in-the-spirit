@@ -6,7 +6,6 @@ description: "Ryan and Annie sit down with Xavier Evans — Naval Academy grad, 
 releaseDate: "2026-09-01T10:17:25-04:00"
 status: "live"
 episodeType: "full"
-guestName: "Xavier Evans"
 durationSeconds: 2443
 durationMinutes: 41
 audioUrl: "https://media.transistor.fm/81f6ec78/2fe26cc8.mp3"
@@ -17,6 +16,7 @@ audioBytes: 39121444
 artworkUrl: "https://img.transistorcdn.com/bL6CKzzUCteKCF8SmI8D-XkShrj8zziLxg173283l8Y/rs:fill:0:0:1/w:1400/h:1400/q:60/mb:500000/aHR0cHM6Ly9pbWct/dXBsb2FkLXByb2R1/Y3Rpb24udHJhbnNp/c3Rvci5mbS9jYjgy/MzRjZDIxZmEwMzIy/ZWNiYzYyOTUxYmU5/YmUyOC5wbmc.jpg"
 explicit: false
 draft: false
+guestName: "Xavier Evans"
 keywords:
   - "Catholic podcast"
   - "Catholic health"
