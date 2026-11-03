@@ -1,0 +1,34 @@
+---
+number: 12
+slug: "know-your-why-mon-t-souza-on-a-message-of-hope"
+title: "Know Your Why — Monét Souza on A Message of Hope"
+description: "Monét Souza runs A Message of Hope, a Boston ministry that gives young Catholics the why behind the faith. She joins Ryan over Zoom to talk about preparing body and soul before she speaks, why no…"
+releaseDate: "2026-11-03T13:23:43-05:00"
+status: "live"
+episodeType: "full"
+durationSeconds: 3616
+durationMinutes: 60
+audioUrl: "https://media.transistor.fm/e6ecd570/9b8855c3.mp3"
+transistorShareUrl: "https://share.transistor.fm/s/e6ecd570"
+transistorEmbedUrl: "https://share.transistor.fm/e/e6ecd570"
+guid: "98e15c27-a7de-4186-882e-ef852668ef85"
+audioBytes: 57892829
+artworkUrl: "https://img.transistorcdn.com/bL6CKzzUCteKCF8SmI8D-XkShrj8zziLxg173283l8Y/rs:fill:0:0:1/w:1400/h:1400/q:60/mb:500000/aHR0cHM6Ly9pbWct/dXBsb2FkLXByb2R1/Y3Rpb24udHJhbnNp/c3Rvci5mbS9jYjgy/MzRjZDIxZmEwMzIy/ZWNiYzYyOTUxYmU5/YmUyOC5wbmc.jpg"
+explicit: false
+draft: false
+keywords:
+  - "Catholic podcast"
+  - "Catholic health"
+  - "Catholic wellness"
+  - "faith and health"
+  - "holistic health"
+  - "functional medicine"
+  - "healing saints"
+  - "theology of the body"
+  - "Catholic family"
+  - "Christian wellness"
+  - "natural health"
+  - "Catholic moms"
+---
+
+<p>Nobody ever told Monét Souza why. Why we go to Mass, why we pray, why we fast. "This is just what we do" was the whole answer, and it almost cost the Church a speaker. Then a Life Teen program in high school gave her the why, and she decided no one should go without it again.</p><p>Monét is a longtime friend of Ryan and Annie's from Franciscan University. Since 2020 she has run <strong>A Message of Hope</strong>, a Boston-based ministry that walks middle school through college-age students closer to Christ through parish missions, youth rallies, retreats, TV and podcasting. She is also the kitchen table's first guest over Zoom, and with Annie and the baby home sick it is just Ryan and Monét this week.</p><p>They talk about why she shortens her own talks so there is time for confession and adoration, how she prepares her body as carefully as her notes before she speaks, and the Sunday afternoon in the busiest mall in Boston when a friend said the line that became this episode: no one treats Sunday like Sunday anymore. Then the family side: parents who chose to be parents first and friends later, a chair in the piano room that everyone knew to stay away from, and what it takes to keep going when you are the only one who believes the ministry can work.</p><p><strong>IN THIS EPISODE</strong></p><ul><li>(01:35) What A Message of Hope is, and why the emphasis is on walking with people</li><li>(04:15) "No one ever told me why." The question that almost made her walk away</li><li>(05:19) Why the chiropractor's reasons made more sense to her than the Church's</li><li>(06:51) Adoration and pizza: the encounter, and then the teaching</li><li>(08:59) Her one request to every pastor who hires her: bring the sacraments</li><li>(10:34) "It could very quickly become the Monét show"</li><li>(14:14) How she prepares for a talk, from food and sleep to music and Mass</li><li>(16:53) Throwing out the talk she wrote, and praying for holy detachment</li><li>(17:23) Fulton Sheen's 30 hours of preparation for 30 minutes on air</li><li>(19:32) Why you cannot hear the still, small voice over a growling stomach</li><li>(21:37) If you leave a retreat the same person you walked in, it was a waste of time</li><li>(23:41) Her pillars: stop caring what the world thinks, and stop being lukewarm</li><li>(25:12) You do not have to cry in adoration for the Holy Spirit to show up</li><li>(26:46) A chapel inside Boston's Prudential Center, and "no one's treating it like one anymore"</li><li>(27:50) Relationship, identity, mission: you don't know who you are until you know whose you are</li><li>(30:27) Parents as guardrails, and why hers refused to be her friends</li><li>(33:36) "The world is vicious and cruel. We want home to be the sanctuary."</li><li>(35:42) The talking chair</li><li>(38:18) "The family that prays together stays together"</li><li>(41:55) From second-grade lector to "I'm sorry, I don't get applications like that"</li><li>(44:39) Asking Jesus every year whether to keep going, pivot or stop</li><li>(46:43) Growing up in a family of small business owners, and the year-five rule</li><li>(50:23) Staying healthy on the road, and the trouble with retreat pizza</li><li>(52:25) An ingredient house: a Lebanese kitchen at the heart of the home</li><li>(55:33) "God will provide" is not a meal plan</li><li>(57:08) Fill yourself with good so you can recognize the bad</li><li>(58:41) Why we bless our food before we eat it</li><li>(59:11) Closing prayer</li></ul><p><strong>THE PART THAT IS EASY TO MISS</strong></p><p>Monét's answer to the identity question is not a technique. It is time. You do not know who you are until you are in relationship with the One whose you are, and you cannot be in relationship with someone you never make time for. If Sunday has become a day like every other, that is the place to start.</p><p><strong>FIND MONÉT</strong></p><p>A Message of Hope: <a href="https://www.amhlifestyles.com/">amhlifestyles.com</a></p><p>Instagram: <a href="https://www.instagram.com/amhlifestyles/">@amhlifestyles</a> · <a href="https://www.youtube.com/channel/UC02XZL2mq0itGTQXDn01QDg">YouTube</a> · <a href="https://www.facebook.com/amhlifestyles/">Facebook</a></p><p><strong>MENTIONED IN THIS EPISODE</strong></p><ul><li><a href="https://lifeteen.com/">Life Teen</a></li><li><a href="https://franciscan.edu/">Franciscan University of Steubenville</a></li><li>Venerable Fulton J. Sheen</li><li>Venerable Patrick Peyton, the "Rosary Priest": <a href="https://www.hcfm.org/">Holy Cross Family Ministries</a></li><li>St. Teresa of Avila: "Peace of body will restore peace of soul"</li><li>Our food episode: <a href="https://share.transistor.fm/s/1441d813">Episode 8, "The Acceptable Sin: Gluttony in a Mukbang Culture"</a></li></ul><p>Recorded under the patronage of Sts. Cosmas and Damian, physicians who healed body and soul without counting the cost.</p><p>We do not run ads. The only way anyone finds this show is if you hand it to them. If this one moved you, send it to the person you thought of while you were listening.</p><p>Want to be on the show, or have a story to share? There are forms at <a href="https://healthinthespirit.com/contact">healthinthespirit.com</a>, or come find us on Instagram and Facebook <a href="https://healthinthespirit.com/listen">@healthinthespirit</a>.</p><p>New episodes every Tuesday.</p><p><em>This podcast is for education and encouragement. It is not medical advice and does not create a doctor-patient relationship. Follow your own clinician's guidance about your care.</em></p>
